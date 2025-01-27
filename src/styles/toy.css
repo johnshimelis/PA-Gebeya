@@ -1,0 +1,54 @@
+.nav-deals-noon {
+    background-color: #e1effa;
+    width: 100%;
+    height: auto;
+    flex-wrap: wrap;
+  
+  }
+  
+  .nav-noon-rem {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+    height: auto;
+    padding: 5px 5px 15px 5px;
+  }
+  
+  .nav-rem-box {
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    flex-direction: column;
+    flex-wrap: wrap;
+  }
+  
+  .nav-noon-rem img {
+    width: 23%;
+    height: auto;
+    object-fit: cover;
+  }
+  
+  @media screen and (max-width: 768px) {
+    .nav-noon-rem {
+      display: flex;
+      justify-content: space-evenly;
+      align-items: center;
+      width: 100%;
+      height: auto;
+      flex-wrap: wrap;
+    }
+  
+    .nav-noon-rem img {
+      width: 35%;
+      height: auto;
+      object-fit: cover;
+      margin: 5px;
+    }
+  
+  
+  }
+  
+  

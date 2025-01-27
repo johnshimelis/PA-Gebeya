@@ -1,0 +1,118 @@
+.nav-rec-cards {
+    width: auto;
+    height: auto;
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: column;
+    align-items: center;
+    background-color: white;
+    border-radius: 2px;
+    /* position: relative; */
+    margin: 10px 0px 10px 0px;
+  }
+  
+  .card-img {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px 0px 5px 0px;
+  
+  }
+  
+  .card-img img {
+    width: 80%;
+    height: 100%;
+    background-color: #fafafa;
+  
+  
+  }
+  
+  .card-text {
+    font-size: 12px;
+    font-weight: 600;
+  }
+  
+  .card-ratting {
+    background-color: #38ae04;
+    color: white;
+    border-radius: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0px 5px 0px 5px;
+    margin: 10px 0px 10px 0px;
+    font-size: 12px;
+  }
+  
+  .card-ratting i {
+    font-size: 10px;
+    padding: 0%;
+    margin: 0%;
+  }
+  
+  .card-footer {
+    width: 100%;
+    height: auto;
+  }
+  
+  .tag {
+    position: absolute;
+    top: 15px;
+    /* Adjust the value as needed to control the vertical position */
+    left: 15px;
+    /* Adjust the value as needed to control the horizontal position */
+    background-color: #4a4a4a;
+    /* Set the background color for the tag */
+    color: #ffffff;
+    /* Set the text color for the tag */
+    padding: 0px 10px;
+    /* Adjust the padding as needed */
+    font-size: 14px;
+    /* Adjust the font size as needed */
+    font-weight: bold;
+    border-radius: 50px;
+    /* Add rounded corners */
+    z-index: 1;
+    /* Ensure the tag appears above the image */
+  }
+  
+  @media screen and (max-width: 768px) {
+  
+    #rec {
+      width: 100%;
+      height: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      /* border: 1px solid #000; */
+      margin: 0;
+      padding: 0;
+  
+    }
+  
+    .nav-rec-cards {
+      width: 45%;
+      height: 45%;
+      /* border: 1px solid #000; */
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      margin: 5px;
+    }
+  
+    .card-info {
+      width: 100%;
+      height: auto;
+      /* border: 1px solid #000; */
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      flex-direction: column;
+    }
+  
+    .card-express img {
+      width: 70%;
+    }
+  
+  }

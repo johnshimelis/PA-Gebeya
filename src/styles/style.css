@@ -1,0 +1,409 @@
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Fira Sans', sans-serif;
+    background-color: #f7f7fa;
+    overflow-x: hidden;
+}
+
+/* NAVBAR */
+.navbar {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start; /* Align items to the left */
+    align-items: center;
+    flex-wrap: wrap;
+    background-color: #feee00;
+    padding: 1%;
+    gap: 0%;
+}
+
+.navbar hr {
+    width: 20px;
+    transform: rotate(90deg);
+    color: #000;
+}
+
+.text-nav {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(64, 69, 63);
+    text-decoration: none;
+    list-style: none;
+}
+
+/* Logo Styles */
+.nav-logo {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 8%;
+    margin-left: 20px;
+}
+
+.nav-logo img {
+    width: 78%; /* Default logo size */
+    height: auto;
+    object-fit: cover;
+}
+
+/* Location Styles */
+.nav-location {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-left: 40px;
+}
+
+.nav-location-text {
+    text-align: baseline;
+    justify-content: center;
+}
+
+.nav-location-icon img {
+    width: 40px;
+    height: 30px;
+    border-radius: 30%;
+    object-fit: contain;
+    margin-right: 5px;
+}
+
+.nav-location .nav-location-text span {
+    justify-content: start;
+}
+
+.nav-loaction-dropdown img {
+    width: 20px;
+    height: auto;
+    margin-left: 15px;
+    cursor: pointer;
+}
+
+/* Search Bar Styles */
+.nav-search {
+    display: flex;
+    margin-left: 50px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    width: 50%;
+}
+
+.nav-search form {
+    width: 100%;
+}
+
+.nav-search form [type="text"] {
+    width: 100%;
+    border-radius: 5px;
+    border: none;
+    height: 40px;
+    padding: 8px;
+    margin: 10px 0;
+}
+
+/* Language, User, and Cart Styles */
+.nav-bar-lang {
+    display: flex;
+    margin-left: 30px;
+    justify-content: right;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-bar-lang .nav-language,
+.nav-bar-lang .nav-user,
+.nav-bar-lang .nav-cart {
+    display: inline-block;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(64, 69, 63);
+}
+
+.nav-bar-lang .nav-user,
+.nav-bar-lang .nav-cart {
+    margin-left: 10px;
+}
+
+/* Responsive Styling */
+
+/* For tablets (768px to 1024px) */
+@media (max-width: 1024px) and (min-width: 768px) {
+    .nav-logo  {
+        width: 30%; /* Adjusted logo size */
+    }
+    .nav-logo img {
+        margin-left: 75px;
+        width: 40%; /* Adjusted logo size */
+    }
+
+    .navbar {
+        justify-content: center; /* Center navbar content */
+        padding: 10px;
+    }
+
+    .nav-location {
+        margin-left: 0;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .nav-search {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .nav-bar-lang {
+        margin-left: 0;
+        justify-content: center;
+        width: 100%;
+    }
+}
+
+/* For smaller tablets and larger phones (480px to 768px) */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column; /* Stack items vertically */
+        align-items: flex-start;
+    }
+
+    .nav-logo {
+        width: 30%; /* Adjust logo size */
+        
+       
+    }
+
+    .nav-logo img {
+        width: 60%; /* Slightly larger logo */
+       margin-left: 120%;;
+    }
+
+    .nav-location {
+        margin-left: 0;
+        justify-content: center;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .nav-search {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .nav-bar-lang {
+        margin-left: 0;
+        justify-content: center;
+        width: 100%;
+    }
+}
+/* Responsive Styling */
+
+/* Center .nav-bar-lang for screen widths between 1024px and 1266px */
+@media (max-width: 1266px) and (min-width: 1024px) {
+    .nav-bar-lang {
+        margin-left: 0; /* Remove left margin */
+        justify-content: center; /* Center content */
+        width: 100%; /* Ensure it spans the full width */
+    }
+}
+/* Center .nav-bar-lang for screen widths between 1024px and 1266px */
+@media (min-width: 1266px) and (max-width: 1300px) {
+    .nav-bar-lang {
+        margin-left: 0; /* Remove left margin */
+        justify-content: center; /* Center content */
+        width: 100%; /* Ensure it spans the full width */
+    }
+}
+
+
+
+/* For mobile devices (less than 480px) */
+@media (max-width: 480px) {
+    .navbar {
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+    }
+
+    .nav-logo img {
+    width: 70%; /* Slightly larger logo */
+       margin-left: 0%;;
+    }
+
+    .nav-bar-lang {
+        flex-direction: row; /* Keep items in a single line */
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .nav-bar-lang .nav-language,
+    .nav-bar-lang .nav-user,
+    .nav-bar-lang .nav-cart {
+        font-size: 12px; /* Adjust text size */
+    }
+
+    .nav-search form [type="text"] {
+        height: 35px;
+        font-size: 12px;
+    }
+
+    .nav-location-icon img {
+        width: 25px;
+        height: 25px;
+    }
+
+    .nav-location .nav-location-text span {
+        font-size: 12px;
+    }
+}
+
+/* NAVBAR SECOND STARTED */
+.nav-second {
+    display: flex;
+    justify-content: start; /* Align items at the start */
+    align-items: center; /* Vertically align items */
+    margin-left: 70px; /* Adjusted margin */
+    flex-wrap: nowrap; /* Prevent items from wrapping to the next line */
+}
+  
+.nav-second ul {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: nowrap; /* Prevent items in the list from wrapping */
+}
+  
+.nav-second ul li,
+label {
+    list-style: none;
+    margin: 5px 8px 0px 8px;
+    border-radius: 5px;
+    color: #000;
+    font-size: 14px;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+}
+  
+/* Dropdown icon adjustments (only for dropdown icons) */
+.nav-second ul li img:not(.nav-img-li) {
+    width: 18px; /* Original width for dropdown images */
+    height: 18px; /* Original height for dropdown images */
+    background-size: contain;
+    position: relative;
+    top: 3px; /* Keeps dropdown icon aligned */
+}
+  
+/* Adjustments for nav-img-li banner (only for banner image) */
+.nav-img-li {
+    width: 110%; /* Increased width */
+    height: 60px; /* Increased height */
+    object-fit: cover; /* Ensures the image scales properly */
+    border-radius: 5px; /* Adds a slight rounding for a polished look */
+    flex-shrink: 0; /* Prevent the banner from shrinking or overflowing */
+}
+  
+/* MOBILE & TABLET RESPONSIVE */
+@media screen and (max-width: 1024px) {
+    .nav-second {
+        justify-content: center;
+        margin-left: 0;
+        flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+    }
+  
+    .nav-second ul {
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap; /* Allow items in the list to wrap */
+    }
+  
+    .nav-second ul li,
+    label {
+        font-size: 12px;
+        margin: 5px 10px;
+    }
+  
+    /* Responsive adjustments for nav-img-li */
+    .nav-img-li {
+        width: 100%; /* Full width */
+        height: 300px; /* Adjusted height for smaller screens */
+        object-fit: cover;
+        flex-shrink: 0; /* Prevent the banner from shrinking */
+    }
+}
+  
+/* For smaller mobile screens (less than 768px) */
+@media screen and (max-width: 768px) {
+    .nav-second {
+        display: block;
+        justify-content: center;
+        margin-left: 0;
+    }
+  
+    .nav-second ul {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* 3 items per row */
+        gap: 10px;
+        padding: 0;
+        justify-items: center;
+        margin: 0;
+    }
+  
+    .nav-second ul li,
+    label {
+        font-size: 16px;
+        margin: 0;
+    }
+  
+    /* Mobile-friendly adjustments for nav-img-li */
+    .nav-img-li {
+        width: 100%;
+        height: 250px; /* Slightly larger height for compact screens */
+        object-fit: cover;
+        flex-shrink: 0; /* Prevent the banner from shrinking */
+    }
+}
+
+/* BANNER */
+
+/* Base Styles */
+#banner-main {
+    margin-top: 60px;
+    width: 100%; /* Full width */
+    height: auto; /* Maintain aspect ratio */
+    overflow: hidden; /* Ensure no overflow */
+}
+
+#banner-main img {
+    width: 90%; /* Image takes full width */
+    height: 90px; /* Maintain aspect ratio */
+    max-height: 300px; /* Default maximum height for larger screens */
+    object-fit: cover; /* Ensures the image scales properly without distortion */
+}
+
+/* Responsive Adjustments */
+@media screen and (max-width: 1024px) {
+    #banner-main img {
+        max-height: 200px; /* Reduce height for medium screens */
+    }
+}
+
+@media screen and (max-width: 768px) {
+    #banner-main img {
+        max-height: 150px; /* Further reduce height for smaller screens */
+    }
+}
+
+@media screen and (max-width: 480px) {
+    #banner-main img {
+        max-height: 100px; /* Smallest height for mobile screens */
+    }
+}
