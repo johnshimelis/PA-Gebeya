@@ -139,7 +139,7 @@ body {
         width: 30%; /* Adjusted logo size */
     }
     .nav-logo img {
-        margin-left: 117%;
+        margin-left: 118%;
         width: 40%; /* Adjusted logo size */
     }
 
@@ -181,7 +181,7 @@ body {
 
     .nav-logo img {
         width: 60%; /* Slightly larger logo */
-       margin-left: 120%;;
+       margin-left: 0%;;
     }
 
     .nav-location {
