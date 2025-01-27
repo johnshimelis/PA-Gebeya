@@ -38,12 +38,7 @@ const Header = () => {
             <div className="nav-location-icon">
               <img src={flagImage} alt="ETH" />
             </div>
-            <div className="nav-location-text text-nav">
-              Delivery to <br /><span>ETH</span> 
-            </div>
-            <div className="nav-loaction-dropdown">
-              <img src={dropdownImage} alt="Dropdown" />
-            </div>
+            
           </div>
           <div className="nav-search text-nav">
             <form>

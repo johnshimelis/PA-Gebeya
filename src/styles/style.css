@@ -18,7 +18,7 @@ body {
     justify-content: flex-start; /* Align items to the left */
     align-items: center;
     flex-wrap: wrap;
-    background-color: #feee00;
+    background-color: red;
     padding: 1%;
     gap: 0%;
 }
@@ -43,7 +43,7 @@ body {
     justify-content: flex-start;
     align-items: center;
     width: 8%;
-    margin-left: 20px;
+    margin-left: 70px;
 }
 
 .nav-logo img {
@@ -66,11 +66,11 @@ body {
 }
 
 .nav-location-icon img {
-    width: 40px;
-    height: 30px;
+    width: 50px;
+    height: 40px;
     border-radius: 30%;
     object-fit: contain;
-    margin-right: 5px;
+    margin-right: 20px;
 }
 
 .nav-location .nav-location-text span {
@@ -139,7 +139,7 @@ body {
         width: 30%; /* Adjusted logo size */
     }
     .nav-logo img {
-        margin-left: 75px;
+        margin-left: 117%;
         width: 40%; /* Adjusted logo size */
     }
 
@@ -211,6 +211,10 @@ body {
         justify-content: center; /* Center content */
         width: 100%; /* Ensure it spans the full width */
     }
+    .nav-search {
+        margin-right: 15%;
+       }
+
 }
 /* Center .nav-bar-lang for screen widths between 1024px and 1266px */
 @media (min-width: 1266px) and (max-width: 1300px) {
@@ -219,6 +223,9 @@ body {
         justify-content: center; /* Center content */
         width: 100%; /* Ensure it spans the full width */
     }
+    .nav-search {
+        margin-right: 300px;
+       }
 }
 
 
