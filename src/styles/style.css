@@ -407,7 +407,7 @@ label {
         right: 20px; /* Position the hamburger menu on the right */
         top: 50%; /* Align it vertically */
         transform: translateY(-50%); /* Adjust for exact center alignment */
-        padding-bottom: 40px;
+        margin-top: -40px;
     }
 
     .hamburger-menu button {
