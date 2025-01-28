@@ -300,6 +300,10 @@ html, body {
         width: 100%;
     }
 }
+
+/* HEADER END */
+
+
 /* NAVBAR SECOND STARTED */
 .nav-second {
     display: flex;
@@ -376,7 +380,7 @@ label {
     .nav-img-li {
         width: 100%; /* Full width */
         height: auto; /* Automatically adjust height to fit the image */
-        max-height: 300px; /* Limit height for smaller screens */
+        max-height: 80px; /* Limit height for smaller screens */
         object-fit: cover;
         flex-shrink: 0; /* Prevent the banner from shrinking */
     }
@@ -447,10 +451,10 @@ label {
 
     /* Mobile-friendly adjustments for nav-img-li */
     .nav-img-li {
-        width: 100%;
+        width: 30%;
         height: auto; /* Automatically adjust height */
         max-height: 250px; /* Limit height for compact screens */
-        object-fit: cover;
+   
         flex-shrink: 0; /* Prevent the banner from shrinking */
     }
 }

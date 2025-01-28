@@ -30,10 +30,7 @@ const Navbar = () => {
 
                 <ul>
                     <li>
-                        <form className="text-nav">
-                            <label htmlFor="categories">ALL CATEGORIES</label>
-                            <img src={downIcon} alt="Dropdown Icon" className="ms-lg-4" />
-                        </form>
+                        
                     </li>
                     <li>ELECTRONICS</li>
                     <li>MEN</li>
