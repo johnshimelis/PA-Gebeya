@@ -346,6 +346,11 @@ label {
     border-radius: 5px; /* Adds a slight rounding for a polished look */
     flex-shrink: 0; /* Prevent the banner from shrinking or overflowing */
 }
+@media screen and (min-width : 768px) {
+    .hamburger-menu {
+        display: none;
+}
+}
 
 /* MOBILE & TABLET RESPONSIVE */
 @media screen and (max-width: 1024px) {
@@ -381,10 +386,11 @@ label {
 @media screen and (max-width: 768px) {
     .nav-second {
         display: flex;
-        flex-direction: column; /* Stack items vertically */
-        justify-content: center;
-        margin-left: 0;
-        gap: 15px; /* Add spacing between elements */
+        flex-direction: row; /* Align navbar items in a row */
+        justify-content: space-between; /* Space items evenly */
+        align-items: center; /* Align vertically centered */
+        padding: 0 15px; /* Add padding for spacing */
+        position: relative; /* Ensure proper positioning of elements */
     }
 
     .nav-second ul {
@@ -403,11 +409,10 @@ label {
     .hamburger-menu {
         display: block; /* Display the hamburger menu button */
         cursor: pointer;
-        position: absolute;
-        right: 20px; /* Position the hamburger menu on the right */
-        top: 50%; /* Align it vertically */
-        transform: translateY(-50%); /* Adjust for exact center alignment */
-        margin-top: -40px;
+        position: relative; /* Stay within the navbar flow */
+        margin-left: auto; /* Push to the far right */
+        z-index: 1000; /* Ensure it stays on top of other elements */
+        top: -35px; /* Move the menu icon upward to align with the cart icon */
     }
 
     .hamburger-menu button {
@@ -425,7 +430,13 @@ label {
 
     /* Style for 'X' icon */
     .hamburger-menu.open button svg {
-        transform: rotate(45deg); /* Rotate the lines to form an 'X' */
+        transform: rotate(45deg); /* Rotate to form an 'X' */
+        transition: transform 0.3s ease; /* Smooth transition */
+    }
+
+    /* Cart icon styles */
+    .cart-icon {
+        margin-right: 10px; /* Add spacing between cart and menu */
     }
 
     .nav-second ul li,
@@ -443,30 +454,6 @@ label {
         flex-shrink: 0; /* Prevent the banner from shrinking */
     }
 }
-
-/* For very small screens (less than 576px) */
-@media screen and (max-width: 576px) {
-    .nav-second ul {
-        grid-template-columns: 1fr; /* Single column layout */
-    }
-
-    .nav-second ul li,
-    label {
-        font-size: 16px; /* Slightly larger font size for readability */
-    }
-
-    .nav-img-li {
-        max-height: 200px; /* Limit height further for very small screens */
-    }
-}
-
-/* Hide hamburger menu on screens greater than 768px */
-@media screen and (min-width: 768px) {
-    .hamburger-menu {
-        display: none; /* Hide hamburger menu */
-    }
-}
-
 
 /* BANNER START*/
 
