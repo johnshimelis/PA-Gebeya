@@ -300,7 +300,7 @@ html, body {
         width: 100%;
     }
 }
-//* NAVBAR SECOND STARTED */
+/* NAVBAR SECOND STARTED */
 .nav-second {
     display: flex;
     justify-content: start; /* Align items at the start */
