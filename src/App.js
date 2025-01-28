@@ -1,11 +1,11 @@
-// import logo from './logo.svg';
+import logo from './logo.svg';
 import './App.css';
 import Header from './components/header';
 import Navbar from './components/navbar';
-// import Banner from './components/banner';
+import Banner from './components/banner';
 import Carousel from './components/carousel';
 import RoundSlider from './components/slider';
-// import Deals from './components/deals';
+import Deals from './components/deals';
 import RecommendedDeals from './components/recommended';
 import School from './components/school';
 import Toy from './components/toy';
@@ -33,7 +33,7 @@ function App() {
      <Navbar />
      <Carousel/>
     <RoundSlider />
-    
+    <Deals />
     <RecommendedDeals />
     <School />
     <Toy />
