@@ -1,75 +1,155 @@
 /* SLIDER */
 .nav-slider {
-    width: 100%;
-    height: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    margin-top: 30px;
-    background-color: transparent;
-    overflow: hidden; /* Hide horizontal scrollbar */
-    position: relative; /* Required for button positioning */
-  }
-  
-  .slider-container {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    overflow-x: hidden; /* Prevent horizontal scroll */
-    white-space: nowrap;
-  }
-  
+  width: 100%;
+  height: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  margin-top: 30px;
+  background-color: transparent;
+  overflow: hidden; /* Hide horizontal scrollbar */
+  position: relative; /* Required for button positioning */
+}
+
+.slider-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  overflow-x: scroll; /* Enable horizontal scrolling */
+  scroll-behavior: smooth; /* Smooth scrolling */
+  white-space: nowrap;
+}
+
+.slider-container::-webkit-scrollbar {
+  display: none; /* Hide scrollbar */
+}
+
+.nav-slider-box {
+  flex: 0 0 auto; /* Prevent shrinking */
+  width: 120px; /* Fixed width for a consistent circular shape */
+  height: 140px; /* Extra height to accommodate the text below */
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  margin-right: 10px;
+  text-align: center;
+}
+
+.nav-slider-box img {
+  width: 100px; /* Slightly smaller than the container for padding effect */
+  height: 100px; /* Maintain perfect circle */
+  object-fit: cover; /* Ensure image fits proportionally */
+  border-radius: 50%; /* Make the image circular */
+  border: 2px solid #ccc; /* Add a visible border for clarity */
+  background-color: #f9f9f9; /* Background color behind the image */
+}
+
+.nav-slider-box span {
+  margin-top: 15px; /* Push the text slightly downward */
+  font-size: 1rem; /* Default font size for larger screens */
+  font-weight: bolder;
+  color: #333;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.nav-slider-button {
+  background-color: #fff; /* Solid white background */
+  border: 1px solid #ccc; /* Thin gray border */
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2rem;
+  cursor: pointer;
+  color: #000; /* Black arrow color for contrast */
+  z-index: 10;
+  padding: 20px; /* Adjust for consistent circle size */
+  border-radius: 50%; /* Make it circular */
+  width: 60px; /* Fixed width for circular shape */
+  height: 60px; /* Fixed height for circular shape */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2); /* Add a subtle shadow for better visibility */
+}
+
+.nav-slider-button.left {
+  left: 10px;
+}
+
+.nav-slider-button.right {
+  right: 10px;
+}
+
+@media screen and (max-width: 1024px) {
   .nav-slider-box {
-    width: 8%;
-    height: auto;
-    padding: 5px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: transparent;
-    margin-right: 10px;
+    width: 100px; /* Adjust category size for medium screens */
+    height: 120px;
   }
-  
+
   .nav-slider-box img {
-    width: 90%;
-    height: auto;
-    object-fit: cover;
+    width: 80px;
+    height: 80px;
   }
-  
+
+  .nav-slider-box span {
+    font-size: 0.9rem; /* Decrease text size */
+  }
+
   .nav-slider-button {
-    background-color: transparent;
-    border: none;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 2rem;
-    cursor: pointer;
-    color: #555;
+    font-size: 1.5rem; /* Reduce button size */
+    padding: 15px;
+    width: 50px;
+    height: 50px;
   }
-  
-  .nav-slider-button.left {
-    left: 10px;
+}
+
+@media screen and (max-width: 768px) {
+  .nav-slider-box {
+    width: 80px; /* Adjust category size for smaller screens */
+    height: 100px;
   }
-  
-  .nav-slider-button.right {
-    right: 10px;
+
+  .nav-slider-box img {
+    width: 70px;
+    height: 70px;
   }
-  
-  @media screen and (max-width: 768px) {
-    .slider-container {
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      overflow-x: hidden;
-      white-space: nowrap;
-    }
-  
-    .nav-slider-box {
-      width: 100px;
-      height: 120px;
-      padding: 5px;
-      margin-right: 10px;
-    }
+
+  .nav-slider-box span {
+    font-size: 0.8rem; /* Further decrease text size */
   }
-  
+
+  .nav-slider-button {
+    font-size: 1.3rem; /* Further reduce button size */
+    padding: 12px;
+    width: 45px;
+    height: 45px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .nav-slider-box {
+    width: 70px; /* Adjust category size for very small screens */
+    height: 90px;
+  }
+
+  .nav-slider-box img {
+    width: 60px;
+    height: 60px;
+  }
+
+  .nav-slider-box span {
+    font-size: 0.7rem; /* Decrease text size further */
+  }
+
+  .nav-slider-button {
+    font-size: 1rem; /* Further reduce button size */
+    padding: 10px;
+    width: 40px;
+    height: 40px;
+  }
+}
