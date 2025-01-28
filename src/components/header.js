@@ -4,7 +4,7 @@ import "../styles/style.css";
 import "@fortawesome/fontawesome-free/css/all.min.css"; // Import Font Awesome from local package
 import flagImage from "../images/assets/Flag_of_Ethiopia.svg"; // Import your flag image
 import logoImage from "../images/assets/PA-Logos.png"; // Import your logo image
-import dropdownImage from "../images/assets/down.png"; // Import your dropdown image
+// import dropdownImage from "../images/assets/down.png"; // Import your dropdown image
 
 const Header = () => {
   return (

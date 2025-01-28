@@ -11,22 +11,22 @@ const Footer = () => {
             <p className="short">
               As the leading destination for <u>online shopping in the UAE</u>, noon has everything you need
               under one roof. Whether you’re shopping for the latest{" "}
-              <a href="https://www.noon.com/uae-en/electronics-and-mobiles/" target="_blank" className="">
+              <a href="https://www.noon.com/uae-en/electronics-and-mobiles/" target="_blank" className="" rel="noopener noreferrer">
                 electronic products
               </a>
               , fashion, homeware,{" "}
-              <a href="https://www.noon.com/uae-en/baby-products/" target="_blank" className="">
+              <a href="https://www.noon.com/uae-en/baby-products/" target="_blank" className="" rel="noopener noreferrer">
                 products for kids and babies
               </a>
               , <u>books</u> and stationery, sports and health essentials,{" "}
-              <a href="https://www.noon.com/uae-en/beauty-and-health/beauty/" target="_blank">
+              <a href="https://www.noon.com/uae-en/beauty-and-health/beauty/" target="_blank" rel="noopener noreferrer">
                 beauty products
               </a>
               , or groceries, we have millions of products in the noon
               <u>UAE store</u>. As a <u>customer-centric</u> online store, we make it easier to <u>buy online</u>
               with flexible payment plans that help you save, along with regular sales across our extensive product
               range, gift cards, wishlists, our{" "}
-              <a href="https://www.noon.com/uae-en/mashreq-card/" target="_blank">
+              <a href="https://www.noon.com/uae-en/mashreq-card/" target="_blank"  rel="noopener noreferrer">
                 exclusive Mashreq VIP card
               </a>
               , our easy-to-use shopping app, and so much more. <br /> At noon, we work hard to deliver the very
@@ -45,11 +45,11 @@ const Footer = () => {
               <a
                 href="https://www.noon.com/uae-en/electronics-and-mobiles/mobiles-and-accessories/mobiles-20905/"
                 target="_blank"
-              >
+                rel="noopener noreferrer" >
                 latest mobile phones
               </a>
               , along with tablets, mobile accessories,{" "}
-              <a href="https://www.noon.com/uae-en/electronics-and-mobiles/computers-and-accessories/laptops/" target="_blank">
+              <a href="https://www.noon.com/uae-en/electronics-and-mobiles/computers-and-accessories/laptops/" target="_blank" rel="noopener noreferrer">
                 laptops
               </a>
               , <u>wearable technology</u> such as smartwatches and other <u>wearable devices</u>,{" "}
@@ -60,61 +60,61 @@ const Footer = () => {
                 headphones
               </a>{" "}
               (in-<u>ear</u>, <u>wireless</u> and <u>noise-cancelling</u>), audiovisual gear, a selection of{" "}
-              <a href="https://www.noon.com/uae-en/electronics-and-mobiles/camera-and-photo-16165/" target="_blank">
+              <a href="https://www.noon.com/uae-en/electronics-and-mobiles/camera-and-photo-16165/" target="_blank" rel="noopener noreferrer">
                 cameras
               </a>
               , televisions,{" "}
-              <a href="https://www.noon.com/uae-en/electronics-and-mobiles/video-games-10181/gaming-console/" target="_blank">
+              <a href="https://www.noon.com/uae-en/electronics-and-mobiles/video-games-10181/gaming-console/" target="_blank"rel="noopener noreferrer">
                 video game consoles
               </a>{" "}
               such as PC and Xbox controllers, and{" "}
-              <a href="https://www.noon.com/uae-en/electronics-and-mobiles/video-games-10181/games-34004/" target="_blank">
+              <a href="https://www.noon.com/uae-en/electronics-and-mobiles/video-games-10181/games-34004/" target="_blank" rel="noopener noreferrer">
                 video games
               </a>
               . We have products from Samsung, Xiaomi, Sony,{" "}
-              <a href="https://www.noon.com/uae-en/hp/" target="_blank">
+              <a href="https://www.noon.com/uae-en/hp/" target="_blank" rel="noopener noreferrer">
                 HP
               </a>
               , Dell, Huawei, Lenovo,{" "}
-              <a href="https://www.noon.com/uae-en/apple/" target="_blank">
+              <a href="https://www.noon.com/uae-en/apple/" target="_blank" rel="noopener noreferrer">
                 Apple
               </a>
               , and many other leading tech brands. <br /> In our home and kitchen department, you’ll find a massive
               variety of products from Home Box, Fashionhome, Pan Emirates, and other brands. We have a large variety
               of home appliances in the store, from large appliances such as fridges and washing machines to small
               appliances such as air fryers, coffee makers, irons, heaters, and more. Our{" "}
-              <a href="https://www.noon.com/uae-en/home-and-kitchen/furniture-10180/" target="_blank">
+              <a href="https://www.noon.com/uae-en/home-and-kitchen/furniture-10180/" target="_blank" rel="noopener noreferrer">
                 furniture range
               </a>{" "}
               includes beds, sofas and couches, chairs, tables, and other furniture. The home and kitchen department
               includes everyday essentials such as food storage, cookware, bedding,{" "}
-              <a href="https://www.noon.com/uae-en/tools-and-home-improvement/" target="_blank">
+              <a href="https://www.noon.com/uae-en/tools-and-home-improvement/" target="_blank" rel="noopener noreferrer">
                 home improvement supplies
               </a>{" "}
               and tools,{" "}
-              <a href="https://www.noon.com/uae-en/home-and-kitchen/home-decor/" target="_blank">
+              <a href="https://www.noon.com/uae-en/home-and-kitchen/home-decor/" target="_blank" rel="noopener noreferrer">
                 home decor
               </a>
               , lighting, and many other must-haves for your home. Our <u>automotive</u> department has everything you
               need to keep your car maintained. <br /> Our <u>UAE beauty store</u> features a <u>wide range</u> of
               products - hair care and personal care products, fragrances and{" "}
-              <a href="https://www.noon.com/uae-en/beauty-and-health/beauty/fragrance/" target="_blank">
+              <a href="https://www.noon.com/uae-en/beauty-and-health/beauty/fragrance/" target="_blank" rel="noopener noreferrer">
                 perfumes
               </a>
               , cosmetics, skincare products, grooming products,{" "}
-              <a href="https://www.noon.com/uae-en/beauty-and-health/beauty/personal-care-16343/bath-and-body/" target="_blank">
+              <a href="https://www.noon.com/uae-en/beauty-and-health/beauty/personal-care-16343/bath-and-body/" target="_blank" rel="noopener noreferrer">
                 bath and body products
               </a>
               , and more. This range includes products from leading brands, including Calvin Klein, Roberto Cavalli,
               L’Oreal Paris and many others. <br /> Shop fashion online to find a <u>wide range</u> of clothing, shoes
               and accessories for men, women and kids. Our <u>UAE women’s clothing store</u> includes apparel from top
               brands such as Tommy Hilfiger, Adidas, Vero Moda, Sketchers and others. Our{" "}
-              <a href="https://www.noon.com/uae-en/fashion/women-31229/" target="_blank">
+              <a href="https://www.noon.com/uae-en/fashion/women-31229/" target="_blank" rel="noopener noreferrer">
                 women’s fashion department
               </a>{" "}
               includes sportswear, dresses, traditional and ethnic clothing, dresses, tops, shoes, handbags,
               accessories, and everything else you need to look your best. Our{" "}
-              <a href="https://www.noon.com/uae-en/fashion/men-31225/" target="_blank">
+              <a href="https://www.noon.com/uae-en/fashion/men-31225/" target="_blank" rel="noopener noreferrer">
                 UAE men’s clothing store
               </a>{" "}
               features fashion, accessories, and footwear from Nike, Puma, Adidas, Tommy Hilfiger and other leading
@@ -124,7 +124,7 @@ const Footer = () => {
               <a href="https://www.noon.com/uae-en/fashion/" target="_blank">Shop clothes online</a> to view our full
               collections. <br /> For little ones, we have a variety of baby and kids products in the <u>noon UAE
               shop</u>, from leading brands such as Intex, Lego, Barbie, Nerf and many others. Shop our range of{" "}
-              <a href="https://www.noon.com/uae-en/toys-and-games/" target="_blank">
+              <a href="https://www.noon.com/uae-en/toys-and-games/" target="_blank" rel="noopener noreferrer">
                 toys for kids
               </a>{" "}
               of every age to find fun, interactive games, <u>card games</u>, outdoor play equipment, scooters, and
@@ -134,11 +134,11 @@ const Footer = () => {
                 baby toys
               </a>
               , and more. <br /> Get active with our huge selection of{" "}
-              <a href="https://www.noon.com/uae-en/sports-and-outdoors/" target="_blank">
+              <a href="https://www.noon.com/uae-en/sports-and-outdoors/" target="_blank" rel="noopener noreferrer">
                 sporting and outdoor products
               </a>{" "}
               from Muscletech, Skyland, Sparnod Fitness and other brands. Whether you are shopping for{" "}
-              <a href="https://www.noon.com/uae-en/sports-and-outdoors/sportswear/" target="_blank">
+              <a href="https://www.noon.com/uae-en/sports-and-outdoors/sportswear/" target="_blank" rel="noopener noreferrer">
                 sportswear
               </a>{" "}
               and workout clothing, fitness equipment, or outdoor camping gear, we have a range of top-quality
