@@ -7,7 +7,7 @@ import recCard4 from "../images/assets/rec-card-4.avif";
 import recCard5 from "../images/assets/rec-card-5.avif";
 import { ShoppingCart } from "lucide-react";
 
-const RecommendedDeals = () => {
+const Discount = () => {
   const deals = [
     {
       img: recCard1,
@@ -48,7 +48,7 @@ const RecommendedDeals = () => {
 
   return (
     <section>
-      <h4 style={{ margin: "60px 20px", textAlign: "left", fontSize : "35px", fontWeight: 1000 }}>Recommended for you</h4>
+      <h4 style={{ margin: "60px 20px", textAlign: "left", fontSize : "35px", fontWeight: 1000 }}>Discount</h4>
       <div id="rec" className="nav-deals-main">
   {deals.map((deal, index) => (
     <div key={index} className="nav-rec-cards">
@@ -77,4 +77,4 @@ const RecommendedDeals = () => {
   );
 };
 
-export default RecommendedDeals;
+export default Discount;

@@ -1,66 +1,78 @@
-import React from 'react';
-import '../styles/trending.css';
-import recCard1 from '../images/assets/rec-card-1.avif';
-import tr2 from '../images/assets/tr-2.avif';
-import tr3 from '../images/assets/tr-3.avif';
-import tr4 from '../images/assets/tr-4.avif';
-import tr5 from '../images/assets/tr-5.avif';
-import expressIcon from '../images/assets/express.svg';
+import React from "react";
+import "../styles/recommended.css";
+import recCard1 from "../images/assets/rec-card-1.avif";
+import recCard2 from "../images/assets/rec-card-2.avif";
+import recCard3 from "../images/assets/rec-card-3.avif";
+import recCard4 from "../images/assets/rec-card-4.avif";
+import recCard5 from "../images/assets/rec-card-5.avif";
+import { ShoppingCart } from "lucide-react";
 
 const Trending = () => {
-  const products = [
-    { img: recCard1, name: 'Apple iPhone 14 Pro Max 256GB Deep', price: 43990.0, originalPrice: 5099, discount: '13%' },
-    { img: tr2, name: 'Apple iPhone 14 Pro Max 256GB Deep', price: 43990.0, originalPrice: 5099, discount: '13%' },
-    { img: tr3, name: 'Apple iPhone 14 Pro Max 256GB Deep', price: 43990.0, originalPrice: 5099, discount: '13%' },
-    { img: tr4, name: 'Apple iPhone 14 Pro Max 256GB Deep', price: 43990.0, originalPrice: 5099, discount: '13%' },
-    { img: tr5, name: 'Apple iPhone 14 Pro Max 256GB Deep', price: 43990.0, originalPrice: 5099, discount: '13%' },
+  const deals = [
+    {
+      img: recCard1,
+      title: "Apple iPhone 14 Pro Max 256GB Deep",
+      price: "43990.00",
+      originalPrice: "5099",
+      discount: "13% off",
+    },
+    {
+      img: recCard2,
+      title: "Apple iPhone 14 Pro Max 256GB Deep",
+      price: "43990.00",
+      originalPrice: "5099",
+      discount: "13% off",
+    },
+    {
+      img: recCard3,
+      title: "Apple iPhone 14 Pro Max 256GB Deep",
+      price: "43990.00",
+      originalPrice: "5099",
+      discount: "13% off",
+    },
+    {
+      img: recCard4,
+      title: "Apple iPhone 14 Pro Max 256GB Deep",
+      price: "43990.00",
+      originalPrice: "5099",
+      discount: "13% off",
+    },
+    {
+      img: recCard5,
+      title: "Apple iPhone 14 Pro Max 256GB Deep",
+      price: "43990.00",
+      originalPrice: "5099",
+      discount: "13% off",
+    },
   ];
 
   return (
     <section>
-      <div className="nav-view-all d-flex justify-content-between align-items-center">
-        <h4 style={{ margin: '20px 0 0 25px', fontWeight: 700, color: '#404553' }}>
-          Trending deals in Electronics
-        </h4>
-        <div className="view-all-button">VIEW ALL</div>
+      <h4 style={{ margin: "60px 20px", textAlign: "left", fontSize : "35px", fontWeight: 1000 }}>Trending</h4>
+      <div id="rec" className="nav-deals-main">
+  {deals.map((deal, index) => (
+    <div key={index} className="nav-rec-cards">
+      <div className="card-img">
+        <img src={deal.img} alt={deal.title} />
       </div>
+      <div className="card-title">{deal.title}</div>
+      <div className="card-price">AED {deal.price}</div>
+      <div className="card-pricing">
+        <span className="original-price">AED {deal.originalPrice}</span>
+        <span className="discount">{deal.discount}</span>
+      </div>
+      <div className="card-bottom">
+        <div className="card-counter">
+          <button className="counter-btn">-</button>
+          <span className="counter-value">1</span>
+          <button className="counter-btn">+</button>
+        </div>
+        <i className="cart-icon fa fa-shopping-cart"></i>
+      </div>
+    </div>
+  ))}
+</div>
 
-      <div className="nav-deals-main">
-        {products.map((product, index) => (
-          <div className="nav-rec-cards" key={index} style={{ backgroundColor: '#fafafa' }}>
-            <div className="card-img">
-              <img src={product.img} alt={`Product ${index + 1}`} />
-            </div>
-            <div className="card-info">
-              <div className="card-text">{product.name}</div>
-              <div className="card-price">
-                <span style={{ fontSize: '10px', marginRight: '5px' }}>AED </span>
-                <span style={{ fontSize: '18px', fontWeight: 700 }}>{product.price.toFixed(2)}</span>
-              </div>
-              <div className="card-off">
-                <span
-                  style={{
-                    textDecoration: 'line-through solid black',
-                    fontSize: '10px',
-                    marginRight: '5px',
-                  }}
-                >
-                  {product.originalPrice}
-                </span>
-                <span style={{ fontWeight: 700, color: 'green' }}> {product.discount} off</span>
-              </div>
-              <div className="card-footer d-flex justify-content-between align-items-center mt-lg-5">
-                <div className="card-express">
-                  <img src={expressIcon} alt="Express Delivery" />
-                </div>
-                <div className="card-rating">
-                  4.5 <i className="fa-solid fa-star"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
     </section>
   );
 };

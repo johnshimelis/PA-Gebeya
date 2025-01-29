@@ -26,6 +26,8 @@ import Furniture from './components/furniture';
 import Banner6 from './components/banner6';
 import Banner7 from './components/banner7';
 import Footer from './components/footer';
+import BestSeller from './components/BestSeller';
+import Discount from './components/Discount';
 function App() {
   return (
     <div className="App">
@@ -35,12 +37,18 @@ function App() {
     <RoundSlider />
     
     <RecommendedDeals />
-    <School />
+    {/* <School />
     <Toy />
-    <Banner2 />
+    <Banner2 /> */}
     <Carousel2 />
-    <NoonOnly />
+    <Discount />
+    <Banner2 />
     <Trending />
+    <Banner3 />
+    <BestSeller />
+  
+    {/* <NoonOnly /> */}
+    {/* <Trending />
     <Banner3 />
     <Clearance />
     <Banner4 />
@@ -52,7 +60,8 @@ function App() {
     <Banner5 />
     <Furniture />
     <Banner6 />
-    <Banner7 />
+    <Banner7 /> */}
+
     <Footer />
     </div>
   );
