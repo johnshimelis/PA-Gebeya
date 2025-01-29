@@ -1,118 +1,154 @@
 .nav-rec-cards {
-    width: auto;
-    height: auto;
+  width: 250px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  background-color: #f1f4fd;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 15px;
+  position: relative;
+  padding-bottom: 50px; /* Extra space for counter & cart icon */
+}
+#rec {
+  display: flex;
+  flex-wrap: nowrap; /* Prevent wrapping for default view */
+  overflow-x: auto; /* Enable horizontal scrolling */
+  gap: 10px;
+  padding: 10px;
+  background-color: #f1f4fd;
+  scroll-behavior: smooth; /* Smooth scrolling */
+}
+
+/* Hide scrollbar */
+#rec::-webkit-scrollbar {
+  display: none; /* Removes the horizontal scrollbar */
+}
+
+/* Card Styles */
+.nav-rec-cards {
+  flex: 0 0 auto; /* Prevent shrinking */
+  width: 250px; /* Fixed width */
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  background-color: #f1f4fd;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 10px 0;
+  position: relative;
+  padding-bottom: 50px; /* Space for counter & cart icon */
+}
+
+/* Responsive - Two columns for screens between 480px and 768px */
+@media screen and (max-width: 768px) and (min-width: 480px) {
+  #rec {
     display: flex;
-    justify-content: space-evenly;
-    flex-direction: column;
-    align-items: center;
-    background-color: white;
-    border-radius: 2px;
-    /* position: relative; */
-    margin: 10px 0px 10px 0px;
-  }
-  
-  .card-img {
-    display: flex;
+    flex-wrap: wrap; /* Wrap to make it two columns */
     justify-content: center;
-    align-items: center;
-    padding: 5px 0px 5px 0px;
-  
   }
-  
-  .card-img img {
-    width: 80%;
-    height: 100%;
-    background-color: #fafafa;
-  
-  
+
+  .nav-rec-cards {
+    width: 48%; /* Two cards per row */
   }
-  
-  .card-text {
-    font-size: 12px;
-    font-weight: 600;
+}
+
+/* Responsive - Back to horizontal scrolling below 480px */
+@media screen and (max-width: 480px) {
+  #rec {
+    flex-wrap: nowrap; /* No wrapping, keep horizontal scrolling */
+    overflow-x: auto;
   }
-  
-  .card-ratting {
-    background-color: #38ae04;
-    color: white;
-    border-radius: 60px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0px 5px 0px 5px;
-    margin: 10px 0px 10px 0px;
-    font-size: 12px;
+
+  .nav-rec-cards {
+    flex: 0 0 auto; /* Maintain horizontal scrolling */
+    width: 250px; /* Fixed width */
   }
-  
-  .card-ratting i {
-    font-size: 10px;
-    padding: 0%;
-    margin: 0%;
-  }
-  
-  .card-footer {
-    width: 100%;
-    height: auto;
-  }
-  
-  .tag {
-    position: absolute;
-    top: 15px;
-    /* Adjust the value as needed to control the vertical position */
-    left: 15px;
-    /* Adjust the value as needed to control the horizontal position */
-    background-color: #4a4a4a;
-    /* Set the background color for the tag */
-    color: #ffffff;
-    /* Set the text color for the tag */
-    padding: 0px 10px;
-    /* Adjust the padding as needed */
-    font-size: 14px;
-    /* Adjust the font size as needed */
-    font-weight: bold;
-    border-radius: 50px;
-    /* Add rounded corners */
-    z-index: 1;
-    /* Ensure the tag appears above the image */
-  }
-  
-  @media screen and (max-width: 768px) {
-  
-    #rec {
-      width: 100%;
-      height: auto;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: wrap;
-      /* border: 1px solid #000; */
-      margin: 0;
-      padding: 0;
-  
-    }
-  
-    .nav-rec-cards {
-      width: 45%;
-      height: 45%;
-      /* border: 1px solid #000; */
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      margin: 5px;
-    }
-  
-    .card-info {
-      width: 100%;
-      height: auto;
-      /* border: 1px solid #000; */
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      flex-direction: column;
-    }
-  
-    .card-express img {
-      width: 70%;
-    }
-  
-  }
+}
+
+
+.card-img {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.card-img img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  text-align: center;
+}
+
+.card-price {
+  font-size: 18px;
+  font-weight: bold;
+  color: #000;
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+.card-pricing {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 5px 0;
+}
+
+.original-price {
+  font-size: 12px;
+  text-decoration: line-through;
+  color: gray;
+}
+
+.discount {
+  font-size: 14px;
+  font-weight: bold;
+  color: green;
+}
+
+/* Fix: Move the counter and cart icon lower */
+.card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: absolute;
+  bottom: 5px; /* Moves it down */
+  left: 10px;
+  width: 90%;
+}
+
+.card-counter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.counter-btn {
+  width: 30px;
+  height: 30px;
+  background-color: #d9d9d9;
+  border: none;
+  border-radius: 5px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.counter-value {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.cart-icon {
+  cursor: pointer;
+  color: #4a4a4a;
+}

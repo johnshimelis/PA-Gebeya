@@ -33,7 +33,7 @@ function App() {
      <Navbar />
      <Carousel/>
     <RoundSlider />
-    <Deals />
+    
     <RecommendedDeals />
     <School />
     <Toy />
