@@ -8,8 +8,10 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin: 15px;
   position: relative;
-  padding-bottom: 50px; /* Extra space for counter & cart icon */
+  min-height: 320px; /* Increased height to accommodate counter & cart */
+  padding-bottom: 80px; /* Space for counter & cart icon */
 }
+
 #rec {
   display: flex;
   flex-wrap: nowrap; /* Prevent wrapping for default view */
@@ -23,21 +25,6 @@
 /* Hide scrollbar */
 #rec::-webkit-scrollbar {
   display: none; /* Removes the horizontal scrollbar */
-}
-
-/* Card Styles */
-.nav-rec-cards {
-  flex: 0 0 auto; /* Prevent shrinking */
-  width: 250px; /* Fixed width */
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  background-color: #f1f4fd;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin: 10px 0;
-  position: relative;
-  padding-bottom: 50px; /* Space for counter & cart icon */
 }
 
 /* Responsive - Two columns for screens between 480px and 768px */
@@ -65,7 +52,6 @@
     width: 250px; /* Fixed width */
   }
 }
-
 
 .card-img {
   width: 100%;
@@ -114,15 +100,14 @@
   color: green;
 }
 
-/* Fix: Move the counter and cart icon lower */
+/* Fix: Move the counter and cart icon inside the card properly */
 .card-bottom {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: absolute;
-  bottom: 5px; /* Moves it down */
-  left: 10px;
-  width: 90%;
+  margin-top: auto; /* Push it down dynamically */
+  padding-top: 10px;
+  position: relative;
 }
 
 .card-counter {

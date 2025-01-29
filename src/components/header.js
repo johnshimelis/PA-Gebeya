@@ -1,5 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet";
+import { useNavigate } from "react-router-dom"; // Import useNavigate from react-router-dom
 import "../styles/style.css";
 import "@fortawesome/fontawesome-free/css/all.min.css"; // Import Font Awesome from local package
 import flagImage from "../images/assets/Flag_of_Ethiopia.svg"; // Import your flag image
@@ -7,6 +8,8 @@ import logoImage from "../images/assets/PA-Logos.png"; // Import your logo image
 // import dropdownImage from "../images/assets/down.png"; // Import your dropdown image
 
 const Header = () => {
+  const navigate = useNavigate(); // Initialize the useNavigate hook
+
   return (
     <>
       <Helmet>
@@ -30,15 +33,13 @@ const Header = () => {
       {/* NAVBAR */}
       <section className="justify-content-center align-items-center d-flex">
         <div className="navbar" id="nav">
-          <div className="nav-logo">
-            {/* Replace the src with your imported logo */}
+          <div className="nav-logo" onClick={() => navigate("/")}> {/* On logo click, navigate to home page */}
             <img src={logoImage} alt="Logo" />
           </div>
           <div className="nav-location">
             <div className="nav-location-icon">
               <img src={flagImage} alt="ETH" />
             </div>
-            
           </div>
           <div className="nav-search text-nav">
             <form>

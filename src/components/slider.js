@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import "../styles/slider.css";
 
@@ -20,6 +21,7 @@ import slider14 from "../images/assets/slider-11.png";
 import slider15 from "../images/assets/slider-12.png";
 
 const RoundSlider = () => {
+  const navigate = useNavigate();
   const sliderRef = useRef(null);
 
   // Image array
@@ -27,7 +29,7 @@ const RoundSlider = () => {
     { src: slider1, category: "ELECTRONICS" },
     { src: slider2, category: "Men" },
     { src: slider3, category: "Women" },
-    { src: slider4, category: "Home " },
+    { src: slider4, category: "Home" },
     { src: slider5, category: "Beauty and Fragrance" },
     { src: slider6, category: "Baby" },
     { src: slider7, category: "Toys" },
@@ -63,6 +65,12 @@ const RoundSlider = () => {
     }
   };
 
+  // Navigate to product page on category click
+  const handleCategoryClick = (category) => {
+    const categoryPath = `/products/${category.toLowerCase()}`;
+    navigate(categoryPath);
+  };
+
   return (
     <section>
       <div className="nav-slider">
@@ -74,7 +82,11 @@ const RoundSlider = () => {
         {/* Slider Boxes */}
         <div ref={sliderRef} className="slider-container">
           {sliderImages.map((item, index) => (
-            <div key={index} className="nav-slider-box">
+            <div
+              key={index}
+              className="nav-slider-box"
+              onClick={() => handleCategoryClick(item.category)} // Redirect on click
+            >
               <img src={item.src} alt={`Slider ${index + 1}`} />
               <span>{item.category}</span>
             </div>

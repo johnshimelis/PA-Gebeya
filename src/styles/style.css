@@ -44,6 +44,7 @@ html, body {
 /* Logo Styles */
 .nav-logo {
     display: flex;
+    cursor: pointer;
     justify-content: flex-start;
     align-items: center;
     width: 8%;
