@@ -24,21 +24,21 @@ const RoundSlider = () => {
 
   // Image array
   const sliderImages = [
-    { src: slider1, category: "Category 1" },
-    { src: slider2, category: "Category 2" },
-    { src: slider3, category: "Category 3" },
-    { src: slider4, category: "Category 4" },
-    { src: slider5, category: "Category 5" },
-    { src: slider6, category: "Category 6" },
-    { src: slider7, category: "Category 7" },
-    { src: slider8, category: "Category 8" },
-    { src: slider9, category: "Category 9" },
-    { src: slider10, category: "Category 10" },
-    { src: slider11, category: "Category 11" },
-    { src: slider12, category: "Category 12" },
-    { src: slider13, category: "Category 13" },
-    { src: slider14, category: "Category 14" },
-    { src: slider15, category: "Category 15" },
+    { src: slider1, category: "ELECTRONICS" },
+    { src: slider2, category: "Men" },
+    { src: slider3, category: "Women" },
+    { src: slider4, category: "Home " },
+    { src: slider5, category: "Beauty and Fragrance" },
+    { src: slider6, category: "Baby" },
+    { src: slider7, category: "Toys" },
+    { src: slider8, category: "Sports" },
+    { src: slider9, category: "Best Sellers" },
+    { src: slider10, category: "Deals" },
+    { src: slider11, category: "Mobiles" },
+    { src: slider12, category: "Laptops" },
+    { src: slider13, category: "TV" },
+    { src: slider14, category: "Eyewear" },
+    { src: slider15, category: "Gaming" },
   ];
 
   // Scroll to the previous slide

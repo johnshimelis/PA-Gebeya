@@ -71,16 +71,14 @@ const Navbar = () => {
                         <li>TOYS</li>
                         <li>SPORTS</li>
                         <li>BESTSELLERS</li>
-                        <li>BEAUTY & FRAGRANCE</li>
-                        <li>BABY</li>
-                        <li>TOYS</li>
-                        <li>SPORTS</li>
-                        <li>BESTSELLERS</li>
-                        <li>BEAUTY & FRAGRANCE</li>
-                        <li>BABY</li>
-                        <li>TOYS</li>
-                        <li>SPORTS</li>
-                        <li>BESTSELLERS</li>
+                        <li>Laptops</li>
+                        <li>TV</li>
+                        <li>Deals</li>
+                        <li>Men</li>
+                        <li>Eyewear</li>
+                        <li>TV</li>
+                        <li>Gaming</li>
+                        
                     </ul>
                 </div>
 
