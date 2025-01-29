@@ -1,0 +1,87 @@
+/* NAVBAR SECOND */
+.nav-second {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: 0 20px;
+    overflow: hidden;
+    margin-bottom: 20px; /* Add spacing below navigation container */
+}
+
+.scrollable-wrapper {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    flex: 1;
+    margin-right: 120px;
+    position: relative;
+}
+
+.scrollable-wrapper ul {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    margin: 0;
+    padding: 0;
+    gap: 12px;
+}
+
+.scrollable-wrapper ul::-webkit-scrollbar {
+    display: none;
+}
+
+.scrollable-wrapper ul li {
+    list-style: none;
+    margin-top: 20px;
+    margin: 30px 10px 8px;
+    border-radius: 5px;
+    color: #000;
+    font-size: 14px;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Scroll Buttons */
+.scroll-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none; /* Remove circular background */
+    border: none;
+    color: #000;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 0; /* Remove padding */
+    z-index: 10;
+}
+
+.scroll-btn.left {
+    left: 10px;
+}
+
+.scroll-btn.right {
+    right: 120px;
+}
+
+/* Fixed Image Styling */
+.fixed-img {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    z-index: 10;
+    background: #fff;
+}
+
+.nav-img-li {
+    width: 100px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
