@@ -1,9 +1,24 @@
-import { useLocation } from "react-router-dom";
-import "../styles/ProductDetails.css"; // Add custom styles
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useCart } from "./CartContext"; // Updated import
+import "../styles/ProductDetails.css";
 
 const ProductDetails = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { addToCart } = useCart(); // Use the custom hook
+
   const product = location.state?.product || {};
+  const [quantity, setQuantity] = useState(1);
+
+  const handleAddToCart = () => {
+    addToCart({ ...product, quantity });
+    navigate("/cart");
+  };
+
+  const handleQuantityChange = (delta) => {
+    setQuantity((prevQuantity) => Math.max(1, prevQuantity + delta));
+  };
 
   return (
     <div className="product-details">
@@ -25,13 +40,15 @@ const ProductDetails = () => {
           <div className="price-counter-row">
             <p className="price">{product.price} AED</p>
             <div className="quantity-selector">
-              <button>-</button>
-              <span>1</span>
-              <button>+</button>
+              <button onClick={() => handleQuantityChange(-1)}>-</button>
+              <span>{quantity}</span>
+              <button onClick={() => handleQuantityChange(1)}>+</button>
             </div>
           </div>
           <div className="button-row">
-            <button className="add-to-cart">🛒 Add to Cart</button>
+            <button className="add-to-cart" onClick={handleAddToCart}>
+              🛒 Add to Cart
+            </button>
             <button className="favorite">❤️</button>
           </div>
         </div>

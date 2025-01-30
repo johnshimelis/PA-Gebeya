@@ -1,0 +1,229 @@
+/* General Styles */
+.cart-container {
+    max-width: 1200px; 
+    margin: 0 auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    min-height: 80vh; /* Ensure a consistent height */
+}
+
+/* Header */
+.cart-header {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.cart-header h1 {
+    font-size: 28px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.shipping-info {
+    font-size: 14px;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Layout: Cart Content and Summary */
+.cart-main {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    height: 70vh; /* Set a height to enable scrolling */
+}
+
+/* Make Cart Content Scrollable */
+.cart-content {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-height: 70vh; /* Set max height for scrolling */
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding-right: 10px; /* Prevent scrollbar overlap */
+}
+
+/* Keep Summary Fixed */
+.summary {
+    flex: 1;
+    background-color: #e6f7ff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 20px;
+    height: fit-content;
+}
+
+/* Cart Item Styles */
+.cart-item {
+    display: flex;
+    gap: 30px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.cart-item-image {
+    width: 100%;
+    max-width: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.cart-item-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: left;
+}
+
+.cart-item-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.cart-item-header h2 {
+    font-size: 20px;
+    margin-top: 30px;
+}
+
+/* Quantity & Delete Button */
+.quantity-text {
+    font-size: 14px;
+    color: #666;
+}
+
+.delete-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #ff5722;
+    position: relative;
+    top: -5px;
+}
+
+/* Cart Bottom Section */
+.cart-bottom-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+/* Quantity Controls */
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #f1f1f1;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.quantity-controls button {
+    width: 30px;
+    height: 30px;
+    border: none;
+    background-color: #000;
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.quantity-controls button:hover {
+    background-color: #333;
+}
+
+.quantity-controls span {
+    font-size: 16px;
+    font-weight: bold;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* Item Price */
+.item-price {
+    font-size: 20px;
+    font-weight: bold;
+    color: #000;
+}
+
+/* Summary Section Styles */
+.summary h2 {
+    font-size: 23px;
+    font-weight: bold;
+    margin-bottom: 30px;
+    text-align: left;
+}
+
+.summary-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.summary-details p {
+    display: flex;
+    justify-content: space-between;
+}
+
+.summary-details p span {
+    font-weight: bold;
+}
+
+.balance {
+    margin-top: 30px;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    justify-content: left;
+}
+
+.balance span {
+    margin-left: 220px;
+}
+
+/* Checkout Button */
+.checkout-button {
+    margin-top: 20px;
+    width: 100%;
+    padding: 15px 20px;
+    font-size: 16px;
+    background-color: #000;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.checkout-button:hover {
+    background-color: #333;
+}
+
+/* Responsive Styles for Mobile */
+@media (max-width: 768px) {
+    .cart-main {
+        flex-direction: column;
+    }
+
+    .cart-content {
+        max-height: unset; /* Remove fixed height for small screens */
+        overflow-y: unset;
+    }
+
+    .summary {
+        position: relative;
+        top: unset;
+        margin-top: 20px;
+    }
+}

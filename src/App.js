@@ -1,4 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { ToastContainer } from "react-toastify"; // ✅ Import ToastContainer
+import "react-toastify/dist/ReactToastify.css"; // ✅ Import Toastify CSS
+
 import './App.css';
 import Header from './components/header';
 import Navbar from './components/navbar';
@@ -12,41 +15,48 @@ import Banner3 from './components/banner3';
 import BestSeller from './components/BestSeller';
 import Footer from './components/footer';
 import ProductsPage from "./components/ProductsPage";
-import Cart from "./components/cart";  // Import the Cart component
+import Cart from "./components/cart";  
 import ProductDetails from "./components/ProductDetail";
+import { CartProvider } from "./components/CartContext"; // ✅ Import CartProvider
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <Header />
-        <Navbar />
+    <CartProvider>  
+      <Router>
+        <div className="App">
+          <Header />
+          <Navbar />
+          
+          {/* ✅ Add ToastContainer for notifications */}
+          <ToastContainer position="top-center" autoClose={2000} />
 
-        <Routes>
-          {/* Product Page */}
-          <Route path="/products/:category" element={<ProductsPage />} />
-          <Route path="/products" element={<ProductsPage />} />
+          <Routes>
+            {/* Product Pages */}
+            <Route path="/products/:category" element={<ProductsPage />} />
+            <Route path="/products" element={<ProductsPage />} />
+            <Route path="/cart" element={<Cart />} />
 
-          {/* Cart Page */}
-          <Route path="/product_detail" element={<ProductDetails />} />
+            {/* Product Detail Page */}
+            <Route path="/product_detail" element={<ProductDetails />} />
 
-          {/* Home Page */}
-          <Route path="/" element={
-            <>
-              <Carousel />
-              <RoundSlider />
-              <RecommendedDeals />
-              <Carousel2 />
-              <Discount />
-              <Trending />
-              <Banner3 />
-              <BestSeller />
-              <Footer />
-            </>
-          } />
-        </Routes>
-      </div>
-    </Router>
+            {/* Home Page */}
+            <Route path="/" element={
+              <>
+                <Carousel />
+                <RoundSlider />
+                <RecommendedDeals />
+                <Carousel2 />
+                <Discount />
+                <Trending />
+                <Banner3 />
+                <BestSeller />
+                <Footer />
+              </>
+            } />
+          </Routes>
+        </div>
+      </Router>
+    </CartProvider>
   );
 }
 

@@ -131,8 +131,27 @@ html, body {
     cursor: pointer;
     font-size: 14px;
     font-weight: 500;
-    color: rgba(64, 69, 63);
+    color: #ffffff;
 }
+.cart-count-badge {
+    background-color: #00a3e0; /* Green-blue color */
+    color: white; /* White text */
+    font-size: 12px;
+    font-weight: bold;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%; /* Circular shape */
+    position: absolute;
+    top: -15px;
+    right: -15px;
+  }
+  .nav-cart {
+    position: relative; /* Ensure the badge is positioned relative to the cart icon */
+  }
+  
 
 .nav-bar-lang .nav-user,
 .nav-bar-lang .nav-cart {
