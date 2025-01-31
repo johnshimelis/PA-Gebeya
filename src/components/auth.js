@@ -53,7 +53,7 @@ const AuthPage = () => {
   };
 
   return (
-    <div style={styles.container}>
+    <div style={styles.container} className="container">
       <div style={styles.formContainer} className="form-container">
         {/* Logo at the top of the form */}
         <img src={logoImage} alt="Logo" style={styles.logo} />

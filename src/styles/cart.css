@@ -4,6 +4,13 @@
       margin-top: -130px !important; /* Moves the form up */
     }
   }
+  @media (max-width: 768px) {
+    .container {
+            height: 130vh;
+            margin-top : -90px !important; /* Moves the form up */
+    }
+
+  }
   
 .cart-container {
     max-width: 1200px; 
