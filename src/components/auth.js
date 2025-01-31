@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logoImage from "../images/assets/PA-Logos.png"; // Import the logo
 import backgroundImage from "../images/assets/ecommerce.jpg"; // Import the background image
+import "../styles/cart.css";
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -53,7 +54,7 @@ const AuthPage = () => {
 
   return (
     <div style={styles.container}>
-      <div style={styles.formContainer}>
+      <div style={styles.formContainer} className="form-container">
         {/* Logo at the top of the form */}
         <img src={logoImage} alt="Logo" style={styles.logo} />
 
@@ -167,7 +168,7 @@ const styles = {
     justifyContent: "center",
     alignItems: "center",
     height: "120vh",
-    backgroundImage: `url(${backgroundImage})`,
+    // backgroundImage: `url(${backgroundImage})`,
     backgroundSize: "cover",
     backgroundPosition: "center",
     backgroundAttachment: "fixed",
@@ -255,7 +256,7 @@ const styles = {
   // Media query for screens < 480px
   "@media (max-width: 480px)": {
     formContainer: {
-      marginTop: "20px", // Move form closer to the top
+      marginTop: "-900px", // Move form closer to the top
     },
   },
 };

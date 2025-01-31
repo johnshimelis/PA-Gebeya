@@ -1,4 +1,10 @@
 /* General Styles */
+@media (max-width: 480px) {
+    .form-container {
+      margin-top: -60px !important; /* Moves the form up */
+    }
+  }
+  
 .cart-container {
     max-width: 1200px; 
     margin: 0 auto;
