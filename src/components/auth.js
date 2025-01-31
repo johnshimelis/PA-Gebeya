@@ -167,25 +167,25 @@ const styles = {
     justifyContent: "center",
     alignItems: "center",
     height: "120vh",
-    backgroundImage: `url(${backgroundImage})`, // Adding background image
+    backgroundImage: `url(${backgroundImage})`,
     backgroundSize: "cover",
     backgroundPosition: "center",
     backgroundAttachment: "fixed",
     position: "relative",
   },
   formContainer: {
-    backgroundColor: "rgba(255, 255, 255, 0.8)", // Adding transparency
-    padding: "20px", // Reduced padding
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    padding: "20px",
     borderRadius: "10px",
     boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
     textAlign: "center",
     width: "100%",
     maxWidth: "400px",
-    marginTop: "100px", // Moved form down
+    marginTop: "100px",
   },
   logo: {
-    width: "120px", // Reduced logo size
-    marginBottom: "10px", // Reduced margin below logo
+    width: "120px",
+    marginBottom: "10px",
   },
   title: {
     fontSize: "24px",
@@ -238,7 +238,7 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     margin: "10px 0",
-    backgroundColor: "#E60000", // Red background for country code
+    backgroundColor: "#E60000",
     padding: "5px",
     borderRadius: "5px",
   },
@@ -251,6 +251,12 @@ const styles = {
     color: "red",
     fontSize: "12px",
     marginTop: "5px",
+  },
+  // Media query for screens < 480px
+  "@media (max-width: 480px)": {
+    formContainer: {
+      marginTop: "20px", // Move form closer to the top
+    },
   },
 };
 
