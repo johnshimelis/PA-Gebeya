@@ -168,7 +168,7 @@ const styles = {
     justifyContent: "center",
     alignItems: "center",
     height: "120vh",
-    // backgroundImage: `url(${backgroundImage})`,
+    backgroundImage: `url(${backgroundImage})`,
     backgroundSize: "cover",
     backgroundPosition: "center",
     backgroundAttachment: "fixed",
