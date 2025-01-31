@@ -30,7 +30,7 @@ const Cart = () => {
   {cartItem.quantity} item(s) — <strong>The Price Of One:</strong> ${Number(cartItem.price).toFixed(2)}
 </p>
 
-<p className="item-price">${(Number(cartItem.price) * cartItem.quantity).toFixed(2)}</p>
+
 
           </div>
           <button
@@ -59,7 +59,7 @@ const Cart = () => {
         {/* Summary Section */}
         {cartItems.length > 0 && (
           <div className="summary">
-            <h2>Summary</h2>
+            <h2>Orders</h2>
             <div className="summary-details">
               <p>
                 <strong>Subtotal ({cartItems.length} items)</strong>

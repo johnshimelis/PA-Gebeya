@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "./CartContext"; // Updated import
+import { toast } from "react-toastify"; // Import toast
 import "../styles/ProductDetails.css";
 
 const ProductDetails = () => {
@@ -13,6 +14,9 @@ const ProductDetails = () => {
 
   const handleAddToCart = () => {
     addToCart({ ...product, quantity });
+    toast.success(`${quantity} ${product.title} added to the cart`, {
+      position: "top-center",
+    });
     navigate("/cart");
   };
 
