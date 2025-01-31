@@ -1,0 +1,303 @@
+/* Overall container */
+.checkout-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: 'Arial', sans-serif;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+/* Header */
+.checkout-header {
+    font-size: 2rem;
+    color: #333;
+    padding-top: 20px;
+    margin-bottom: 30px;
+    width: 100%;  /* Ensure the header stretches across */
+    font-weight: bold;
+    text-align: left;
+}
+
+/* Left section (Order Details and Total) */
+.left-section {
+    flex: 0 0 60%; /* Takes up 60% of the space */
+}
+
+/* Order item card */
+.checkout-items {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.checkout-item-card {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.checkout-item-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.checkout-item-details h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.checkout-item-details p {
+    margin: 5px 0;
+    font-size: 1rem;
+    color: #555;
+}
+
+.total-cost {
+    text-align: left;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-top: 20px;
+    color: #333;
+}
+
+/* Right section (File Upload and Preview) */
+.right-section {
+    flex: 0 0 35%; /* Takes up 35% of the space */
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.file-upload {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.file-upload label {
+    font-size: 1.125rem;
+    margin-bottom: 10px;
+    color: #555;
+}
+
+.file-upload input[type="file"] {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 400px;
+    object-fit: contain;
+    margin-top: 10px;
+    cursor: pointer;  /* Make image clickable */
+}
+
+/* Modal overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    position: relative;
+}
+
+.modal-image {
+    max-width: 100%;
+    max-height: 80vh;
+    object-fit: contain;
+}
+
+.close-modal {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #ff0000;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Button */
+.order-button {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.order-button button {
+    padding: 12px 30px;
+    font-size: 1.125rem;
+    font-weight: bold;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;  /* Make the button full width */
+}
+
+.order-button button:hover {
+    background-color: #45a049;
+}
+
+/* Media Query for smaller screens */
+@media (max-width: 768px) {
+    .checkout-container {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .left-section, .right-section {
+        flex: 0 0 100%; /* Both sections take up full width on smaller screens */
+    }
+
+    .checkout-item-card {
+        padding: 15px;
+    }
+
+    .checkout-item-details h2 {
+        font-size: 1rem;
+    }
+
+    .checkout-item-details p {
+        font-size: 0.875rem;
+    }
+
+    .total-cost {
+        font-size: 1.25rem;
+    }
+
+    .order-button button {
+        font-size: 1rem;
+        padding: 10px 20px;
+    }
+
+    .image-preview img {
+        max-height: 200px;
+    }
+}
+/* Success Message Popup */
+.order-success-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+  
+  .popup-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  .success-icon {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 20px;
+  }
+  
+  .popup-content h2 {
+    color: #4CAF50;
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  /* Animation */
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  /* Style for the hint text */
+.image-preview {
+    position: relative;
+    cursor: pointer;
+    display: inline-block; /* Ensures image is treated like a block element */
+    transition: box-shadow 0.3s ease; /* Smooth transition for shadow effect */
+}
+
+.image-preview:hover {
+    /* Add black transparent overlay effect */
+    opacity: 0.7; /* Slightly reduce image opacity on hover */
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.9); /* Soft shadow on hover */
+}
+
+.click-hint {
+    position: absolute;
+    top: 50%; /* Centers vertically */
+    left: 50%; /* Centers horizontally */
+    transform: translate(-50%, -50%); /* Corrects positioning offset */
+    background-color: rgba(0, 0, 0, 0.9); /* Semi-transparent background */
+    color: white;
+    font-size: 1rem; /* Adjusted font size */
+    padding: 10px 20px; /* Increased padding for better appearance */
+    border-radius: 5px;
+    opacity: 0; /* Initially hidden */
+    transition: opacity 0.3s ease; /* Smooth fade-in */
+    width: 150px; /* Increased width for better visibility */
+    text-align: center; /* Center the text */
+}
+
+.image-preview:hover .click-hint {
+    opacity: 1; /* Makes hint visible when hovering */
+}
+.error-message {
+    color: red;
+    font-size: 1rem;
+
+    margin-top: 10px;
+  }
+  @media (max-width: 768px) {
+    .popup-content {
+        max-width: 80%; /* Reduce width on smaller screens */
+        padding: 20px; /* Adjust padding for better spacing */
+    }
+
+    .popup-content h2 {
+        font-size: 1.25rem; /* Slightly smaller text */
+    }
+
+    .success-icon {
+        width: 40px; /* Reduce icon size */
+        height: 40px;
+    }
+}

@@ -33,17 +33,19 @@ const Header = () => {
               <i className="fas fa-globe"></i> Eng
             </div>
             <hr />
-            <div className="nav-user text-nav">
+            <div
+              className="nav-user text-nav"
+              onClick={() => navigate("/auth")} // Redirect to /auth page on click
+            >
               Sign In <i className="fas fa-user"></i>
             </div>
             <hr />
             <div className="nav-cart text-nav" onClick={() => navigate("/cart")}>
-  Cart <i className="fas fa-shopping-cart"></i>
-  {totalItems > 0 && (
-    <span className="cart-count-badge">{totalItems}</span>
-  )}
-</div>
-
+              Cart <i className="fas fa-shopping-cart"></i>
+              {totalItems > 0 && (
+                <span className="cart-count-badge">{totalItems}</span>
+              )}
+            </div>
           </div>
         </div>
       </section>

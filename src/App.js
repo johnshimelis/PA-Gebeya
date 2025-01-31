@@ -17,7 +17,9 @@ import Footer from './components/footer';
 import ProductsPage from "./components/ProductsPage";
 import Cart from "./components/cart";  
 import ProductDetails from "./components/ProductDetail";
-import { CartProvider } from "./components/CartContext"; // ✅ Import CartProvider
+import { CartProvider } from "./components/CartContext";
+import AuthPage from "./components/auth";
+import Checkout from "./components/checkout";
 
 function App() {
   return (
@@ -35,6 +37,8 @@ function App() {
             <Route path="/products/:category" element={<ProductsPage />} />
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/checkout" element={<Checkout />} />
 
             {/* Product Detail Page */}
             <Route path="/product_detail" element={<ProductDetails />} />

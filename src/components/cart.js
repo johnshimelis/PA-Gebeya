@@ -1,9 +1,15 @@
 import React from "react";
-import { useCart } from "./CartContext"; // Import Cart Context
+import { useCart } from "./CartContext"; 
+import { useNavigate } from "react-router-dom";  // Updated import
 import "../styles/cart.css";
 
 const Cart = () => {
   const { cartItems, removeFromCart, updateQuantity } = useCart();
+  const navigate = useNavigate();  // Initialize navigate function
+
+  const handleCheckout = () => {
+    navigate("/checkout");  // Redirect to the checkout page
+  };
 
   return (
     <div className="cart-container">
@@ -14,47 +20,43 @@ const Cart = () => {
 
       {/* Flexbox container for cart-content and summary */}
       <div className="cart-main">
-      <div className="cart-content">
-  {/* If cart is empty */}
-  {cartItems.length === 0 && <p className="empty-cart">Your cart is currently empty.</p>}
+        <div className="cart-content">
+          {/* If cart is empty */}
+          {cartItems.length === 0 && <p className="empty-cart">Your cart is currently empty.</p>}
 
-  {/* Render each product as an independent card */}
-  {cartItems.map((cartItem) => (
-    <div key={cartItem.uniqueId} className="cart-item">
-      <img src={cartItem.img} alt={cartItem.title} className="cart-item-image" />
-      <div className="cart-item-details">
-        <div className="cart-item-header">
-          <div>
-            <h2>{cartItem.title}</h2>
-            <p className="quantity-text">
-  {cartItem.quantity} item(s) — <strong>The Price Of One:</strong> ${Number(cartItem.price).toFixed(2)}
-</p>
+          {/* Render each product as an independent card */}
+          {cartItems.map((cartItem) => (
+            <div key={cartItem.uniqueId} className="cart-item">
+              <img src={cartItem.img} alt={cartItem.title} className="cart-item-image" />
+              <div className="cart-item-details">
+                <div className="cart-item-header">
+                  <div>
+                    <h2>{cartItem.title}</h2>
+                    <p className="quantity-text">
+                      {cartItem.quantity} item(s) — <strong>The Price Of One:</strong> ${Number(cartItem.price).toFixed(2)}
+                    </p>
+                  </div>
+                  <button
+                    className="delete-icon"
+                    onClick={() => removeFromCart(cartItem.uniqueId)}
+                  >
+                    🗑️
+                  </button>
+                </div>
 
-
-
-          </div>
-          <button
-            className="delete-icon"
-            onClick={() => removeFromCart(cartItem.uniqueId)}
-          >
-            🗑️
-          </button>
+                {/* Bottom Section: Counter and Price */}
+                <div className="cart-bottom-section">
+                  <div className="quantity-controls">
+                    <button onClick={() => updateQuantity(cartItem.uniqueId, cartItem.quantity - 1)}>-</button>
+                    <span>{cartItem.quantity}</span>
+                    <button onClick={() => updateQuantity(cartItem.uniqueId, cartItem.quantity + 1)}>+</button>
+                  </div>
+                  <p className="item-price">${(cartItem.price * cartItem.quantity).toFixed(2)}</p>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-
-        {/* Bottom Section: Counter and Price */}
-        <div className="cart-bottom-section">
-          <div className="quantity-controls">
-            <button onClick={() => updateQuantity(cartItem.uniqueId, cartItem.quantity - 1)}>-</button>
-            <span>{cartItem.quantity}</span>
-            <button onClick={() => updateQuantity(cartItem.uniqueId, cartItem.quantity + 1)}>+</button>
-          </div>
-          <p className="item-price">${(cartItem.price * cartItem.quantity).toFixed(2)}</p>
-        </div>
-      </div>
-    </div>
-  ))}
-</div>
-
 
         {/* Summary Section */}
         {cartItems.length > 0 && (
@@ -85,7 +87,7 @@ const Cart = () => {
                 </span>
               </p>
             </div>
-            <button className="checkout-button">Checkout</button>
+            <button className="checkout-button" onClick={handleCheckout}>Checkout</button> {/* Checkout Button */}
           </div>
         )}
       </div>
