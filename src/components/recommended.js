@@ -9,10 +9,22 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../components/CartContext"; // Ensure you have access to the cart context
 import { toast } from "react-toastify"; // Import toast
 
+
 const RecommendedDeals = () => {
   const { addToCart, updateQuantity, cartItems } = useCart(); // Cart context to add items
   const navigate = useNavigate(); // Used for page redirection
-
+  
+  useEffect(() => {
+    const scrollContainer = document.getElementById("rec");
+    if (scrollContainer) {
+      setTimeout(() => {
+        scrollContainer.scrollLeft = 0;
+      }, 300); // Increased delay for better reliability
+    }
+  }, []);
+  
+  
+  
   const deals = [
     {
       id: 1,

@@ -1,3 +1,4 @@
+/* Default card styling */
 .nav-rec-cards {
   width: 250px;
   padding: 15px;
@@ -8,18 +9,23 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin: 15px;
   position: relative;
-  min-height: 320px; /* Increased height to accommodate counter & cart */
+  min-height: 320px;
   padding-bottom: 80px; /* Space for counter & cart icon */
 }
 
+/* Container for horizontal scroll */
 #rec {
   display: flex;
-  flex-wrap: nowrap; /* Prevent wrapping for default view */
-  overflow-x: auto; /* Enable horizontal scrolling */
+  flex-wrap: nowrap; /* Ensures horizontal scrolling without wrapping */
+  overflow-x: auto; /* Enables horizontal scrolling */
   gap: 10px;
   padding: 10px;
   background-color: #f1f4fd;
-  scroll-behavior: smooth; /* Smooth scrolling */
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling for mobile */
+  margin-left: 0; /* Ensure no left margin on the scroll container */
+  padding-left: 0; /* Ensure no left padding */
+  justify-content: flex-start; /* Align cards to the left */
 }
 
 /* Hide scrollbar */
@@ -27,29 +33,26 @@
   display: none; /* Removes the horizontal scrollbar */
 }
 
-/* Responsive - Two columns for screens between 480px and 768px */
-@media screen and (max-width: 768px) and (min-width: 480px) {
-  #rec {
-    display: flex;
-    flex-wrap: wrap; /* Wrap to make it two columns */
-    justify-content: center;
-  }
-
-  .nav-rec-cards {
-    width: 48%; /* Two cards per row */
-  }
-}
-
-/* Responsive - Back to horizontal scrolling below 480px */
+/* Responsive styles for screens less than 480px */
 @media screen and (max-width: 480px) {
   #rec {
-    flex-wrap: nowrap; /* No wrapping, keep horizontal scrolling */
-    overflow-x: auto;
+    flex-wrap: nowrap; /* Ensure no wrapping */
+    overflow-x: auto; /* Enable horizontal scrolling */
+    padding-left: 0 !important; /* Prevent extra space */
+    margin-left: 0 !important; /* Remove any left margin */
+    width: 100%; /* Ensure the container uses full width */
   }
 
   .nav-rec-cards {
-    flex: 0 0 auto; /* Maintain horizontal scrolling */
-    width: 250px; /* Fixed width */
+    flex: 0 0 auto; /* Prevent shrinking */
+    width: 250px; /* Maintain card width */
+    margin-left: 0 !important; /* Ensure no left margin */
+    margin-right: 10px; /* Add spacing between cards */
+  }
+
+  /* Prevent the first card from being offset */
+  .nav-rec-cards:first-child {
+    margin-left: 0 !important;
   }
 }
 
@@ -100,12 +103,11 @@
   color: green;
 }
 
-/* Fix: Move the counter and cart icon inside the card properly */
 .card-bottom {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: auto; /* Push it down dynamically */
+  margin-top: auto;
   padding-top: 10px;
   position: relative;
 }
