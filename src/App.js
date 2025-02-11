@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { ToastContainer } from "react-toastify"; // ✅ Import ToastContainer
-import "react-toastify/dist/ReactToastify.css"; // ✅ Import Toastify CSS
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import './App.css';
 import Header from './components/header';
@@ -18,49 +18,46 @@ import ProductsPage from "./components/ProductsPage";
 import Cart from "./components/cart";  
 import ProductDetails from "./components/ProductDetail";
 import { CartProvider } from "./components/CartContext";
+import { AuthProvider } from "./components/AuthContext";  // ✅ Import AuthProvider
 import AuthPage from "./components/auth";
 import Checkout from "./components/checkout";
 
 function App() {
   return (
-    <CartProvider>  
-      <Router>
-        <div className="App">
-          <Header />
-          <Navbar />
-          
-          {/* ✅ Add ToastContainer for notifications */}
-          <ToastContainer position="top-center" autoClose={2000} />
+    <Router> {/* Router should be the top level here */}
+      <AuthProvider> {/* AuthProvider is wrapped inside Router */}
+        <CartProvider>  
+          <div className="App">
+            <Header />
+            <Navbar />
+            
+            <ToastContainer position="top-center" autoClose={2000} />
 
-          <Routes>
-            {/* Product Pages */}
-            <Route path="/products/:category" element={<ProductsPage />} />
-            <Route path="/products" element={<ProductsPage />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="/checkout" element={<Checkout />} />
-
-            {/* Product Detail Page */}
-            <Route path="/product_detail" element={<ProductDetails />} />
-
-            {/* Home Page */}
-            <Route path="/" element={
-              <>
-                <Carousel />
-                <RoundSlider />
-                <RecommendedDeals />
-                <Carousel2 />
-                <Discount />
-                <Trending />
-                <Banner3 />
-                <BestSeller />
-                <Footer />
-              </>
-            } />
-          </Routes>
-        </div>
-      </Router>
-    </CartProvider>
+            <Routes>
+              <Route path="/products/:category" element={<ProductsPage />} />
+              <Route path="/products" element={<ProductsPage />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/product_detail" element={<ProductDetails />} />
+              <Route path="/" element={
+                <>
+                  <Carousel />
+                  <RoundSlider />
+                  <RecommendedDeals />
+                  <Carousel2 />
+                  <Discount />
+                  <Trending />
+                  <Banner3 />
+                  <BestSeller />
+                  <Footer />
+                </>
+              } />
+            </Routes>
+          </div>
+        </CartProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 

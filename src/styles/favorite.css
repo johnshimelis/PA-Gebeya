@@ -1,0 +1,96 @@
+/* Basic styles for the favorite items page */
+.favorite-container {
+    width: 100%;
+    padding: 20px;
+    background-color: #f9f9f9;
+  }
+  
+  .favorite-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .favorite-info {
+    font-size: 16px;
+    color: #555;
+  }
+  
+  .favorite-main {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .favorite-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+  }
+  
+  .favorite-item {
+    background-color: #fff;
+    width: 250px;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .favorite-item-image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 15px;
+  }
+  
+  .favorite-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .favorite-item-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .favorite-quantity {
+    font-size: 14px;
+    color: #666;
+  }
+  
+  .delete-icon {
+    font-size: 20px;
+    cursor: pointer;
+    color: #ff4d4d;
+  }
+  
+  .favorite-bottom-section {
+    margin-top: 10px;
+  }
+  
+  .add-to-cart-button {
+    background-color: #4caf50;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .add-to-cart-button:hover {
+    background-color: #45a049;
+  }
+  
+  /* Add a loading or empty favorites message */
+  .empty-favorites {
+    text-align: center;
+    font-size: 18px;
+    color: #777;
+  }
+  
