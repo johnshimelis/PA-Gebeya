@@ -1,6 +1,6 @@
-import React, { createContext, useState, useContext } from "react";
-import { toast } from "react-toastify"; 
-import "react-toastify/dist/ReactToastify.css";
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { toast } from 'react-toastify';
+import axios from 'axios';
 
 const CartContext = createContext();
 
@@ -9,47 +9,78 @@ export const useCart = () => useContext(CartContext);
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
 
-  const addToCart = (product) => {
-    setCartItems((prevCartItems) => {
-      const existingItemIndex = prevCartItems.findIndex(
-        (item) => item.id === product.id && item.title === product.title
-      );
-  
-      if (existingItemIndex !== -1) {
-        return prevCartItems.map((item, index) =>
-          index === existingItemIndex
-            ? { ...item, quantity: item.quantity + product.quantity } // Fix: add product.quantity
-            : item
-        );
-      } else {
-        return [...prevCartItems, { ...product, uniqueId: `${product.id}-${Date.now()}` }]; // No need to set quantity: 1
+  // Fetch Cart Items when user logs in
+  const fetchCartItems = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setCartItems([]); // Ensure cart is empty if no token
+        return;
       }
-    });
+  
+      const response = await axios.get("http://localhost:5000/api/cart", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      setCartItems(response.data.items);
+    } catch (error) {
+      console.error("Error fetching cart items:", error);
+    }
   };
   
-  const updateQuantity = (uniqueId, newQuantity) => {
-    setCartItems((prevCartItems) =>
-      prevCartItems
-        .map((item) =>
-          item.uniqueId === uniqueId ? { ...item, quantity: Math.max(newQuantity, 0) } : item
-        )
-        .filter((item) => item.quantity > 0) // Removes items if quantity is 0
-    );
+  const addToCart = async (product) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post("http://localhost:5000/api/cart", product, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setCartItems(response.data.items);
+      toast.success(`${product.productName || product.title || "Item"} added to cart!`);
+    } catch (error) {
+      toast.error("Error adding item to cart");
+      console.error(error);
+    }
   };
 
-  const removeFromCart = (uniqueId) => {
-    const itemToRemove = cartItems.find((item) => item.uniqueId === uniqueId);
-    
-    if (itemToRemove) {
-      toast.info(`${itemToRemove.title} is removed from the cart`, { position: "top-center" });
-    }
+  const updateQuantity = async (productId, newQuantity) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(`http://localhost:5000/api/cart/${productId}`, { quantity: newQuantity }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    setCartItems((prevItems) => prevItems.filter((item) => item.uniqueId !== uniqueId));
+      setCartItems((prevCart) =>
+        prevCart.map((item) =>
+          item.productId._id === productId ? { ...item, quantity: newQuantity } : item
+        )
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const removeFromCart = async (productId) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`http://localhost:5000/api/cart/${productId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setCartItems((prev) => prev.filter((item) => item.productId._id !== productId));
+      toast.info("Item removed from cart");
+    } catch (error) {
+      console.error(error);
+    }
+  };
+   // Clear cart when user logs out
+   const clearCart = () => {
+    setCartItems([]); // Reset cartItems to an empty array
   };
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, updateQuantity, removeFromCart }}>
-      {children}
-    </CartContext.Provider>
+    <CartContext.Provider value={{ cartItems, addToCart, updateQuantity, removeFromCart, setCartItems, fetchCartItems, clearCart }}>
+    {children}
+  </CartContext.Provider>
   );
 };

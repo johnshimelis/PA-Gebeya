@@ -98,7 +98,7 @@ html, body {
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
-    width: 50%;
+    width:40%;
 }
 
 .nav-search form {
@@ -378,5 +378,58 @@ html, body {
     position: absolute;
     top: -5px;
     right: -10px;
+  }
+  /* User Dropdown */
+.user-dropdown {
+    position: relative;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  /* Dropdown Menu (Hidden by Default) */
+  .dropdown-menu {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    min-width: 200px;
+    display: none;
+    flex-direction: column;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  
+  /* When Hovered, Show the Dropdown */
+  .user-dropdown:hover .dropdown-menu,
+  .dropdown-menu.visible {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  
+  /* Dropdown Items */
+  .dropdown-menu div {
+    padding: 12px 15px;
+    cursor: pointer;
+    transition: background 0.3s;
+    white-space: nowrap;
+  }
+  
+  .dropdown-menu div:hover {
+    background: #f0f0f0;
+  }
+  
+  /* Logout Button */
+  .logout {
+    color: red;
+    font-weight: bold;
   }
   

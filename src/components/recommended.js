@@ -6,98 +6,123 @@ import recCard3 from "../images/assets/rec-card-3.avif";
 import recCard4 from "../images/assets/rec-card-4.avif";
 import recCard5 from "../images/assets/rec-card-5.avif";
 import { useNavigate } from "react-router-dom";
-import { useCart } from "../components/CartContext"; // Ensure you have access to the cart context
-import { toast } from "react-toastify"; // Import toast
-
+import { useCart } from "../components/CartContext";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 const RecommendedDeals = () => {
-  const { addToCart, updateQuantity, cartItems } = useCart(); // Cart context to add items
-  const navigate = useNavigate(); // Used for page redirection
-  
+  const { addToCart, updateQuantity, cartItems, setCartItems } = useCart();
+  const navigate = useNavigate();
+  const [deals, setDeals] = useState([]);
+  const [refresh, setRefresh] = useState(false);
+
+
   useEffect(() => {
-    const scrollContainer = document.getElementById("rec");
-    if (scrollContainer) {
-      setTimeout(() => {
-        scrollContainer.scrollLeft = 0;
-      }, 300); // Increased delay for better reliability
-    }
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/products");
+        setDeals(response.data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+    fetchProducts();
   }, []);
+
   
   
-  
-  const deals = [
-    {
-      id: 1,
-      img: recCard1,
-      title: "Apple iPhone 14 Pro Max 256GB Deep",
-      price: "43990.00",
-      originalPrice: "5099",
-      discount: "13% off",
-    },
-    {
-      id: 2,
-      img: recCard2,
-      title: "Apple iPhone 14 Pro Max 256GB Deep",
-      price: "43990.00",
-      originalPrice: "5099",
-      discount: "13% off",
-    },
-    {
-      id: 3,
-      img: recCard3,
-      title: "Apple iPhone 14 Pro Max 256GB Deep",
-      price: "43990.00",
-      originalPrice: "5099",
-      discount: "13% off",
-    },
-    {
-      id: 4,
-      img: recCard4,
-      title: "Apple iPhone 14 Pro Max 256GB Deep",
-      price: "43990.00",
-      originalPrice: "5099",
-      discount: "13% off",
-    },
-    {
-      id: 5,
-      img: recCard5,
-      title: "Apple iPhone 14 Pro Max 256GB Deep",
-      price: "43990.00",
-      originalPrice: "5099",
-      discount: "13% off",
-    },
-  ];
 
   const handleProductClick = (deal) => {
     navigate("/product_detail", { state: { product: deal } });
   };
 
-  const handleAddToCart = (deal) => {
-    const existingCartItem = cartItems.find((item) => item.id === deal.id);
-
-    if (existingCartItem) {
-      // If the product already exists in the cart, update its quantity
-      updateQuantity(existingCartItem.uniqueId, existingCartItem.quantity + 1);
-      toast.success(`${existingCartItem.quantity + 1} ${deal.title} added to the cart`, {
-        position: "top-center",
+  const handleAddToCart = async (product) => {
+    const userId = localStorage.getItem("userId");
+    const token = localStorage.getItem("token");
+  
+    if (!userId || !token) {
+      toast.error("Please log in to add items to the cart");
+      return;
+    }
+  
+    let productId = product._id;
+    if (!productId) {
+      console.error("Error: Product ID is undefined");
+      toast.error("Error adding item to cart: Product ID missing");
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append("userId", userId);
+    formData.append("productId", productId);
+    formData.append("productName", product.name);
+    formData.append("price", product.price);
+    formData.append("quantity", 1);
+  
+    if (product.image) {
+      formData.append("image", product.image);
+    }
+  
+    try {
+      const response = await fetch("http://localhost:5000/api/cart", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
       });
-    } else {
-      // If it's a new product, add it to the cart with quantity 1
-      addToCart({ ...deal, quantity: 1, uniqueId: `${deal.id}-${Date.now()}` });
-      toast.success(`1 ${deal.title} added to the cart`, {
-        position: "top-center",
-      });
+  
+      const responseData = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(`Failed to add item: ${responseData.error}`);
+      }
+  
+      // Get the updated quantity from the cart
+      const existingItem = cartItems.find((item) => item._id === product._id);
+      const updatedQuantity = existingItem ? existingItem.quantity + 1 : 1;
+  
+      // Display toast with product name and updated quantity
+      toast.success(`${updatedQuantity} ${product.name} Added to The Cart!`);
+  
+      addToCart(responseData);
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      toast.error(error.message);
     }
   };
+  
 
-  const handleQuantityChange = (productId, action) => {
-    const productInCart = cartItems.find((item) => item.id === productId);
-
-    if (productInCart) {
-      const newQuantity = action === "increment" ? productInCart.quantity + 1 : productInCart.quantity - 1;
-      updateQuantity(productInCart.uniqueId, newQuantity);
+  const handleUpdateQuantity = async (productId, newQuantity) => {
+    if (newQuantity < 1) return; // Prevent going below 1
+  
+    try {
+      const token = localStorage.getItem("token");
+  
+      // Update the backend
+      await axios.put(
+        `http://localhost:5000/api/cart/${productId}`,
+        { quantity: newQuantity },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+  
+      // Update state with new quantity
+      setCartItems((prevCart) =>
+        prevCart.map((item) =>
+          item.productId === productId ? { ...item, quantity: newQuantity } : item
+        )
+      );
+  
+      toast.success(`Quantity updated to ${newQuantity}`);
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+      toast.error("Failed to update quantity");
     }
   };
+  
+  
 
   return (
     <section>
@@ -105,56 +130,46 @@ const RecommendedDeals = () => {
         Recommended for you
       </h4>
       <div id="rec" className="nav-deals-main">
-        {deals.map((deal) => {
-          const cartItem = cartItems.find((item) => item.id === deal.id);
-          const quantity = cartItem ? cartItem.quantity : 0;
+      {deals.map((deal) => {
+      const cartItem = cartItems.find((item) => item.productId === deal._id);
+      const quantity = cartItem ? cartItem.quantity : 1; // Ensure it updates
 
-          return (
-            <div key={deal.id} className="nav-rec-cards">
-              <div
-                className="card-img"
-                onClick={() => handleProductClick(deal)} // Redirect to ProductDetail on image click
-              >
-                <img src={deal.img} alt={deal.title} />
-              </div>
-              <div
-                className="card-title"
-                onClick={() => handleProductClick(deal)} // Redirect to ProductDetail on title click
-              >
-                {deal.title}
-              </div>
-              <div className="card-price">AED {deal.price}</div>
-              <div className="card-pricing">
-                <span className="original-price">AED {deal.originalPrice}</span>
-                <span className="discount">{deal.discount}</span>
-              </div>
-              <div className="card-bottom">
-                <div className="card-counter">
-                  <button
-                    className="counter-btn"
-                    disabled={quantity <= 0}
-                    onClick={() => handleQuantityChange(deal.id, "decrement")}
-                  >
-                    -
-                  </button>
-                  <span className="counter-value">{quantity}</span>
-                  <button
-                    className="counter-btn"
-                    onClick={() => handleQuantityChange(deal.id, "increment")}
-                  >
-                    +
-                  </button>
-                </div>
-                <i
-                  className="cart-icon fa fa-shopping-cart"
-                  onClick={() => handleAddToCart(deal)} // Add to cart on cart icon click
-                  style={{ cursor: "pointer" }}
-                ></i>
-              </div>
-            </div>
-          );
-        })}
+  return (
+    <div key={deal._id} className="nav-rec-cards">
+      <div className="card-img" onClick={() => handleProductClick(deal)}>
+        <img src={`http://localhost:5000/uploads/${deal.image}`} alt={deal.name} />
       </div>
+      <div className="card-title" onClick={() => handleProductClick(deal)}>
+        {deal.name}
+      </div>
+      <div className="card-price">AED {deal.price}</div>
+      <div className="card-bottom">
+        <div className="card-counter">
+          <button
+            className="counter-btn"
+            disabled={quantity <= 0}
+            onClick={() => handleUpdateQuantity(deal._id, quantity - 1)}
+          >
+            -
+          </button>
+          <span className="counter-value">{quantity}</span> {/* Reflects updated quantity */}
+          <button
+            className="counter-btn"
+            onClick={() => handleUpdateQuantity(deal._id, quantity + 1)}
+          >
+            +
+          </button>
+        </div>
+        <i
+          className="cart-icon fa fa-shopping-cart"
+          onClick={() => handleAddToCart(deal)}
+          style={{ cursor: "pointer" }}
+        ></i>
+      </div>
+    </div>
+  );
+})}
+</div>
     </section>
   );
 };

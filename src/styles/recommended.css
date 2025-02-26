@@ -1,141 +1,219 @@
-/* Default card styling */
-.nav-rec-cards {
-  width: 250px;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  background-color: #f1f4fd;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin: 15px;
-  position: relative;
-  min-height: 320px;
-  padding-bottom: 80px; /* Space for counter & cart icon */
-}
-
-/* Container for horizontal scroll */
 #rec {
   display: flex;
-  flex-wrap: nowrap; /* Ensures horizontal scrolling without wrapping */
+  flex-wrap: nowrap;
   overflow-x: auto; /* Enables horizontal scrolling */
-  gap: 10px;
-  padding: 10px;
-  background-color: #f1f4fd;
+  overflow-y: hidden;
   scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch; /* Smooth scrolling for mobile */
-  margin-left: 0; /* Ensure no left margin on the scroll container */
-  padding-left: 0; /* Ensure no left padding */
-  justify-content: flex-start; /* Align cards to the left */
+  white-space: nowrap;
+  width: 100%;
+  max-width: 100%;
+  scroll-snap-type: x mandatory; /* Ensures smooth snap scrolling */
+  padding-left: 0; /* Ensures no unwanted padding */
+  margin-left: 0;
 }
 
-/* Hide scrollbar */
-#rec::-webkit-scrollbar {
-  display: none; /* Removes the horizontal scrollbar */
+.nav-deals-main {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 25px;
+  overflow-x: auto; /* Enables scrolling */
+  scroll-behavior: smooth;
+  white-space: nowrap;
+  width: max-content; /* Ensures all products fit */
+  scroll-snap-type: x mandatory;
+  padding-left: 0; /* Prevents offset */
+  margin-left: 0;
+  align-items: flex-start; /* Aligns all cards properly */
 }
 
-/* Responsive styles for screens less than 480px */
-@media screen and (max-width: 480px) {
-  #rec {
-    flex-wrap: nowrap; /* Ensure no wrapping */
-    overflow-x: auto; /* Enable horizontal scrolling */
-    padding-left: 0 !important; /* Prevent extra space */
-    margin-left: 0 !important; /* Remove any left margin */
-    width: 100%; /* Ensure the container uses full width */
-  }
-
-  .nav-rec-cards {
-    flex: 0 0 auto; /* Prevent shrinking */
-    width: 250px; /* Maintain card width */
-    margin-left: 0 !important; /* Ensure no left margin */
-    margin-right: 10px; /* Add spacing between cards */
-  }
-
-  /* Prevent the first card from being offset */
-  .nav-rec-cards:first-child {
-    margin-left: 0 !important;
-  }
+.nav-rec-cards {
+  flex: 0 0 auto;
+  width: 300px; /* Keeps card size consistent */
+  scroll-snap-align: start; /* Ensures each card aligns properly */
+  margin-left: 0; /* Removes any offset */
 }
 
+/* 🌟 Hide Scrollbar for a Clean Look */
+#rec::-webkit-scrollbar,
+.nav-deals-main::-webkit-scrollbar {
+  height: 8px;
+}
+
+#rec::-webkit-scrollbar-track,
+.nav-deals-main::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 10px;
+}
+
+#rec::-webkit-scrollbar-thumb,
+.nav-deals-main::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+#rec::-webkit-scrollbar-thumb:hover,
+.nav-deals-main::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* 🌟 Individual Product Card */
+.nav-rec-cards {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 300px; /* Keeps card size consistent */
+  flex: 0 0 auto;
+  overflow: hidden;
+  transition: transform 0.2s ease-in-out;
+}
+
+.nav-rec-cards:hover {
+  transform: scale(1.05);
+}
+
+/* 🌟 Product Image */
 .card-img {
   width: 100%;
-  text-align: center;
-  margin-bottom: 10px;
+  height: 240px;
+  overflow: hidden;
 }
 
 .card-img img {
   width: 100%;
-  height: auto;
-  border-radius: 8px;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease-in-out;
 }
 
+.card-img:hover img {
+  transform: scale(1.1);
+}
+
+/* 🌟 Product Title */
 .card-title {
   font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 5px;
+  font-weight: bold;
+  padding: 12px;
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+/* 🌟 Price Styling */
 .card-price {
-  font-size: 18px;
-  font-weight: bold;
-  color: #000;
+  font-size: 20px;
+  font-weight: 700;
+  color: #007600;
+  padding: 8px;
   text-align: center;
-  margin-bottom: 5px;
 }
 
-.card-pricing {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  margin: 5px 0;
-}
-
-.original-price {
-  font-size: 12px;
-  text-decoration: line-through;
-  color: gray;
-}
-
-.discount {
-  font-size: 14px;
-  font-weight: bold;
-  color: green;
-}
-
+/* 🌟 Bottom Section (Counter + Cart Icon) */
 .card-bottom {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: auto;
-  padding-top: 10px;
-  position: relative;
+  padding: 12px;
 }
 
+/* 🌟 Counter Styling */
 .card-counter {
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .counter-btn {
-  width: 30px;
-  height: 30px;
-  background-color: #d9d9d9;
+  background-color: #f0f0f0;
   border: none;
-  border-radius: 5px;
+  padding: 6px 12px;
   font-size: 18px;
-  font-weight: bold;
   cursor: pointer;
+  border-radius: 5px;
+}
+
+.counter-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .counter-value {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
 }
 
+/* 🌟 Cart Icon */
 .cart-icon {
+  font-size: 22px;
+  color: #007bff;
   cursor: pointer;
-  color: #4a4a4a;
+}
+
+.cart-icon:hover {
+  color: #0056b3;
+}
+
+/* 🌟 Responsive Design */
+@media (max-width: 1024px) {
+  .nav-rec-cards {
+    width: 280px;
+  }
+
+  .card-img {
+    height: 220px;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-deals-main {
+    gap: 15px;
+  }
+
+  .nav-rec-cards {
+    width: 250px;
+  }
+
+  .card-img {
+    height: 200px;
+  }
+
+  .card-title {
+    font-size: 16px;
+  }
+
+  .card-price {
+    font-size: 18px;
+  }
+
+  .cart-icon {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-rec-cards {
+    width: 220px;
+  }
+
+  .card-img {
+    height: 180px;
+  }
+
+  .card-title {
+    font-size: 15px;
+  }
+
+  .card-price {
+    font-size: 16px;
+  }
+
+  .counter-btn {
+    padding: 5px 10px;
+    font-size: 16px;
+  }
+
+  .cart-icon {
+    font-size: 18px;
+  }
 }
