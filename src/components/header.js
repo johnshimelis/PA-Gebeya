@@ -21,19 +21,18 @@ const Header = () => {
   const dropdownRef = useRef(null);
   const userRef = useRef(null);
 
-  // Function to safely decode JWT
+  // Function to decode JWT safely
   const decodeToken = (token) => {
     try {
-      const base64Url = token.split(".")[1];
-      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-      return JSON.parse(atob(base64));
+      const payload = JSON.parse(atob(token.split(".")[1])); // Decode payload
+      return payload;
     } catch (error) {
       console.error("Invalid token:", error);
       return null;
     }
   };
 
-  // Function to check if the user is still authenticated
+  // Function to check user status and token expiration
   const checkUser = () => {
     const storedUser = localStorage.getItem("user");
     const token = localStorage.getItem("token");
@@ -41,32 +40,33 @@ const Header = () => {
     if (storedUser && token) {
       const parsedUser = JSON.parse(storedUser);
       const decodedToken = decodeToken(token);
-
+      
       if (decodedToken) {
         const tokenExpiry = decodedToken.exp;
         const currentTime = Math.floor(Date.now() / 1000);
 
-        if (tokenExpiry && tokenExpiry > currentTime) {
-          setUser(parsedUser);
+        if (tokenExpiry && tokenExpiry < currentTime) {
+          handleLogout(); // Token expired, logout the user
         } else {
-          handleLogout();
+          setUser(parsedUser); // Valid token, user is logged in
         }
       } else {
-        handleLogout();
+        handleLogout(); // Invalid token, logout the user
       }
     } else {
-      setUser(null);
+      setUser(null); // No user, logout
     }
   };
 
   useEffect(() => {
-    checkUser(); // Check user immediately on mount
+    checkUser(); // Check user status on component mount
 
     const handleStorageChange = () => {
-      checkUser();
+      checkUser(); // Recheck on localStorage change (e.g., token expiry)
     };
 
     window.addEventListener("storage", handleStorageChange);
+
     return () => {
       window.removeEventListener("storage", handleStorageChange);
     };
@@ -74,15 +74,24 @@ const Header = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      checkUser(); // Recheck user token every 60 seconds
-    }, 60000);
+      const token = localStorage.getItem("token");
+      if (token) {
+        const decodedToken = decodeToken(token);
+        const tokenExpiry = decodedToken?.exp;
+        const currentTime = Math.floor(Date.now() / 1000);
+
+        if (tokenExpiry && tokenExpiry < currentTime) {
+          handleLogout(); // Token expired, logout user
+        }
+      }
+    }, 60000); // Check every 60 seconds for token expiry
 
     return () => clearInterval(interval);
   }, []);
 
   // Fetch cart items when user logs in
   useEffect(() => {
-    if (user) {
+    if (user) { 
       fetchCartItems();
     } else {
       clearCart();
@@ -94,7 +103,7 @@ const Header = () => {
     localStorage.removeItem("token");
     clearCart();
     setUser(null);
-    navigate("/auth");
+    navigate("/auth"); // Navigate to authentication page
   };
 
   return (
@@ -136,9 +145,7 @@ const Header = () => {
                     <div onClick={() => navigate("/messages")}>Messages</div>
                     <div onClick={() => navigate("/orders")}>Orders</div>
                     <hr />
-                    <div className="logout" onClick={handleLogout}>
-                      Logout
-                    </div>
+                    <div className="logout" onClick={handleLogout}>Logout</div>
                   </div>,
                   document.body
                 )}

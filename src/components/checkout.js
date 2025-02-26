@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCart } from './CartContext'; // Assuming CartContext provides the cart items
 import { useAuth } from './AuthContext';  // Import useAuth to access logged-in user info
 import '../styles/checkout.css';
@@ -6,10 +6,15 @@ import '../styles/deliveryInfo.css';
 import successImage from '../images/assets/checked.png';
 import jsQR from 'jsqr';
 
+
+
+
 const Checkout = () => {
   const { cartItems } = useCart();
   const { user } = useAuth();  // Access logged-in user from AuthContext
   const [image, setImage] = useState(null);
+  const [cart, setCart] = useState([]);
+
   const [imageName, setImageName] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [orderSubmitted, setOrderSubmitted] = useState(false);
@@ -17,6 +22,15 @@ const Checkout = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [address, setAddress] = useState('');
   const [currentStep, setCurrentStep] = useState(1);
+
+  useEffect(() => {
+    // Load cart from localStorage
+    const storedCart = localStorage.getItem("cart");
+    if (storedCart) {
+      setCart(JSON.parse(storedCart));
+    }
+  }, []);
+
 
   const handleProceedToDelivery = () => {
     const storedOrderData = localStorage.getItem("orderData");
@@ -78,6 +92,7 @@ const Checkout = () => {
       }
     };
   };
+  
   const handleOrderSubmit = async () => {
     if (!image) {
       setError('Please upload a payment screenshot before completing the order.');
@@ -91,7 +106,15 @@ const Checkout = () => {
     const storedUser = localStorage.getItem("user");
     const user = storedUser ? JSON.parse(storedUser) : null;
     const fullName = user?.fullName || "Guest User";
-    const userId = user?.userId || "Unknown ID";
+    const userId = user?.userId;
+  
+    if (!userId) {
+      console.error("❌ User ID is missing! Cannot proceed.");
+      setError("User authentication issue. Please log in again.");
+      return;
+    }
+  
+    console.log("✅ User ID:", userId);
   
     const storedOrderData = localStorage.getItem("orderData");
     const orderData = storedOrderData ? JSON.parse(storedOrderData) : {};
@@ -114,18 +137,15 @@ const Checkout = () => {
     formData.append("deliveryAddress", updatedOrderData.deliveryAddress);
     formData.append("orderDetails", JSON.stringify(updatedOrderData.orderDetails || []));
   
-    // Convert and Append Avatar Image (if available)
     if (user?.avatar && user.avatar !== "null") {
       const avatarBlob = await fetch(user.avatar).then(res => res.blob());
       formData.append("avatar", avatarBlob, "avatar.jpg");
     }
   
-    // Convert Base64 Payment Image to File and Append
     const paymentBlob = await fetch(image).then(res => res.blob());
     const paymentFile = new File([paymentBlob], imageName || "payment.jpg", { type: paymentBlob.type });
     formData.append("paymentImage", paymentFile);
   
-    // Convert and Append Product Images
     if (updatedOrderData.orderDetails) {
       await Promise.all(updatedOrderData.orderDetails.map(async (item, index) => {
         if (item.productImage && item.productImage !== "null") {
@@ -137,6 +157,7 @@ const Checkout = () => {
     }
   
     try {
+      console.log("🚀 Sending order data to backend...");
       const response = await fetch("http://localhost:5000/api/orders", {
         method: "POST",
         body: formData,
@@ -149,7 +170,40 @@ const Checkout = () => {
       const result = await response.json();
       console.log("✅ Order submitted successfully:", result);
   
+      console.log("🛒 Clearing cart from local storage...");
       localStorage.removeItem("orderData");
+      localStorage.removeItem("cart");
+  
+      if (setCart) {
+        console.log("🛒 Clearing cart from frontend state...");
+        setCart([]);
+      }
+  
+      console.log(`🛒 Sending DELETE request to backend to clear cart for user ID: ${userId}...`);
+  
+      const deleteCartURL = `http://localhost:5000/api/cart/user/${userId}`;
+      console.log(`🛒 DELETE request URL: ${deleteCartURL}`);
+  
+      const userToken = user?.token || localStorage.getItem("token"); // Get the token from localStorage if not available in user object
+      if (!userToken) {
+        console.error("❌ Token is missing. Please log in again.");
+        setError("Authentication token is missing. Please log in again.");
+        return;
+      }
+  
+      const cartDeleteResponse = await fetch(deleteCartURL, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${userToken}`,
+        },
+      });
+  
+      if (!cartDeleteResponse.ok) {
+        const cartDeleteError = await cartDeleteResponse.json();
+        throw new Error(`Failed to clear cart: ${cartDeleteError.error || "Unknown error"}`);
+      }
+  
+      console.log("✅ Cart cleared successfully from backend!");
   
       setOrderSubmitted(true);
       setTimeout(() => {
@@ -157,7 +211,7 @@ const Checkout = () => {
       }, 3000);
     } catch (error) {
       console.error("❌ Error submitting order:", error);
-      setError("Failed to submit order. Please try again.");
+      setError(error.message || "Failed to submit order. Please try again.");
     }
   };
   
