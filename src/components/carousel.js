@@ -1,19 +1,27 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "../styles/carousel.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import carousel1 from "../images/assets/carousel-1.png";
-import carousel2 from "../images/assets/carousel-2.png";
-import carousel3 from "../images/assets/carousel-3.jpg";
-import carousel4 from "../images/assets/carousel-4.png";
-import carousel5 from "../images/assets/carousel-5.png";
-import carousel6 from "../images/assets/carousel-6.png";
-import carousel7 from "../images/assets/carousel-7.gif";
-import carousel8 from "../images/assets/carousel-8.jpg";
 import carouselSecond1 from "../images/assets/carousel-second.png";
 import carouselSecond2 from "../images/assets/carousel-second1.png";
 
 const Carousel = () => {
+  const [ads, setAds] = useState([]);
+
+  useEffect(() => {
+    const fetchAds = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/ads/ads");
+        setAds(response.data);
+      } catch (error) {
+        console.error("Error fetching ads:", error);
+      }
+    };
+
+    fetchAds();
+  }, []);
+
   return (
     <section>
       <div className="nav-carousel">
@@ -27,32 +35,25 @@ const Carousel = () => {
           >
             {/* Indicators */}
             <div className="carousel-indicators">
-              {Array(8)
-                .fill()
-                .map((_, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    data-bs-target="#carouselExampleIndicators"
-                    data-bs-slide-to={index}
-                    className={index === 0 ? "active" : ""}
-                    aria-label={`Slide ${index + 1}`}
-                    aria-current={index === 0 ? "true" : undefined}
-                  ></button>
-                ))}
+              {ads.map((_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  data-bs-target="#carouselExampleIndicators"
+                  data-bs-slide-to={index}
+                  className={index === 0 ? "active" : ""}
+                  aria-label={`Slide ${index + 1}`}
+                  aria-current={index === 0 ? "true" : undefined}
+                ></button>
+              ))}
             </div>
             {/* Carousel Items */}
             <div className="carousel-inner">
-              {[carousel1, carousel2, carousel3, carousel4, carousel5, carousel6, carousel7, carousel8].map(
-                (image, index) => (
-                  <div
-                    key={index}
-                    className={`carousel-item ${index === 0 ? "active" : ""}`}
-                  >
-                    <img src={image} className="d-block w-100" alt={`Slide ${index + 1}`} />
-                  </div>
-                )
-              )}
+              {ads.map((ad, index) => (
+                <div key={ad._id} className={`carousel-item ${index === 0 ? "active" : ""}`}>
+                  <img src={`http://localhost:5000/${ad.images[0]}`} className="d-block w-100" alt={`Ad ${index + 1}`} />
+                </div>
+              ))}
             </div>
             {/* Controls */}
             <button

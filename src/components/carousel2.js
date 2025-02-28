@@ -1,32 +1,53 @@
-import React from 'react';
-
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "../styles/carousel.css";
-import 'bootstrap/dist/css/bootstrap.min.css';  // Ensure Bootstrap CSS is imported
-import 'bootstrap';  // Ensure Bootstrap JS is imported for carousel functionality
-import img1 from '../images/assets/c-2-1.png';
-import img2 from '../images/assets/c-2-2.gif';
-import img3 from '../images/assets/c-2-3.png';
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap"; // Ensure Bootstrap JS is imported for carousel functionality
 
 const Carousel2 = () => {
+  const [banners, setBanners] = useState([]);
+
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/ads/banner");
+        setBanners(response.data);
+      } catch (error) {
+        console.error("Error fetching banners:", error);
+      }
+    };
+
+    fetchBanners();
+  }, []);
+
   return (
-    <section style={{ padding: '7px' }}>
+    <section style={{ padding: "7px" }}>
       <div id="carouselExampleIndicators" className="carousel slide" data-bs-ride="carousel">
+        {/* Indicators */}
         <div className="carousel-indicators">
-          <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" className="active" aria-current="true" aria-label="Slide 1"></button>
-          <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
-          <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+          {banners.map((_, index) => (
+            <button
+              key={index}
+              type="button"
+              data-bs-target="#carouselExampleIndicators"
+              data-bs-slide-to={index}
+              className={index === 0 ? "active" : ""}
+              aria-label={`Slide ${index + 1}`}
+              aria-current={index === 0 ? "true" : undefined}
+            ></button>
+          ))}
         </div>
+        
+        {/* Carousel Items */}
         <div className="carousel-inner">
-          <div className="carousel-item active">
-            <img src={img1} className="d-block w-100" alt="Slide 1" />
-          </div>
-          <div className="carousel-item">
-            <img src={img2} className="d-block w-100" alt="Slide 2" />
-          </div>
-          <div className="carousel-item">
-            <img src={img3} className="d-block w-100" alt="Slide 3" />
-          </div>
+          {banners.map((banner, index) => (
+            <div key={banner._id} className={`carousel-item ${index === 0 ? "active" : ""}`}>
+              <img src={`http://localhost:5000/${banner.images[0]}`} className="d-block w-100" alt={`Banner ${index + 1}`} />
+            </div>
+          ))}
         </div>
+        
+        {/* Controls */}
         <button className="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
           <span className="carousel-control-prev-icon" aria-hidden="true"></span>
           <span className="visually-hidden">Previous</span>

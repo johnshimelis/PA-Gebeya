@@ -34,6 +34,7 @@ const Cart = () => {
   }, [setCartItems, navigate]);
   const handleCheckout = () => {
     const orderDetails = cartItems.map((cartItem) => ({
+      productId: cartItem.productId._id, // ✅ Include productId
       product: cartItem.productId.name,
       quantity: cartItem.quantity,
       price: cartItem.productId.price,
@@ -42,18 +43,20 @@ const Cart = () => {
         : cartItem.productId.image
         ? `${IMAGE_BASE_URL}/uploads/${cartItem.productId.image}`
         : "/placeholder.jpg",
-      _id: cartItem.productId._id,
     }));
-  
+
     const balance = cartItems.reduce(
       (acc, item) => acc + item.productId.price * item.quantity,
       0
     ).toFixed(2);
-  
+
     const orderData = {
       amount: balance,
       orderDetails,
     };
+
+
+
   
     // Store in localStorage
     localStorage.setItem("orderData", JSON.stringify(orderData));

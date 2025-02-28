@@ -35,31 +35,32 @@ const Checkout = () => {
   const handleProceedToDelivery = () => {
     const storedOrderData = localStorage.getItem("orderData");
     const orderData = storedOrderData ? JSON.parse(storedOrderData) : null;
-
+  
     if (orderData) {
       console.log("✅ Keeping Existing Order Data:", orderData);
     } else {
       const orderDetails = cartItems.map((cartItem) => ({
+        productId: cartItem.productId,  // ✅ Store productId explicitly
         product: cartItem.title,
         quantity: cartItem.quantity,
         price: cartItem.price,
         productImage: cartItem.image || "/placeholder.jpg",
         _id: cartItem.uniqueId,
       }));
-
+  
       const balance = cartItems
         .reduce((acc, item) => acc + item.price * item.quantity, 0)
         .toFixed(2);
-
+  
       const newOrderData = { amount: balance, orderDetails };
-
+  
       localStorage.setItem("orderData", JSON.stringify(newOrderData));
       console.log("🛒 New Order Data Saved:", newOrderData);
     }
-
+  
     setCurrentStep(2);
   };
-
+  
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -95,11 +96,11 @@ const Checkout = () => {
   
   const handleOrderSubmit = async () => {
     if (!image) {
-      setError('Please upload a payment screenshot before completing the order.');
+      setError("Please upload a payment screenshot before completing the order.");
       return;
     }
     if (!phoneNumber || !address) {
-      setError('Please provide both phone number and delivery address.');
+      setError("Please provide both phone number and delivery address.");
       return;
     }
   
@@ -119,13 +120,25 @@ const Checkout = () => {
     const storedOrderData = localStorage.getItem("orderData");
     const orderData = storedOrderData ? JSON.parse(storedOrderData) : {};
   
+    // ✅ Retrieve and ensure `productId` is included in order details
+    const updatedOrderDetails = (orderData.orderDetails || []).map(item => ({
+      productId: item.productId,  // ✅ Ensuring productId is sent
+      product: item.product,
+      quantity: item.quantity,
+      price: item.price,
+      productImage: item.productImage,
+    }));
+  
+    console.log("📦 Order Details (with productId):", updatedOrderDetails);
+  
     const updatedOrderData = {
       ...orderData,
-      status: 'Pending',
+      status: "Pending",
       name: fullName,
       userId: userId,
       phoneNumber,
       deliveryAddress: address,
+      orderDetails: updatedOrderDetails,
     };
   
     const formData = new FormData();
@@ -136,11 +149,6 @@ const Checkout = () => {
     formData.append("phoneNumber", updatedOrderData.phoneNumber);
     formData.append("deliveryAddress", updatedOrderData.deliveryAddress);
     formData.append("orderDetails", JSON.stringify(updatedOrderData.orderDetails || []));
-  
-    if (user?.avatar && user.avatar !== "null") {
-      const avatarBlob = await fetch(user.avatar).then(res => res.blob());
-      formData.append("avatar", avatarBlob, "avatar.jpg");
-    }
   
     const paymentBlob = await fetch(image).then(res => res.blob());
     const paymentFile = new File([paymentBlob], imageName || "payment.jpg", { type: paymentBlob.type });
@@ -170,21 +178,17 @@ const Checkout = () => {
       const result = await response.json();
       console.log("✅ Order submitted successfully:", result);
   
-      console.log("🛒 Clearing cart from local storage...");
       localStorage.removeItem("orderData");
       localStorage.removeItem("cart");
   
       if (setCart) {
-        console.log("🛒 Clearing cart from frontend state...");
         setCart([]);
       }
   
       console.log(`🛒 Sending DELETE request to backend to clear cart for user ID: ${userId}...`);
-  
       const deleteCartURL = `http://localhost:5000/api/cart/user/${userId}`;
-      console.log(`🛒 DELETE request URL: ${deleteCartURL}`);
+      const userToken = user?.token || localStorage.getItem("token");
   
-      const userToken = user?.token || localStorage.getItem("token"); // Get the token from localStorage if not available in user object
       if (!userToken) {
         console.error("❌ Token is missing. Please log in again.");
         setError("Authentication token is missing. Please log in again.");
@@ -204,7 +208,6 @@ const Checkout = () => {
       }
   
       console.log("✅ Cart cleared successfully from backend!");
-  
       setOrderSubmitted(true);
       setTimeout(() => {
         setOrderSubmitted(false);
@@ -215,6 +218,7 @@ const Checkout = () => {
     }
   };
   
+
 
   const openModal = () => {
     setIsModalOpen(true);

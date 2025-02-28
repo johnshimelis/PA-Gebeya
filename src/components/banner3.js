@@ -1,15 +1,34 @@
-import React from 'react';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "../styles/style.css";
-import banner3 from '../images/assets/cover-4.jpg'; // Adjust the path as needed
-
 
 const Banner3 = () => {
-    return (
-      <section style={{ width: "100%", height: "auto", backgroundColor: "#ebebeb", padding: "5px" }}>
-        <img src={banner3} alt="Banner" className="w-100" />
-      </section>
-    );
-  };
-  
-  export default Banner3;
-  
+  const [banner1, setBanner1] = useState(null);
+
+  useEffect(() => {
+    const fetchBanner1 = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/ads/banner1");
+        if (response.data.length > 0) {
+          setBanner1(response.data[0].images[0]); // Assuming only one banner1 image is displayed
+        }
+      } catch (error) {
+        console.error("Error fetching banner1:", error);
+      }
+    };
+
+    fetchBanner1();
+  }, []);
+
+  return (
+    <section style={{ width: "100%", height: "auto", backgroundColor: "#ebebeb", padding: "5px" }}>
+      {banner1 ? (
+        <img src={`http://localhost:5000/${banner1}`} alt="Banner" className="w-100" />
+      ) : (
+        <p>Loading banner...</p>
+      )}
+    </section>
+  );
+};
+
+export default Banner3;

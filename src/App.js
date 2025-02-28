@@ -60,7 +60,7 @@ function App() {
                   <RecommendedDeals />
                   <Carousel2 />
                   <Discount />
-                  <Trending />
+                 
                   <Banner3 />
                   <BestSeller />
                   <Footer />

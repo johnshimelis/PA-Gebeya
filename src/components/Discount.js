@@ -3,9 +3,10 @@ import "../styles/discount.css";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../components/CartContext";
 import { toast } from "react-toastify";
+import axios from "axios";
 
 const Discount = () => {
-  const { addToCart, updateQuantity, cartItems } = useCart();
+  const { addToCart, updateQuantity, cartItems, setCartItems } = useCart();
   const navigate = useNavigate();
 
   const [deals, setDeals] = useState([]);
@@ -15,10 +16,9 @@ const Discount = () => {
   useEffect(() => {
     const fetchDiscountedProducts = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/products/discounted");
-        if (!response.ok) throw new Error("Failed to fetch products");
-        const data = await response.json();
-        const filteredDeals = data.filter(product => product.hasDiscount && product.discount > 0);
+        const response = await axios.get("http://localhost:5000/api/products/discounted");
+        if (response.status !== 200) throw new Error("Failed to fetch products");
+        const filteredDeals = response.data.filter(product => product.hasDiscount && product.discount > 0);
         setDeals(filteredDeals);
       } catch (err) {
         setError(err.message);
@@ -34,28 +34,84 @@ const Discount = () => {
     navigate("/product_detail", { state: { product: deal } });
   };
 
-  const handleAddToCart = (deal) => {
-    const existingCartItem = cartItems.find((item) => item._id === deal._id);
-
-    if (existingCartItem) {
-      updateQuantity(existingCartItem.uniqueId, existingCartItem.quantity + 1);
-      toast.success(`${existingCartItem.quantity + 1} ${deal.name} added to the cart`, {
-        position: "top-center",
+  const handleAddToCart = async (product) => {
+    const userId = localStorage.getItem("userId");
+    const token = localStorage.getItem("token");
+  
+    if (!userId || !token) {
+      toast.error("Please log in to add items to the cart");
+      return;
+    }
+  
+    let productId = product._id;
+    if (!productId) {
+      console.error("Error: Product ID is undefined");
+      toast.error("Error adding item to cart: Product ID missing");
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append("userId", userId);
+    formData.append("productId", productId);
+    formData.append("productName", product.name);
+    formData.append("price", product.calculatedPrice);
+    formData.append("quantity", 1);
+  
+    if (product.image) {
+      formData.append("image", product.image);
+    }
+  
+    try {
+      const response = await fetch("http://localhost:5000/api/cart", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
       });
-    } else {
-      addToCart({ ...deal, quantity: 1, uniqueId: `${deal._id}-${Date.now()}` });
-      toast.success(`1 ${deal.name} added to the cart`, {
-        position: "top-center",
-      });
+  
+      const responseData = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(`Failed to add item: ${responseData.error}`);
+      }
+  
+      const existingItem = cartItems.find((item) => item._id === product._id);
+      const updatedQuantity = existingItem ? existingItem.quantity + 1 : 1;
+  
+      toast.success(`${updatedQuantity} ${product.name} Added to The Cart!`);
+  
+      addToCart(responseData);
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      toast.error(error.message);
     }
   };
-
-  const handleQuantityChange = (productId, action) => {
-    const productInCart = cartItems.find((item) => item._id === productId);
-
-    if (productInCart) {
-      const newQuantity = action === "increment" ? productInCart.quantity + 1 : productInCart.quantity - 1;
-      updateQuantity(productInCart.uniqueId, newQuantity);
+  
+  const handleUpdateQuantity = async (productId, newQuantity) => {
+    if (newQuantity < 1) return;
+  
+    try {
+      const token = localStorage.getItem("token");
+  
+      await axios.put(
+        `http://localhost:5000/api/cart/${productId}`,
+        { quantity: newQuantity },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+  
+      setCartItems((prevCart) =>
+        prevCart.map((item) =>
+          item.productId === productId ? { ...item, quantity: newQuantity } : item
+        )
+      );
+  
+      toast.success(`Quantity updated to ${newQuantity}`);
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+      toast.error("Failed to update quantity");
     }
   };
 
@@ -69,7 +125,7 @@ const Discount = () => {
       </h4>
       <div id="rec" className="nav-deals-main">
         {deals.map((deal) => {
-          const cartItem = cartItems.find((item) => item._id === deal._id);
+          const cartItem = cartItems.find((item) => item.productId === deal._id);
           const quantity = cartItem ? cartItem.quantity : 0;
 
           return (
@@ -77,35 +133,27 @@ const Discount = () => {
               <div className="card-img" onClick={() => handleProductClick(deal)}>
                 <img src={deal.image} alt={deal.name} />
               </div>
-              
-              {/* Product name */}
               <div className="card-title" onClick={() => handleProductClick(deal)}>
                 {deal.name}
               </div>
-
-              {/* Moved calculated price below product name */}
               <div className="calculated-price">ETB {deal.calculatedPrice}</div>
-
-              {/* Original price and discount */}
               <div className="card-pricing">
-  <span className="original-price">ETB {deal.originalPrice}</span>
-  <span className="discount" style={{ marginLeft: "10px" }}>{deal.discount}%</span>
-</div>
-
-
+                <span className="original-price">ETB {deal.originalPrice}</span>
+                <span className="discount" style={{ marginLeft: "10px" }}>{deal.discount}% OFF</span>
+              </div>
               <div className="card-bottom">
                 <div className="card-counter">
                   <button
                     className="counter-btn"
                     disabled={quantity <= 0}
-                    onClick={() => handleQuantityChange(deal._id, "decrement")}
+                    onClick={() => handleUpdateQuantity(deal._id, quantity - 1)}
                   >
                     -
                   </button>
                   <span className="counter-value">{quantity}</span>
                   <button
                     className="counter-btn"
-                    onClick={() => handleQuantityChange(deal._id, "increment")}
+                    onClick={() => handleUpdateQuantity(deal._id, quantity + 1)}
                   >
                     +
                   </button>

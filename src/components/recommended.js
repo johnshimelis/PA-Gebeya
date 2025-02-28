@@ -16,21 +16,18 @@ const RecommendedDeals = () => {
   const [deals, setDeals] = useState([]);
   const [refresh, setRefresh] = useState(false);
 
-
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await axios.get("http://localhost:5000/api/products");
-        setDeals(response.data);
+        const nonDiscountedProducts = response.data.filter(product => !product.discount);
+        setDeals(nonDiscountedProducts);
       } catch (error) {
         console.error("Error fetching products:", error);
       }
     };
     fetchProducts();
   }, []);
-
-  
-  
 
   const handleProductClick = (deal) => {
     navigate("/product_detail", { state: { product: deal } });
@@ -78,11 +75,9 @@ const RecommendedDeals = () => {
         throw new Error(`Failed to add item: ${responseData.error}`);
       }
   
-      // Get the updated quantity from the cart
       const existingItem = cartItems.find((item) => item._id === product._id);
       const updatedQuantity = existingItem ? existingItem.quantity + 1 : 1;
   
-      // Display toast with product name and updated quantity
       toast.success(`${updatedQuantity} ${product.name} Added to The Cart!`);
   
       addToCart(responseData);
@@ -92,14 +87,12 @@ const RecommendedDeals = () => {
     }
   };
   
-
   const handleUpdateQuantity = async (productId, newQuantity) => {
-    if (newQuantity < 1) return; // Prevent going below 1
+    if (newQuantity < 1) return;
   
     try {
       const token = localStorage.getItem("token");
   
-      // Update the backend
       await axios.put(
         `http://localhost:5000/api/cart/${productId}`,
         { quantity: newQuantity },
@@ -108,7 +101,6 @@ const RecommendedDeals = () => {
         }
       );
   
-      // Update state with new quantity
       setCartItems((prevCart) =>
         prevCart.map((item) =>
           item.productId === productId ? { ...item, quantity: newQuantity } : item
@@ -122,8 +114,6 @@ const RecommendedDeals = () => {
     }
   };
   
-  
-
   return (
     <section>
       <h4 style={{ margin: "60px 20px", textAlign: "left", fontSize: "35px", fontWeight: 1000 }}>
@@ -132,7 +122,7 @@ const RecommendedDeals = () => {
       <div id="rec" className="nav-deals-main">
       {deals.map((deal) => {
       const cartItem = cartItems.find((item) => item.productId === deal._id);
-      const quantity = cartItem ? cartItem.quantity : 1; // Ensure it updates
+      const quantity = cartItem ? cartItem.quantity : 1;
 
   return (
     <div key={deal._id} className="nav-rec-cards">
@@ -152,7 +142,7 @@ const RecommendedDeals = () => {
           >
             -
           </button>
-          <span className="counter-value">{quantity}</span> {/* Reflects updated quantity */}
+          <span className="counter-value">{quantity}</span>
           <button
             className="counter-btn"
             onClick={() => handleUpdateQuantity(deal._id, quantity + 1)}
