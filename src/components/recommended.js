@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from "react";
 import "../styles/recommended.css";
-import recCard1 from "../images/assets/rec-card-1.avif";
-import recCard2 from "../images/assets/rec-card-2.avif";
-import recCard3 from "../images/assets/rec-card-3.avif";
-import recCard4 from "../images/assets/rec-card-4.avif";
-import recCard5 from "../images/assets/rec-card-5.avif";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../components/CartContext";
 import { toast } from "react-toastify";
@@ -27,39 +22,43 @@ const RecommendedDeals = () => {
       }
     };
     fetchProducts();
-  }, []);
+  }, [refresh]);
 
   const handleProductClick = (deal) => {
+    // Store product details in local storage
+    localStorage.setItem("selectedProduct", JSON.stringify(deal));
+    console.log("Product stored in localStorage:", deal);
+
     navigate("/product_detail", { state: { product: deal } });
   };
 
   const handleAddToCart = async (product) => {
     const userId = localStorage.getItem("userId");
     const token = localStorage.getItem("token");
-  
+
     if (!userId || !token) {
       toast.error("Please log in to add items to the cart");
       return;
     }
-  
+
     let productId = product._id;
     if (!productId) {
       console.error("Error: Product ID is undefined");
       toast.error("Error adding item to cart: Product ID missing");
       return;
     }
-  
+
     const formData = new FormData();
     formData.append("userId", userId);
     formData.append("productId", productId);
     formData.append("productName", product.name);
     formData.append("price", product.price);
     formData.append("quantity", 1);
-  
+
     if (product.image) {
       formData.append("image", product.image);
     }
-  
+
     try {
       const response = await fetch("http://localhost:5000/api/cart", {
         method: "POST",
@@ -68,32 +67,36 @@ const RecommendedDeals = () => {
         },
         body: formData,
       });
-  
+
       const responseData = await response.json();
-  
+
       if (!response.ok) {
         throw new Error(`Failed to add item: ${responseData.error}`);
       }
-  
-      const existingItem = cartItems.find((item) => item._id === product._id);
-      const updatedQuantity = existingItem ? existingItem.quantity + 1 : 1;
-  
-      toast.success(`${updatedQuantity} ${product.name} Added to The Cart!`);
-  
-      addToCart(responseData);
+
+      toast.success(`${product.name} added to the cart!`);
+
+      // Refresh the cart
+      const updatedCart = await axios.get("http://localhost:5000/api/cart", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setCartItems(updatedCart.data.items);
     } catch (error) {
       console.error("Error adding to cart:", error);
       toast.error(error.message);
     }
   };
+
+  const handleUpdateQuantity = async (productId, currentQuantity, increment) => {
+    const newQuantity = increment ? currentQuantity + 1 : currentQuantity - 1;
   
-  const handleUpdateQuantity = async (productId, newQuantity) => {
-    if (newQuantity < 1) return;
+    if (newQuantity <= 0) return;
   
     try {
       const token = localStorage.getItem("token");
   
-      await axios.put(
+      const response = await axios.put(
         `http://localhost:5000/api/cart/${productId}`,
         { quantity: newQuantity },
         {
@@ -101,65 +104,69 @@ const RecommendedDeals = () => {
         }
       );
   
-      setCartItems((prevCart) =>
-        prevCart.map((item) =>
-          item.productId === productId ? { ...item, quantity: newQuantity } : item
-        )
-      );
+      if (response.status === 200) {
+        setCartItems((prevCart) =>
+          prevCart.map((item) =>
+            item.productId._id === productId ? { ...item, quantity: newQuantity } : item
+          )
+        );
   
-      toast.success(`Quantity updated to ${newQuantity}`);
+        toast.success(`Quantity updated to ${newQuantity}`);
+      } else {
+        throw new Error("Failed to update quantity in the backend");
+      }
     } catch (error) {
       console.error("Error updating quantity:", error);
       toast.error("Failed to update quantity");
     }
   };
-  
+
   return (
     <section>
       <h4 style={{ margin: "60px 20px", textAlign: "left", fontSize: "35px", fontWeight: 1000 }}>
         Recommended for you
       </h4>
       <div id="rec" className="nav-deals-main">
-      {deals.map((deal) => {
-      const cartItem = cartItems.find((item) => item.productId === deal._id);
-      const quantity = cartItem ? cartItem.quantity : 1;
+        {deals.map((deal) => {
+          const cartItem = cartItems.find((item) => item.productId._id === deal._id);
+          const quantity = cartItem ? cartItem.quantity : 0;
 
-  return (
-    <div key={deal._id} className="nav-rec-cards">
-      <div className="card-img" onClick={() => handleProductClick(deal)}>
-        <img src={`http://localhost:5000/uploads/${deal.image}`} alt={deal.name} />
+          return (
+            <div key={deal._id} className="nav-rec-cards">
+              <div className="card-img" onClick={() => handleProductClick(deal)}>
+                <img src={`http://localhost:5000/uploads/${deal.image}`} alt={deal.name} />
+              </div>
+              <div className="card-title" onClick={() => handleProductClick(deal)}>
+                {deal.name}
+              </div>
+              <div className="card-price">ETB {deal.price}</div>
+              <div className="card-bottom">
+                <div className="card-counter">
+                  <button
+                    className="counter-btn"
+                    disabled={quantity <= 0}
+                    onClick={() => handleUpdateQuantity(deal._id, quantity, false)}
+                  >
+                    -
+                  </button>
+                  <span className="counter-value">{quantity}</span>
+                  <button
+                    className="counter-btn"
+                    onClick={() => handleUpdateQuantity(deal._id, quantity, true)}
+                  >
+                    +
+                  </button>
+                </div>
+                <i
+                  className="cart-icon fa fa-shopping-cart"
+                  onClick={() => handleAddToCart(deal)}
+                  style={{ cursor: "pointer" }}
+                ></i>
+              </div>
+            </div>
+          );
+        })}
       </div>
-      <div className="card-title" onClick={() => handleProductClick(deal)}>
-        {deal.name}
-      </div>
-      <div className="card-price">AED {deal.price}</div>
-      <div className="card-bottom">
-        <div className="card-counter">
-          <button
-            className="counter-btn"
-            disabled={quantity <= 0}
-            onClick={() => handleUpdateQuantity(deal._id, quantity - 1)}
-          >
-            -
-          </button>
-          <span className="counter-value">{quantity}</span>
-          <button
-            className="counter-btn"
-            onClick={() => handleUpdateQuantity(deal._id, quantity + 1)}
-          >
-            +
-          </button>
-        </div>
-        <i
-          className="cart-icon fa fa-shopping-cart"
-          onClick={() => handleAddToCart(deal)}
-          style={{ cursor: "pointer" }}
-        ></i>
-      </div>
-    </div>
-  );
-})}
-</div>
     </section>
   );
 };

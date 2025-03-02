@@ -4,17 +4,15 @@ import { useAuth } from './AuthContext';  // Import useAuth to access logged-in 
 import '../styles/checkout.css';
 import '../styles/deliveryInfo.css';
 import successImage from '../images/assets/checked.png';
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import jsQR from 'jsqr';
 
-
-
-
 const Checkout = () => {
-  const { cartItems } = useCart();
+  const { cartItems, clearCart } = useCart();
   const { user } = useAuth();  // Access logged-in user from AuthContext
   const [image, setImage] = useState(null);
   const [cart, setCart] = useState([]);
-
+  const navigate = useNavigate(); // Initialize navigate
   const [imageName, setImageName] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [orderSubmitted, setOrderSubmitted] = useState(false);
@@ -95,52 +93,55 @@ const Checkout = () => {
   };
   
   const handleOrderSubmit = async () => {
+    // ✅ Validation checks
     if (!image) {
-      setError("Please upload a payment screenshot before completing the order.");
-      return;
+        setError("Please upload a payment screenshot before completing the order.");
+        return;
     }
     if (!phoneNumber || !address) {
-      setError("Please provide both phone number and delivery address.");
-      return;
+        setError("Please provide both phone number and delivery address.");
+        return;
     }
-  
+
+    // ✅ Retrieve user information
     const storedUser = localStorage.getItem("user");
     const user = storedUser ? JSON.parse(storedUser) : null;
     const fullName = user?.fullName || "Guest User";
     const userId = user?.userId;
-  
+
     if (!userId) {
-      console.error("❌ User ID is missing! Cannot proceed.");
-      setError("User authentication issue. Please log in again.");
-      return;
+        console.error("❌ User ID is missing! Cannot proceed.");
+        setError("User authentication issue. Please log in again.");
+        return;
     }
-  
+
     console.log("✅ User ID:", userId);
-  
+
+    // ✅ Retrieve and format order data
     const storedOrderData = localStorage.getItem("orderData");
     const orderData = storedOrderData ? JSON.parse(storedOrderData) : {};
-  
-    // ✅ Retrieve and ensure `productId` is included in order details
+
     const updatedOrderDetails = (orderData.orderDetails || []).map(item => ({
-      productId: item.productId,  // ✅ Ensuring productId is sent
-      product: item.product,
-      quantity: item.quantity,
-      price: item.price,
-      productImage: item.productImage,
+        productId: item.productId,
+        product: item.product,
+        quantity: item.quantity,
+        price: item.price,
+        productImage: item.productImage,
     }));
-  
+
     console.log("📦 Order Details (with productId):", updatedOrderDetails);
-  
+
     const updatedOrderData = {
-      ...orderData,
-      status: "Pending",
-      name: fullName,
-      userId: userId,
-      phoneNumber,
-      deliveryAddress: address,
-      orderDetails: updatedOrderDetails,
+        ...orderData,
+        status: "Pending",
+        name: fullName,
+        userId: userId,
+        phoneNumber,
+        deliveryAddress: address,
+        orderDetails: updatedOrderDetails,
     };
-  
+
+    // ✅ Prepare form data
     const formData = new FormData();
     formData.append("userId", updatedOrderData.userId);
     formData.append("name", updatedOrderData.name);
@@ -149,74 +150,147 @@ const Checkout = () => {
     formData.append("phoneNumber", updatedOrderData.phoneNumber);
     formData.append("deliveryAddress", updatedOrderData.deliveryAddress);
     formData.append("orderDetails", JSON.stringify(updatedOrderData.orderDetails || []));
-  
+
     const paymentBlob = await fetch(image).then(res => res.blob());
     const paymentFile = new File([paymentBlob], imageName || "payment.jpg", { type: paymentBlob.type });
     formData.append("paymentImage", paymentFile);
-  
+
     if (updatedOrderData.orderDetails) {
-      await Promise.all(updatedOrderData.orderDetails.map(async (item, index) => {
-        if (item.productImage && item.productImage !== "null") {
-          const productBlob = await fetch(item.productImage).then(res => res.blob());
-          const productFile = new File([productBlob], `product-${index}.jpg`, { type: productBlob.type });
-          formData.append("productImages", productFile);
-        }
-      }));
+        await Promise.all(updatedOrderData.orderDetails.map(async (item, index) => {
+            if (item.productImage && item.productImage !== "null") {
+                const productBlob = await fetch(item.productImage).then(res => res.blob());
+                const productFile = new File([productBlob], `product-${index}.jpg`, { type: productBlob.type });
+                formData.append("productImages", productFile);
+            }
+        }));
     }
-  
+
     try {
-      console.log("🚀 Sending order data to backend...");
-      const response = await fetch("http://localhost:5000/api/orders", {
-        method: "POST",
-        body: formData,
-      });
-  
-      if (!response.ok) {
-        throw new Error("Failed to submit order");
-      }
-  
-      const result = await response.json();
-      console.log("✅ Order submitted successfully:", result);
-  
-      localStorage.removeItem("orderData");
-      localStorage.removeItem("cart");
-  
-      if (setCart) {
-        setCart([]);
-      }
-  
-      console.log(`🛒 Sending DELETE request to backend to clear cart for user ID: ${userId}...`);
-      const deleteCartURL = `http://localhost:5000/api/cart/user/${userId}`;
-      const userToken = user?.token || localStorage.getItem("token");
-  
-      if (!userToken) {
-        console.error("❌ Token is missing. Please log in again.");
+        // ✅ Submit order
+        console.log("🚀 Sending order data to backend...");
+        const response = await fetch("http://localhost:5000/api/orders", {
+            method: "POST",
+            body: formData,
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to submit order");
+        }
+
+        const submittedOrder = await response.json();
+        console.log("✅ Order submitted successfully:", submittedOrder);
+        localStorage.setItem("submittedOrder", JSON.stringify(submittedOrder));
+
+        // ✅ Send notification
+        console.log("🔔 Sending order notification to the user...");
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            console.error("❌ No authentication token found. User may not be logged in.");
+            return;
+        }
+
+        const orderId = submittedOrder?.id || "MissingOrderId";
+        const notificationResponse = await fetch("http://localhost:5000/api/users/notifications", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                userId: submittedOrder.userId,
+                orderId: orderId,
+                message: `Hello ${submittedOrder.name}, your <a href="/view-detail" class="order-link">order</a> is submitted successfully and pending. Please wait for approval.`,
+                date: new Date().toISOString()
+            }),
+        });
+
+        if (!notificationResponse.ok) {
+            throw new Error("Failed to send notification");
+        }
+
+        console.log("✅ Notification sent successfully!");
+
+        // ✅ Save order in UserOrders
+        console.log("📦 Sending order data to UserOrders...");
+        const userOrderData = {
+            orderId: orderId,
+            userId: submittedOrder.userId,
+            date: new Date().toISOString(),
+            status: "Pending",
+            total: submittedOrder.amount || 0,
+        };
+
+        const userOrderResponse = await fetch("http://localhost:5000/api/users/orders/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            },
+            body: JSON.stringify(userOrderData),
+        });
+
+        if (!userOrderResponse.ok) {
+            throw new Error("Failed to save order in UserOrders");
+        }
+
+        console.log("✅ Order successfully saved in UserOrders!");
+
+// ✅ Show the success popup
+setOrderSubmitted(true);
+
+// ✅ Wait for 2 seconds to display the popup before clearing the cart and navigating
+setTimeout(() => {
+    // ✅ Clear cart after success message
+    console.log(`🛒 Clearing cart for user ID: ${userId}...`);
+    const deleteCartURL = `http://localhost:5000/api/cart/user/${userId}`;
+    const userToken = user?.token || localStorage.getItem("token");
+
+    if (!userToken) {
         setError("Authentication token is missing. Please log in again.");
         return;
-      }
-  
-      const cartDeleteResponse = await fetch(deleteCartURL, {
+    }
+
+    // Delete cart from the backend
+    fetch(deleteCartURL, {
         method: "DELETE",
         headers: {
-          "Authorization": `Bearer ${userToken}`,
+            "Authorization": `Bearer ${userToken}`,
         },
-      });
-  
-      if (!cartDeleteResponse.ok) {
-        const cartDeleteError = await cartDeleteResponse.json();
-        throw new Error(`Failed to clear cart: ${cartDeleteError.error || "Unknown error"}`);
-      }
-  
-      console.log("✅ Cart cleared successfully from backend!");
-      setOrderSubmitted(true);
-      setTimeout(() => {
-        setOrderSubmitted(false);
-      }, 3000);
+    })
+        .then(cartDeleteResponse => {
+            if (!cartDeleteResponse.ok) {
+                throw new Error("Failed to clear cart");
+            }
+            console.log("✅ Cart cleared successfully!");
+            
+            // ✅ Clear frontend cart
+            localStorage.removeItem("orderData");
+            localStorage.removeItem("cart");
+
+            if (setCart) setCart([]);  // Clear local state in the component
+
+            // ✅ Update global cart state in CartContext
+            if (clearCart) clearCart();  // Call clearCart from context
+
+            // ✅ Navigate to the home page after clearing the cart
+            setOrderSubmitted(false);
+            navigate("/");
+        })
+        .catch(error => {
+            console.error("❌ Error clearing cart:", error);
+            setError(error.message || "Failed to clear cart. Please try again.");
+        });
+}, 2000);  // Wait 2 seconds before clearing the cart and navigating
+
+
     } catch (error) {
-      console.error("❌ Error submitting order:", error);
-      setError(error.message || "Failed to submit order. Please try again.");
+        console.error("❌ Error submitting order:", error);
+        setError(error.message || "Failed to submit order. Please try again.");
     }
-  };
+};
+
+
   
 
 
@@ -244,9 +318,9 @@ const Checkout = () => {
                 <div className="checkout-item-details">
                   <h2>{item.title}</h2>
                   <p>
-                    {item.quantity} x ${item.price}
+                    {item.quantity} x ETB {item.price}
                   </p>
-                  <p>Total: ${(item.price * item.quantity).toFixed(2)}</p>
+                  <p>Total: ETB  {( item.price * item.quantity).toFixed(2)}</p>
                 </div>
               </div>
             ))}
@@ -254,8 +328,9 @@ const Checkout = () => {
 
           <div className="total-cost">
             <h3>
-              Total: $ 
-              {cartItems
+              Total: ETB
+
+                { cartItems
                 .reduce((acc, item) => acc + item.price * item.quantity, 0)
                 .toFixed(2)}
             </h3>

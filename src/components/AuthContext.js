@@ -1,98 +1,67 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth } from '../firebase'; // Ensure Firebase is initialized correctly
-import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+import React, { createContext, useContext, useState, useEffect } from "react";
 
-// Create the AuthContext
+// Create AuthContext
 const AuthContext = createContext();
 
-// Custom hook to use the AuthContext
+// Custom hook to use AuthContext
 export const useAuth = () => {
   return useContext(AuthContext);
 };
 
-// AuthProvider to manage user authentication state and provide context to other components
+// AuthProvider to manage authentication
 export const AuthProvider = ({ children }) => {
-  // Initialize the user state from localStorage if available
-  const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('user');
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
+  const [user, setUser] = useState(null);
+  const [confirmationCode, setConfirmationCode] = useState(null);
 
-  const [confirmationResult, setConfirmationResult] = useState(null);
-
-  // Log the user information whenever it changes
+  // Load user from local storage on startup
   useEffect(() => {
-    if (user) {
-      console.log('User Information:', user);
+    const savedUser = localStorage.getItem("user");
+    const token = localStorage.getItem("token"); // Retrieve the token from localStorage
+    if (savedUser && token) {
+      setUser(JSON.parse(savedUser));
+      console.log("✅ User logged in:", JSON.parse(savedUser));
+      console.log("✅ Token:", token); // Print the token
     } else {
-      console.log('No user logged in');
+      console.log("❌ No user or token found");
     }
-  }, [user]); // This effect runs whenever the user state changes (login/logout)
-
-  // Listen for changes in authentication state
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-      if (currentUser) {
-        const userFullInfo = {
-          uid: currentUser.uid,
-          phoneNumber: currentUser.phoneNumber,
-          displayName: currentUser.displayName,
-          email: currentUser.email, // You can expand this with additional user properties
-        };
-        localStorage.setItem('user', JSON.stringify(userFullInfo)); // Save full user info in localStorage
-        setUser(userFullInfo); // Set the user state
-      } else {
-        localStorage.removeItem('user'); // Remove user info from localStorage when logged out
-        setUser(null); // Set user state to null
-      }
-    });
-
-    return unsubscribe; // Clean up the listener
   }, []);
 
-  // Function to send OTP to the provided phone number
+  // Function to send OTP (simulated)
   const sendOTP = (phoneNumber) => {
-    const recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
-      size: 'invisible',
-    }, auth);
-
-    signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier)
-      .then((confirmationResult) => {
-        setConfirmationResult(confirmationResult);
-      })
-      .catch((error) => {
-        console.error('Error sending OTP:', error);
-      });
+    const generatedCode = Math.floor(100000 + Math.random() * 900000).toString(); // Generate a 6-digit code
+    setConfirmationCode(generatedCode);
+    console.log(`✅ OTP Sent to ${phoneNumber}:`, generatedCode);
   };
 
-  // Function to verify the OTP and log the user in
-  const verifyOTP = (otp) => {
-    if (confirmationResult) {
-      confirmationResult.confirm(otp)
-        .then((result) => {
-          const loggedInUser = {
-            uid: result.user.uid,
-            phoneNumber: result.user.phoneNumber,
-            displayName: result.user.displayName,
-            email: result.user.email,
-          };
-          localStorage.setItem('user', JSON.stringify(loggedInUser)); // Store full user information in localStorage
-          setUser(loggedInUser); // Set the logged-in user
-          console.log('User logged in:', result.user);
-        })
-        .catch((error) => {
-          console.error('Error verifying OTP:', error.message);
-        });
+  // Function to verify OTP (simulated)
+  const verifyOTP = (otp, phoneNumber) => {
+    if (otp === confirmationCode) {
+      const loggedInUser = {
+        userId: "67c1f65e58d7fc75cca7658b",
+        fullName: "Yohannes Shimelis",
+        phoneNumber,
+        email: "johnshimelis40@gmail.com",
+      };
+      const token = "sample-jwt-token"; // Simulate getting a token (replace with actual token from backend)
+      
+      // Store user and token in localStorage
+      localStorage.setItem("user", JSON.stringify(loggedInUser));
+      localStorage.setItem("token", token); // Store the token in localStorage
+
+      setUser(loggedInUser);
+      console.log("✅ OTP Verified, User Logged In:", loggedInUser);
+      console.log("✅ Token:", token); // Print the token here
+    } else {
+      console.error("❌ Invalid OTP");
     }
   };
 
-  // Function to log out the user
+  // Function to log out
   const logoutUser = () => {
-    auth.signOut().then(() => {
-      localStorage.removeItem('user'); // Clear user data from localStorage
-      setUser(null); // Reset user state after logging out
-      console.log('User logged out');
-    });
+    localStorage.removeItem("user");
+    localStorage.removeItem("token"); // Remove the token on logout
+    setUser(null);
+    console.log("✅ User Logged Out");
   };
 
   return (

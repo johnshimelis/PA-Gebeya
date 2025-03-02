@@ -1,0 +1,184 @@
+.view-detail-card {
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 1200px;
+    height: 80vh; /* Set a fixed height */
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease-in-out;
+    overflow-y: auto; /* Enable scrolling */
+    position: relative; /* Ensure it does not overlap */
+}
+
+.view-detail-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(to right, #ff7e5f, #feb47b);
+    padding: 20px;
+    overflow: hidden; /* Prevents overlap issues */
+}
+
+
+.view-detail-card:hover {
+    transform: translateY(-5px); /* Hover effect */
+}
+
+/* Title and Status */
+.view-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.view-detail-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.view-detail-status {
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: 500;
+    text-transform: uppercase;
+    color: white;
+    font-size: 1.1rem;
+    background-color: #4caf50; /* Default green for status */
+}
+
+.view-detail-status.pending {
+    background-color: #ff9800; /* Orange for pending */
+}
+
+.view-detail-status.completed {
+    background-color: #4caf50; /* Green for completed */
+}
+
+.view-detail-status.cancelled {
+    background-color: #f44336; /* Red for cancelled */
+}
+
+/* Layout: Left for Order Info, Right for Products */
+.view-detail-body {
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+    margin-top: 30px;
+}
+
+/* Left Side - Order Info */
+.order-info {
+    flex-basis: 45%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.view-detail-item {
+    font-size: 1.2rem;
+    color: #555;
+}
+
+.view-detail-item strong {
+    color: #333;
+    font-weight: 600;
+}
+
+/* Payment Image Section */
+.payment-image-section {
+    margin-top: 20px;
+}
+
+.payment-image-header {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.payment-image {
+    max-width: 120px; /* Set a maximum width for the image */
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    object-fit: contain; /* Ensures the image scales proportionally */
+}
+
+/* Right Side - Products */
+.order-products {
+    flex-basis: 50%;
+}
+
+.order-details-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.order-detail-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.order-detail-item:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Hover shadow effect */
+}
+
+.product-image-container {
+    flex-shrink: 0;
+    width: 80px;
+    height: 80px;
+    margin-right: 15px;
+}
+
+.product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+.product-image-container:hover .product-image {
+    transform: scale(1.1); /* Zoom effect */
+}
+
+.product-info {
+    flex-grow: 1;
+}
+
+.product-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.product-quantity,
+.product-price {
+    font-size: 1.1rem;
+    color: #777;
+}
+
+/* Footer Section */
+.view-detail-footer {
+    margin-top: 20px;
+    font-size: 1rem;
+    color: #777;
+    text-align: center;
+}
+
+.view-detail-footer strong {
+    color: #333;
+}

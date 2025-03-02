@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logoImage from "../images/assets/PA-Logos.png";
 import backgroundImage from "../images/assets/ecommerce.jpg";
 import "../styles/cart.css";
 
 const API_BASE_URL = "http://localhost:5000/api/auth";
+
+
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -31,7 +33,16 @@ const AuthPage = () => {
       otp: "",
     });
   };
-
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      console.log("✅ User is logged in.");
+    } else {
+      console.log("❌ User is logged out. Redirecting...");
+      navigate("/auth");
+    }
+  }, []);
+  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({

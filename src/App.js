@@ -21,7 +21,7 @@ import { CartProvider } from "./components/CartContext";
 import { AuthProvider } from "./components/AuthContext";  // ✅ Import AuthProvider
 import AuthPage from "./components/auth";
 import Checkout from "./components/checkout";
-
+import ViewDetail from "./components/ViewDetail";
 // Import the new components
 import Profile from "./components/profile";
 import Notifications from "./components/Notification";
@@ -41,6 +41,7 @@ function App() {
 
             <Routes>
               <Route path="/products/:category" element={<ProductsPage />} />
+              <Route path="/view-detail" element={<ViewDetail />} />
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/auth" element={<AuthPage />} />

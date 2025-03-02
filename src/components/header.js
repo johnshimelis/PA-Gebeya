@@ -103,8 +103,11 @@ const Header = () => {
     localStorage.removeItem("token");
     clearCart();
     setUser(null);
-    navigate("/auth"); // Navigate to authentication page
+    console.log("Logging out, redirecting to /auth");
+    navigate("/auth"); // Redirect to /auth
   };
+  
+  
 
   return (
     <>

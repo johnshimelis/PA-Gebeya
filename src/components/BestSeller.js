@@ -38,96 +38,94 @@ const BestSeller = () => {
   const handleAddToCart = async (product) => {
     const userId = localStorage.getItem("userId");
     const token = localStorage.getItem("token");
-  
-    // Ensure the user is logged in before proceeding
+
     if (!userId || !token) {
       toast.error("Please log in to add items to the cart");
-      return; // Stop execution immediately
+      return;
     }
-  
+
     let productId = product._id;
     if (!productId) {
       console.error("Error: Product ID is undefined");
       toast.error("Error adding item to cart: Product ID missing");
       return;
     }
+
+    const formData = new FormData();
+    formData.append("userId", userId);
+    formData.append("productId", productId);
+    formData.append("productName", product.name);
+    formData.append("price", product.price);
+    formData.append("quantity", 1); // Always start with 1 quantity.
+
+    if (product.image) {
+      formData.append("image", product.image);
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/api/cart", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        throw new Error(`Failed to add item: ${responseData.error}`);
+      }
+
+      toast.success(`${product.name} added to the cart!`);
+
+      // After adding, refresh the cart
+      const updatedCart = await axios.get("http://localhost:5000/api/cart", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setCartItems(updatedCart.data.items);  // Update the cart in the state
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      toast.error(error.message);
+    }
+  };
+
+  const handleUpdateQuantity = async (productId, currentQuantity, increment) => {
+    const newQuantity = increment ? currentQuantity + 1 : currentQuantity - 1;
+  
+    // Prevent negative quantity
+    if (newQuantity <= 0) return;
   
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/cart",
-        {
-          userId,
-          productId,
-          productName: product.name,
-          price: product.price,
-          quantity: 1,
-          image: product.image || null,
-        },
+      const token = localStorage.getItem("token");
+  
+      // Send the new quantity to the backend
+      const response = await axios.put(
+        `http://localhost:5000/api/cart/${productId}`,
+        { quantity: newQuantity },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
   
-      if (response.status !== 200 && response.status !== 201) {
-        throw new Error("Failed to add item to the cart");
+      if (response.status === 200) {
+        // Update the frontend state for cart items
+        setCartItems((prevCart) =>
+          prevCart.map((item) =>
+            item.productId._id === productId ? { ...item, quantity: newQuantity } : item
+          )
+        );
+  
+        toast.success(`Quantity updated to ${newQuantity}`);
+      } else {
+        throw new Error("Failed to update quantity in the backend");
       }
-  
-      toast.success(`1 ${product.name} added to the cart!`);
-      addToCart(response.data); // Ensure this correctly updates the cart context
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      toast.error("Failed to add item to the cart");
-    }
-  };
-  
-  const handleQuantityChange = async (productId, action) => {
-    console.log("handleQuantityChange called for:", productId, "Action:", action);
-  
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("Failed to update the quantity. Please log in.");
-      return;
-    }
-  
-    const cartItem = cartItems.find((item) => item.productId === productId);
-    console.log("Found cart item:", cartItem);
-  
-    if (!cartItem) {
-      console.error("Product not found in cart.");
-      toast.error("Product not found in cart.");
-      return;
-    }
-  
-    const newQuantity = action === "increment" ? cartItem.quantity + 1 : cartItem.quantity - 1;
-    if (newQuantity < 1) return;
-  
-    try {
-      console.log("Sending request to update quantity...");
-      const response = await axios.put(
-        `http://localhost:5000/api/cart/${cartItem._id}`, // Make sure _id exists
-        { quantity: newQuantity },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-  
-      if (response.status !== 200) {
-        throw new Error("Failed to update cart");
-      }
-  
-      // Update frontend state
-      console.log("Updating cart state...");
-      setCartItems((prevCart) =>
-        prevCart.map((item) =>
-          item._id === cartItem._id ? { ...item, quantity: newQuantity } : item
-        )
-      );
-  
-      toast.success(`Quantity updated to ${newQuantity}`);
     } catch (error) {
       console.error("Error updating quantity:", error);
       toast.error("Failed to update quantity");
     }
   };
-  
 
   return (
     <section>
@@ -136,7 +134,7 @@ const BestSeller = () => {
       </h4>
       <div id="rec" className="nav-deals-main">
         {deals.map((deal) => {
-          const cartItem = cartItems.find((item) => item.productId === deal._id);
+          const cartItem = cartItems.find((item) => item.productId._id === deal._id);
           const quantity = cartItem ? cartItem.quantity : 0;
 
           return (
@@ -149,18 +147,18 @@ const BestSeller = () => {
               </div>
               <div className="card-price">ETB {deal.price}</div>
               <div className="card-bottom">
-                <div className="card-counter">
+              <div className="card-counter">
                   <button
                     className="counter-btn"
-                    disabled={quantity <= 0}
-                    onClick={() => handleQuantityChange(deal._id, "decrement")}
+                    disabled={quantity <= 0} // Disable "-" button if quantity is zero
+                    onClick={() => handleUpdateQuantity(deal._id, quantity, false)} // Decrement
                   >
                     -
                   </button>
-                  <span className="counter-value">{quantity}</span>
+                  <span className="counter-value">{quantity}</span> {/* Show current quantity */}
                   <button
                     className="counter-btn"
-                    onClick={() => handleQuantityChange(deal._id, "increment")}
+                    onClick={() => handleUpdateQuantity(deal._id, quantity, true)} // Increment
                   >
                     +
                   </button>

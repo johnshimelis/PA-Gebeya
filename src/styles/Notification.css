@@ -59,3 +59,44 @@
   text-align: left;
   color: #777;
 }
+/* Style the "order" link */
+.notification-message a {
+  color: #007bff; /* Blue color */
+  text-decoration: none; /* Remove underline */
+  font-weight: bold;
+}
+
+.notification-message a:hover {
+  color: #0056b3; /* Darker blue on hover */
+  text-decoration: underline;
+}
+.notification-item {
+  position: relative;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.notification-message {
+  flex-grow: 1;
+  margin-right: 10px;
+}
+
+.notification-close {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  cursor: pointer;
+  color: #ff4d4d;
+  font-size: 14px;
+  transition: color 0.2s ease-in-out;
+}
+
+.notification-close:hover {
+  color: #d63031;
+}

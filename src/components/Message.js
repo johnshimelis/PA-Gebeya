@@ -14,12 +14,13 @@ const Message = () => {
       try {
         const token = localStorage.getItem("token");
 
-        if (!token) {
-          console.error("No token found, user might not be authenticated.");
+        if (!token || !userId) {
+          console.error("No token or userId found, user might not be authenticated.");
           return;
         }
 
-        const response = await axios.get('http://localhost:5000/api/users/messages', {
+        // Fetch messages for the specific userId
+        const response = await axios.get(`http://localhost:5000/api/users/messages/${userId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -32,7 +33,7 @@ const Message = () => {
     };
 
     fetchMessages();
-  }, []);
+  }, [userId]);
 
   const handleSendMessage = async () => {
     if (!newMessage.trim()) return;
@@ -41,14 +42,14 @@ const Message = () => {
       setIsSending(true);
       const token = localStorage.getItem("token");
 
-      if (!token) {
-        console.error("No token found, unable to send message.");
+      if (!token || !userId) {
+        console.error("No token or userId found, unable to send message.");
         return;
       }
 
       const response = await axios.post(
         'http://localhost:5000/api/users/messages',
-        { message: newMessage },
+        { userId, message: newMessage }, // Include userId
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -105,16 +106,15 @@ const Message = () => {
                   {/* Timestamp (Aligned under the message) */}
                   <div className="message-footer">
                     <span className="message-time">
-                    {message.date
-  ? new Date(message.date).toLocaleString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-      month: 'short',
-      day: 'numeric'
-    })
-  : 'No time available'}
-
+                      {message.date
+                        ? new Date(message.date).toLocaleString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true,
+                            month: 'short',
+                            day: 'numeric'
+                          })
+                        : 'No time available'}
                     </span>
                   </div>
                 </div>
