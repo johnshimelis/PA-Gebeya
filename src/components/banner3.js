@@ -8,7 +8,7 @@ const Banner3 = () => {
   useEffect(() => {
     const fetchBanner1 = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/ads/banner1");
+        const response = await axios.get("https://pa-gebeya-backend.onrender.com/api/ads/banner1");
         if (response.data.length > 0) {
           setBanner1(response.data[0].images[0]); // Assuming only one banner1 image is displayed
         }
@@ -23,7 +23,7 @@ const Banner3 = () => {
   return (
     <section style={{ width: "100%", height: "auto", backgroundColor: "#ebebeb", padding: "5px" }}>
       {banner1 ? (
-        <img src={`http://localhost:5000/${banner1}`} alt="Banner" className="w-100" />
+        <img src={`https://pa-gebeya-backend.onrender.com/${banner1}`} alt="Banner" className="w-100" />
       ) : (
         <p>Loading banner...</p>
       )}

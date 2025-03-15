@@ -14,7 +14,7 @@ const RecommendedDeals = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/products");
+        const response = await axios.get("https://pa-gebeya-backend.onrender.com/api/products");
         const nonDiscountedProducts = response.data.filter(product => !product.discount);
         setDeals(nonDiscountedProducts);
       } catch (error) {
@@ -48,40 +48,39 @@ const RecommendedDeals = () => {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("userId", userId);
-    formData.append("productId", productId);
-    formData.append("productName", product.name);
-    formData.append("price", product.price);
-    formData.append("quantity", 1);
-
-    if (product.image) {
-      formData.append("image", product.image);
-    }
+    const cartItem = {
+      userId,
+      productId,
+      productName: product.name,
+      price: product.price,
+      quantity: 1,
+      img: `https://pa-gebeya-backend.onrender.com/uploads/${product.image}`, // Send the image URL directly
+    };
 
     try {
-      const response = await fetch("http://localhost:5000/api/cart", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      const response = await axios.post(
+        "https://pa-gebeya-backend.onrender.com/api/cart",
+        cartItem,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      const responseData = await response.json();
+      if (response.status === 200) {
+        toast.success(`${product.name} added to the cart!`);
 
-      if (!response.ok) {
-        throw new Error(`Failed to add item: ${responseData.error}`);
+        // Refresh the cart
+        const updatedCart = await axios.get("https://pa-gebeya-backend.onrender.com/api/cart", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setCartItems(updatedCart.data.items);
+      } else {
+        throw new Error("Failed to add item to cart");
       }
-
-      toast.success(`${product.name} added to the cart!`);
-
-      // Refresh the cart
-      const updatedCart = await axios.get("http://localhost:5000/api/cart", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      setCartItems(updatedCart.data.items);
     } catch (error) {
       console.error("Error adding to cart:", error);
       toast.error(error.message);
@@ -90,27 +89,27 @@ const RecommendedDeals = () => {
 
   const handleUpdateQuantity = async (productId, currentQuantity, increment) => {
     const newQuantity = increment ? currentQuantity + 1 : currentQuantity - 1;
-  
+
     if (newQuantity <= 0) return;
-  
+
     try {
       const token = localStorage.getItem("token");
-  
+
       const response = await axios.put(
-        `http://localhost:5000/api/cart/${productId}`,
+        `https://pa-gebeya-backend.onrender.com/api/cart/${productId}`,
         { quantity: newQuantity },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-  
+
       if (response.status === 200) {
         setCartItems((prevCart) =>
           prevCart.map((item) =>
             item.productId._id === productId ? { ...item, quantity: newQuantity } : item
           )
         );
-  
+
         toast.success(`Quantity updated to ${newQuantity}`);
       } else {
         throw new Error("Failed to update quantity in the backend");
@@ -134,7 +133,7 @@ const RecommendedDeals = () => {
           return (
             <div key={deal._id} className="nav-rec-cards">
               <div className="card-img" onClick={() => handleProductClick(deal)}>
-                <img src={`http://localhost:5000/uploads/${deal.image}`} alt={deal.name} />
+                <img src={`https://pa-gebeya-backend.onrender.com/uploads/${deal.image}`} alt={deal.name} />
               </div>
               <div className="card-title" onClick={() => handleProductClick(deal)}>
                 {deal.name}

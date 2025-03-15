@@ -12,7 +12,7 @@ const Carousel = () => {
   useEffect(() => {
     const fetchAds = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/ads/ads");
+        const response = await axios.get("https://pa-gebeya-backend.onrender.com/api/ads/ads");
         setAds(response.data);
       } catch (error) {
         console.error("Error fetching ads:", error);
@@ -51,7 +51,7 @@ const Carousel = () => {
             <div className="carousel-inner">
               {ads.map((ad, index) => (
                 <div key={ad._id} className={`carousel-item ${index === 0 ? "active" : ""}`}>
-                  <img src={`http://localhost:5000/${ad.images[0]}`} className="d-block w-100" alt={`Ad ${index + 1}`} />
+                  <img src={`https://pa-gebeya-backend.onrender.com/${ad.images[0]}`} className="d-block w-100" alt={`Ad ${index + 1}`} />
                 </div>
               ))}
             </div>

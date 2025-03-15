@@ -18,7 +18,7 @@ export const CartProvider = ({ children }) => {
         return;
       }
   
-      const response = await axios.get("http://localhost:5000/api/cart", {
+      const response = await axios.get("https://pa-gebeya-backend.onrender.com/api/cart", {
         headers: { Authorization: `Bearer ${token}` },
       });
   
@@ -31,7 +31,7 @@ export const CartProvider = ({ children }) => {
   const addToCart = async (product) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.post("http://localhost:5000/api/cart", product, {
+      const response = await axios.post("https://pa-gebeya-backend.onrender.com/api/cart", product, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -46,7 +46,7 @@ export const CartProvider = ({ children }) => {
   const updateQuantity = async (productId, newQuantity) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.put(`http://localhost:5000/api/cart/${productId}`, { quantity: newQuantity }, {
+      await axios.put(`https://pa-gebeya-backend.onrender.com/api/cart/${productId}`, { quantity: newQuantity }, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -63,7 +63,7 @@ export const CartProvider = ({ children }) => {
   const removeFromCart = async (productId) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:5000/api/cart/${productId}`, {
+      await axios.delete(`https://pa-gebeya-backend.onrender.com/api/cart/${productId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

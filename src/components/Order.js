@@ -19,7 +19,7 @@ const Order = () => {
           return;
         }
 
-        const response = await axios.get(`http://localhost:5000/api/users/orders/${userId}`, {
+        const response = await axios.get(`https://pa-gebeya-backend.onrender.com/api/users/orders/${userId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -27,7 +27,7 @@ const Order = () => {
 
         const fetchedOrders = await Promise.all(response.data.orders.map(async (order) => {
           try {
-            const orderResponse = await axios.get(`http://localhost:5000/api/orders/${order.orderId}`, {
+            const orderResponse = await axios.get(`https://pa-gebeya-backend.onrender.com/api/orders/${order.orderId}`, {
               headers: { Authorization: `Bearer ${token}` },
             });
             return { ...order, status: orderResponse.data.status };
@@ -55,7 +55,7 @@ const Order = () => {
     try {
       const token = localStorage.getItem("token");
 
-      await axios.delete(`http://localhost:5000/api/users/orders/${orderId}`, {
+      await axios.delete(`https://pa-gebeya-backend.onrender.com/api/users/orders/${orderId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -82,7 +82,7 @@ const Order = () => {
         return;
       }
 
-      const response = await axios.get(`http://localhost:5000/api/orders/${orderId}/${userId}`, {
+      const response = await axios.get(`https://pa-gebeya-backend.onrender.com/api/orders/${orderId}/${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

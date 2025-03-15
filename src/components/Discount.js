@@ -16,7 +16,7 @@ const Discount = () => {
   useEffect(() => {
     const fetchDiscountedProducts = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/products/discounted");
+        const response = await axios.get("https://pa-gebeya-backend.onrender.com/api/products/discounted");
         if (response.status !== 200) throw new Error("Failed to fetch products");
         const filteredDeals = response.data.filter(product => product.hasDiscount && product.discount > 0);
         setDeals(filteredDeals);
@@ -68,39 +68,45 @@ const Discount = () => {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("userId", userId);
-    formData.append("productId", productId);
-    formData.append("productName", product.name);
-    formData.append("price", product.price);
-    formData.append("quantity", 1);
+    // Replace the base URL in the image path
+    const imageUrl = product.image.replace(
+      "https://pa-gebeya-backend.onrender.com",
+      "https://pa-gebeya-backend.onrender.com"
+    );
 
-    if (product.image) {
-      formData.append("image", product.image);
-    }
+    const cartItem = {
+      userId,
+      productId,
+      productName: product.name,
+      price: product.price,
+      quantity: 1,
+      img: imageUrl, // Use the updated image URL
+    };
 
     try {
-      const response = await fetch("http://localhost:5000/api/cart", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      const response = await axios.post(
+        "https://pa-gebeya-backend.onrender.com/api/cart",
+        cartItem,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      const responseData = await response.json();
+      if (response.status === 200) {
+        toast.success(`${product.name} added to the cart!`);
 
-      if (!response.ok) {
-        throw new Error(`Failed to add item: ${responseData.error}`);
+        // Refresh the cart
+        const updatedCart = await axios.get("https://pa-gebeya-backend.onrender.com/api/cart", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setCartItems(updatedCart.data.items);
+      } else {
+        throw new Error("Failed to add item to cart");
       }
-
-      toast.success(`${product.name} added to the cart!`);
-
-      const updatedCart = await axios.get("http://localhost:5000/api/cart", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      setCartItems(updatedCart.data.items);
     } catch (error) {
       console.error("Error adding to cart:", error);
       toast.error(error.message);
@@ -114,7 +120,7 @@ const Discount = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.put(
-        `http://localhost:5000/api/cart/${productId}`,
+        `https://pa-gebeya-backend.onrender.com/api/cart/${productId}`,
         { quantity: newQuantity },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -154,7 +160,13 @@ const Discount = () => {
           return (
             <div key={deal._id} className="nav-rec-cards">
               <div className="card-img" onClick={() => handleProductClick(deal)}>
-                <img src={deal.image} alt={deal.name} />
+                <img
+                  src={deal.image.replace(
+                    "https://pa-gebeya-backend.onrender.com",
+                    "https://pa-gebeya-backend.onrender.com"
+                  )}
+                  alt={deal.name}
+                />
               </div>
               <div className="card-title" onClick={() => handleProductClick(deal)}>
                 {deal.name}

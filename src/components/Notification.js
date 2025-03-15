@@ -17,7 +17,7 @@ const Notification = () => {
           return;
         }
 
-        const response = await axios.get(`http://localhost:5000/api/users/notifications/${userId}`, {
+        const response = await axios.get(`https://pa-gebeya-backend.onrender.com/api/users/notifications/${userId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -41,7 +41,7 @@ const Notification = () => {
     try {
       const token = localStorage.getItem("token");
 
-      await axios.delete(`http://localhost:5000/api/users/notifications/${id}`, {
+      await axios.delete(`https://pa-gebeya-backend.onrender.com/api/users/notifications/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -70,7 +70,7 @@ const Notification = () => {
       }
 
       // ✅ Fetch order details using orderId and userId from the notification
-      const response = await axios.get(`http://localhost:5000/api/orders/${notification.orderId}/${notification.userId}`, {
+      const response = await axios.get(`https://pa-gebeya-backend.onrender.com/api/orders/${notification.orderId}/${notification.userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

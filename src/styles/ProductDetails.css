@@ -1,9 +1,224 @@
+/* Product Title */
+.product-title {
+    font-size: 48px; /* Larger font size for emphasis */
+    font-weight: 800; /* Bold weight for prominence */
+    margin-bottom: 20px;
+    text-align: center;
+    color: #2c3e50; /* Dark blue for a modern look */
+    text-transform: uppercase; /* Uppercase for a bold statement */
+    letter-spacing: 1.5px; /* Spacing for better readability */
+}
+
+/* Short and Full Description */
+.short-description {
+    font-size: 20px;
+    color: #555; /* Slightly lighter text for contrast */
+    line-height: 1.6; /* Improved readability */
+    text-align: center;
+    margin-bottom: 20px;
+    font-style: italic; /* Italic for a subtle design touch */
+}
+
+.full-description {
+    font-size: 18px;
+    color: #555; /* Slightly lighter text for contrast */
+    line-height: 1.8; /* Improved readability */
+    text-align: center;
+    margin-bottom: 30px;
+    max-width: 600px; /* Limit width for better readability */
+}
+
+/* Price Styling */
+.price {
+    font-size: 32px; /* Larger font size for emphasis */
+    font-weight: 700; /* Bold weight for prominence */
+    color: #e67e22; /* Orange color for price */
+    margin-bottom: 20px; /* Spacing below price */
+}
+
+/* Quantity Selector */
+.quantity-selector {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 20px; /* Larger font size for better visibility */
+    margin-bottom: 20px; /* Spacing below quantity selector */
+}
+
+.quantity-selector button {
+    padding: 12px 18px; /* Larger padding for better clickability */
+    font-size: 20px; /* Larger font size */
+    border: none;
+    cursor: pointer;
+    background-color: #f1c40f; /* Bright yellow for buttons */
+    border-radius: 8px; /* Rounded corners */
+    color: #fff; /* White text for contrast */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth hover effects */
+}
+
+.quantity-selector button:hover {
+    background-color: #f39c12; /* Darker yellow on hover */
+    transform: scale(1.05); /* Slight zoom effect on hover */
+}
+
+.quantity-selector span {
+    font-size: 24px; /* Larger font size for quantity */
+    font-weight: 600; /* Bold weight for emphasis */
+    color: #2c3e50; /* Dark blue for contrast */
+}
+
+/* Add to Cart Button */
+.add-to-cart {
+    background-color: #27ae60; /* Green color for the button */
+    color: white;
+    font-size: 20px; /* Larger font size */
+    padding: 15px 30px; /* Larger padding for better clickability */
+    border-radius: 8px; /* Rounded corners */
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth hover effects */
+    text-transform: uppercase; /* Uppercase for a bold statement */
+    letter-spacing: 1px; /* Spacing for better readability */
+}
+
+.add-to-cart:hover {
+    background-color: #2ecc71; /* Lighter green on hover */
+    transform: scale(1.05); /* Slight zoom effect on hover */
+}
+
+/* Favorite Button */
+.favorite {
+    background: none;
+    font-size: 28px; /* Larger font size */
+    cursor: pointer;
+    border: none;
+    color: #e74c3c; /* Red color for the favorite icon */
+    transition: color 0.3s ease, transform 0.2s ease; /* Smooth hover effects */
+}
+
+.favorite:hover {
+    color: #c0392b; /* Darker red on hover */
+    transform: scale(1.1); /* Slight zoom effect on hover */
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .product-title {
+        font-size: 36px; /* Slightly smaller font size for tablets */
+    }
+
+    .short-description {
+        font-size: 18px;
+    }
+
+    .full-description {
+        font-size: 16px;
+    }
+
+    .price {
+        font-size: 28px;
+    }
+
+    .quantity-selector button {
+        padding: 10px 15px;
+        font-size: 18px;
+    }
+
+    .quantity-selector span {
+        font-size: 20px;
+    }
+
+    .add-to-cart {
+        font-size: 18px;
+        padding: 12px 24px;
+    }
+
+    .favorite {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 768px) {
+    .product-title {
+        font-size: 32px; /* Smaller font size for mobile */
+    }
+
+    .short-description {
+        font-size: 16px;
+    }
+
+    .full-description {
+        font-size: 14px;
+    }
+
+    .price {
+        font-size: 24px;
+    }
+
+    .quantity-selector button {
+        padding: 8px 12px;
+        font-size: 16px;
+    }
+
+    .quantity-selector span {
+        font-size: 18px;
+    }
+
+    .add-to-cart {
+        font-size: 16px;
+        padding: 10px 20px;
+    }
+
+    .favorite {
+        font-size: 22px;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-title {
+        font-size: 28px; /* Even smaller font size for small devices */
+    }
+
+    .short-description {
+        font-size: 14px;
+    }
+
+    .full-description {
+        font-size: 12px;
+    }
+
+    .price {
+        font-size: 20px;
+    }
+
+    .quantity-selector button {
+        padding: 6px 10px;
+        font-size: 14px;
+    }
+
+    .quantity-selector span {
+        font-size: 16px;
+    }
+
+    .add-to-cart {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+
+    .favorite {
+        font-size: 20px;
+    }
+}
+
 .product-details {
     display: flex;
     gap: 40px;
     padding: 40px;
     flex-wrap: wrap; /* Ensures responsiveness */
     justify-content: center;
+    background-color: #f9f9f9; /* Light background for contrast */
+    border-radius: 15px; /* Rounded corners */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
 
 /* Left Section */
@@ -13,6 +228,7 @@
     flex-direction: column;
     align-items: center;
     position: relative;
+    max-width: 600px; /* Limit width for better focus */
 }
 
 .main-image-container {
@@ -20,12 +236,22 @@
     display: flex;
     align-items: flex-start;
     justify-content: center;
+    background-color: #fff; /* White background for images */
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for the image container */
 }
 
 .main-image {
-    width: 450px;
+    width: 100%;
+    max-width: 450px;
     height: auto; /* Maintains aspect ratio */
     border-radius: 10px;
+    transition: transform 0.3s ease; /* Smooth hover effect */
+}
+
+.main-image:hover {
+    transform: scale(1.05); /* Slight zoom on hover */
 }
 
 /* Small image positioned at the bottom left of the big image */
@@ -35,21 +261,24 @@
     border-radius: 10px;
     cursor: pointer;
     position: absolute;
-    top: 65px;  /* Moves it slightly downward */
-    left: 450px; /* Moves it slightly to the left */
-    border: 2px solid #ddd;
-    justify-content: center;
+    bottom: 20px; /* Positioned at the bottom */
+    left: 20px; /* Positioned at the left */
+    border: 3px solid #fff; /* White border for contrast */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow for the small image */
+    transition: transform 0.3s ease, border-color 0.3s ease; /* Smooth hover effect */
 }
 
 .small-image:hover {
-    border-color: orange;
+    transform: scale(1.1); /* Slight zoom on hover */
+    border-color: orange; /* Highlight border on hover */
 }
 
 /* Thumbnail section */
 .thumbnail-container {
     display: flex;
     gap: 10px;
-    margin-top: 40px;
+    margin-top: 20px;
+    justify-content: center;
 }
 
 .thumbnail {
@@ -58,10 +287,12 @@
     border-radius: 5px;
     cursor: pointer;
     border: 2px solid transparent;
+    transition: transform 0.3s ease, border-color 0.3s ease; /* Smooth hover effect */
 }
 
 .thumbnail:hover {
-    border: 2px solid orange;
+    transform: scale(1.1); /* Slight zoom on hover */
+    border: 2px solid orange; /* Highlight border on hover */
 }
 
 /* Right Section */
@@ -72,6 +303,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center; /* Centers title and buttons */
+    max-width: 600px; /* Limit width for better focus */
 }
 
 .product-title {
@@ -79,6 +311,16 @@
     font-weight: bold;
     margin-bottom: 30px;
     text-align: center;
+    color: #333; /* Darker text for better readability */
+}
+
+.short-description,
+.full-description {
+    font-size: 18px;
+    color: #555; /* Slightly lighter text for descriptions */
+    line-height: 1.6; /* Improved readability */
+    text-align: center;
+    margin-bottom: 20px;
 }
 
 /* Info section layout */
@@ -87,6 +329,7 @@
     flex-direction: column;
     gap: 30px;
     align-items: center;
+    width: 100%;
 }
 
 /* Price & counter alignment */
@@ -100,6 +343,7 @@
 .price {
     font-size: 26px;
     font-weight: bold;
+    color: #e67e22; /* Orange color for price */
 }
 
 /* Quantity selector */
@@ -117,10 +361,11 @@
     cursor: pointer;
     background-color: #ddd;
     border-radius: 5px;
+    transition: background-color 0.3s ease; /* Smooth hover effect */
 }
 
 .quantity-selector button:hover {
-    background-color: #ccc;
+    background-color: #ccc; /* Darker background on hover */
 }
 
 /* Button Row */
@@ -137,10 +382,11 @@
     padding: 12px 20px;
     border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s ease; /* Smooth hover effect */
 }
 
 .add-to-cart:hover {
-    background-color: darkorange;
+    background-color: darkorange; /* Darker orange on hover */
 }
 
 .favorite {
@@ -148,6 +394,12 @@
     font-size: 24px;
     cursor: pointer;
     border: none; /* Removes border */
+    color: #e67e22; /* Orange color for favorite icon */
+    transition: color 0.3s ease; /* Smooth hover effect */
+}
+
+.favorite:hover {
+    color: #d35400; /* Darker orange on hover */
 }
 
 /* 🔹 Responsive Design */
@@ -164,8 +416,8 @@
 
     .small-image {
         width: 80px;
-        top: 65px;
-        margin-left: -100px;
+        bottom: 10px;
+        left: 10px;
     }
 
     .product-title {
@@ -193,12 +445,14 @@
 
 @media (max-width: 768px) {
     .main-image {
-        width: 200px;
+        width: 100%;
+        max-width: 300px;
     }
 
     .small-image {
         width: 70px;
-        margin-left: -200px;
+        bottom: 10px;
+        left: 10px;
     }
 
     .product-title {
@@ -226,11 +480,14 @@
 
 @media (max-width: 480px) {
     .main-image {
-        width: 250px;
+        width: 100%;
+        max-width: 250px;
     }
 
     .small-image {
         width: 60px;
+        bottom: 10px;
+        left: 10px;
     }
 
     .product-title {

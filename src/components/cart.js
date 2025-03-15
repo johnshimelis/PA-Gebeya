@@ -5,8 +5,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import "../styles/cart.css";
 
-const API_BASE_URL = "http://localhost:5000/api/cart"; // Backend API URL
-const IMAGE_BASE_URL = "http://localhost:5000"; // Base URL for images
+const API_BASE_URL = "https://pa-gebeya-backend.onrender.com/api/cart"; // Backend API URL
+const IMAGE_BASE_URL = "https://pa-gebeya-backend.onrender.com"; // Base URL for images
 
 const Cart = () => {
   const { cartItems, setCartItems, removeFromCart, updateQuantity } = useCart();
@@ -39,7 +39,9 @@ const Cart = () => {
       quantity: cartItem.quantity,
       price: cartItem.productId?.price || 0,
       productImage: cartItem.img
-        ? `${IMAGE_BASE_URL}${cartItem.img}`
+        ? cartItem.img.startsWith("http") // Check if img already has a full URL
+          ? cartItem.img
+          : `${IMAGE_BASE_URL}${cartItem.img}`
         : cartItem.productId?.image
         ? `${IMAGE_BASE_URL}/uploads/${cartItem.productId.image}`
         : "/placeholder.jpg",
@@ -67,7 +69,7 @@ const Cart = () => {
 
       // Send the new quantity to the backend
       const response = await axios.put(
-        `http://localhost:5000/api/cart/${productId}`,
+        `https://pa-gebeya-backend.onrender.com/api/cart/${productId}`,
         { quantity: newQuantity },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -91,7 +93,6 @@ const Cart = () => {
       toast.error("Failed to update quantity");
     }
   };
-  
 
   return (
     <div className="cart-container">
@@ -107,8 +108,12 @@ const Cart = () => {
           {cartItems.map((cartItem) => {
             if (!cartItem.productId) return null; // Ensure productId exists
             const product = cartItem.productId;
+
+            // Construct the image URL
             const imageUrl = cartItem.img
-              ? `${IMAGE_BASE_URL}${cartItem.img}`
+              ? cartItem.img.startsWith("http") // Check if img already has a full URL
+                ? cartItem.img
+                : `${IMAGE_BASE_URL}${cartItem.img}`
               : product.image
               ? `${IMAGE_BASE_URL}/uploads/${product.image}`
               : "/placeholder.jpg"; // Fallback image
@@ -136,12 +141,9 @@ const Cart = () => {
 
                   <div className="cart-bottom-section">
                     <div className="quantity-controls">
-                    <div className="quantity-controls">
-  <button onClick={() => handleUpdateQuantity(product._id, cartItem.quantity, false)}>-</button>
-  <span>{cartItem.quantity}</span>
-  <button onClick={() => handleUpdateQuantity(product._id, cartItem.quantity, true)}>+</button>
-</div>
-
+                      <button onClick={() => handleUpdateQuantity(product._id, cartItem.quantity, false)}>-</button>
+                      <span>{cartItem.quantity}</span>
+                      <button onClick={() => handleUpdateQuantity(product._id, cartItem.quantity, true)}>+</button>
                     </div>
                     <p className="item-price">ETB {(product.price * cartItem.quantity).toFixed(2)}</p>
                   </div>

@@ -4,7 +4,7 @@ import logoImage from "../images/assets/PA-Logos.png";
 import backgroundImage from "../images/assets/ecommerce.jpg";
 import "../styles/cart.css";
 
-const API_BASE_URL = "http://localhost:5000/api/auth";
+const API_BASE_URL = "https://pa-gebeya-backend.onrender.com/api/auth";
 
 
 
@@ -121,7 +121,7 @@ const AuthPage = () => {
       console.log("Stored userId:", data.user.userId);
   
       // Fetch and restore the user's cart
-      const cartResponse = await fetch(`http://localhost:5000/api/cart`, {
+      const cartResponse = await fetch(`https://pa-gebeya-backend.onrender.com/api/cart`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

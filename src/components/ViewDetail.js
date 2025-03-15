@@ -18,7 +18,7 @@ const ViewDetail = () => {
   }
 
   // Base URL for images
-  const baseURL = 'http://localhost:5000';
+  const baseURL = 'https://pa-gebeya-backend.onrender.com';
 
   // Open modal when the image is clicked
   const openModal = (image) => {

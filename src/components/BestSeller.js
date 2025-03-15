@@ -15,7 +15,7 @@ const BestSeller = () => {
   useEffect(() => {
     const fetchBestSellers = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/products/bestsellers"); // Replace with your actual API endpoint
+        const response = await fetch("https://pa-gebeya-backend.onrender.com/api/products/bestsellers"); // Updated URL
         if (!response.ok) {
           throw new Error("Failed to fetch best-selling products");
         }
@@ -51,40 +51,45 @@ const BestSeller = () => {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("userId", userId);
-    formData.append("productId", productId);
-    formData.append("productName", product.name);
-    formData.append("price", product.price);
-    formData.append("quantity", 1); // Always start with 1 quantity.
+    // Replace the base URL in the image path
+    const imageUrl = product.image.replace(
+      "https://pa-gebeya-backend.onrender.com",
+      "https://pa-gebeya-backend.onrender.com"
+    );
 
-    if (product.image) {
-      formData.append("image", product.image);
-    }
+    const cartItem = {
+      userId,
+      productId,
+      productName: product.name,
+      price: product.price,
+      quantity: 1,
+      img: imageUrl, // Use the updated image URL
+    };
 
     try {
-      const response = await fetch("http://localhost:5000/api/cart", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      const response = await axios.post(
+        "https://pa-gebeya-backend.onrender.com/api/cart",
+        cartItem,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      const responseData = await response.json();
+      if (response.status === 200) {
+        toast.success(`${product.name} added to the cart!`);
 
-      if (!response.ok) {
-        throw new Error(`Failed to add item: ${responseData.error}`);
+        // Refresh the cart
+        const updatedCart = await axios.get("https://pa-gebeya-backend.onrender.com/api/cart", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setCartItems(updatedCart.data.items); // Update the cart in the state
+      } else {
+        throw new Error("Failed to add item to cart");
       }
-
-      toast.success(`${product.name} added to the cart!`);
-
-      // After adding, refresh the cart
-      const updatedCart = await axios.get("http://localhost:5000/api/cart", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      setCartItems(updatedCart.data.items);  // Update the cart in the state
     } catch (error) {
       console.error("Error adding to cart:", error);
       toast.error(error.message);
@@ -93,22 +98,22 @@ const BestSeller = () => {
 
   const handleUpdateQuantity = async (productId, currentQuantity, increment) => {
     const newQuantity = increment ? currentQuantity + 1 : currentQuantity - 1;
-  
+
     // Prevent negative quantity
     if (newQuantity <= 0) return;
-  
+
     try {
       const token = localStorage.getItem("token");
-  
+
       // Send the new quantity to the backend
       const response = await axios.put(
-        `http://localhost:5000/api/cart/${productId}`,
+        `https://pa-gebeya-backend.onrender.com/api/cart/${productId}`,
         { quantity: newQuantity },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-  
+
       if (response.status === 200) {
         // Update the frontend state for cart items
         setCartItems((prevCart) =>
@@ -116,7 +121,7 @@ const BestSeller = () => {
             item.productId._id === productId ? { ...item, quantity: newQuantity } : item
           )
         );
-  
+
         toast.success(`Quantity updated to ${newQuantity}`);
       } else {
         throw new Error("Failed to update quantity in the backend");
@@ -140,14 +145,20 @@ const BestSeller = () => {
           return (
             <div key={deal._id} className="nav-rec-cards">
               <div className="card-img" onClick={() => handleProductClick(deal)}>
-                <img src={deal.image} alt={deal.name} />
+                <img
+                  src={deal.image.replace(
+                    "https://pa-gebeya-backend.onrender.com",
+                    "https://pa-gebeya-backend.onrender.com"
+                  )}
+                  alt={deal.name}
+                />
               </div>
               <div className="card-title" onClick={() => handleProductClick(deal)}>
                 {deal.name}
               </div>
               <div className="card-price">ETB {deal.price}</div>
               <div className="card-bottom">
-              <div className="card-counter">
+                <div className="card-counter">
                   <button
                     className="counter-btn"
                     disabled={quantity <= 0} // Disable "-" button if quantity is zero
@@ -177,4 +188,4 @@ const BestSeller = () => {
   );
 };
 
-export default BestSeller;
+export default BestSeller;  
