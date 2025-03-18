@@ -15,7 +15,7 @@
 .nav-deals-main {
   display: flex;
   flex-wrap: nowrap;
-  gap: 25px;
+  gap: 20px;
   overflow-x: auto; /* Enables scrolling */
   scroll-behavior: smooth;
   white-space: nowrap;
@@ -28,9 +28,35 @@
 
 .nav-rec-cards {
   flex: 0 0 auto;
-  width: 300px; /* Keeps card size consistent */
+  width: 250px; /* Smaller card size */
   scroll-snap-align: start; /* Ensures each card aligns properly */
   margin-left: 0; /* Removes any offset */
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s ease-in-out;
+  cursor: pointer;
+  padding: 16px;
+  text-align: left; /* Align all text to the left */
+}
+/* Add this to your existing CSS */
+/* Add or update this in your CSS */
+.card-content .short-description {
+  font-size: 16px;
+  color: #000; /* Black color for better readability */
+  margin-bottom: 2px; /* Reduced gap between short description and rating */
+  text-align: left; /* Align text to the left */
+  /* Ensure text is not italic */
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Limit to 2 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Add ellipsis for overflow */
+  line-height: 1.4; /* Adjust line height for better spacing */
+}
+.nav-rec-cards:hover {
+  transform: scale(1.05);
 }
 
 /* 🌟 Hide Scrollbar for a Clean Look */
@@ -56,32 +82,19 @@
   background: #555;
 }
 
-/* 🌟 Individual Product Card */
-.nav-rec-cards {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 300px; /* Keeps card size consistent */
-  flex: 0 0 auto;
-  overflow: hidden;
-  transition: transform 0.2s ease-in-out;
-}
-
-.nav-rec-cards:hover {
-  transform: scale(1.05);
-}
-
 /* 🌟 Product Image */
 .card-img {
   width: 100%;
-  height: 240px;
+  height: 100%; /* Adjusted height for image */
   overflow: hidden;
+  border-radius: 8px;
+  margin-bottom: -20px; /* Reduced gap between image and Best Seller tag */
 }
 
 .card-img img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover; /* Fix image cropping */
   transition: transform 0.3s ease-in-out;
 }
 
@@ -89,79 +102,87 @@
   transform: scale(1.1);
 }
 
-/* 🌟 Product Title */
-.card-title {
-  font-size: 18px;
+/* 🌟 Card Header */
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.best-seller-tags {
+  background-color: #ffd700;
+  color: #000;
+  font-size: 12px;
   font-weight: bold;
-  padding: 12px;
-  text-align: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.product-name {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* 🌟 Product Description */
+.card-description {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 2px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Limit to 2 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* 🌟 Product Rating */
+.card-rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1px;
+}
+
+.stars {
+  display: flex;
+  gap: 2px;
+}
+
+.star {
+  font-size: 16px;
+  color: #ccc;
+}
+
+.star.filled {
+  color: #ffc107; /* Yellow color for filled stars */
+}
+
+.rating-number,
+.sold-count {
+  font-size: 14px;
+  color: #666;
+}
+
 /* 🌟 Price Styling */
-.card-price {
-  font-size: 20px;
+.card-content .card-price {
+  font-size: 18px;
   font-weight: 700;
   color: #007600;
-  padding: 8px;
-  text-align: center;
-}
-
-/* 🌟 Bottom Section (Counter + Cart Icon) */
-.card-bottom {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px;
-}
-
-/* 🌟 Counter Styling */
-.card-counter {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.counter-btn {
-  background-color: #f0f0f0;
-  border: none;
-  padding: 6px 12px;
-  font-size: 18px;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-.counter-btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.counter-value {
-  font-size: 18px;
-  font-weight: bold;
-}
-
-/* 🌟 Cart Icon */
-.cart-icon {
-  font-size: 22px;
-  color: #007bff;
-  cursor: pointer;
-}
-
-.cart-icon:hover {
-  color: #0056b3;
+  margin-left: -5px;
+  text-align: start; /* Align price to the left */
+  /* Remove default margin */
 }
 
 /* 🌟 Responsive Design */
 @media (max-width: 1024px) {
   .nav-rec-cards {
-    width: 280px;
-  }
-
-  .card-img {
-    height: 220px;
+    width: 230px;
   }
 }
 
@@ -171,49 +192,31 @@
   }
 
   .nav-rec-cards {
-    width: 250px;
+    width: 200px;
   }
 
-  .card-img {
-    height: 200px;
+  .product-name {
+    font-size: 15px;
   }
 
-  .card-title {
-    font-size: 16px;
+  .card-description {
+    font-size: 13px;
   }
 
-  .card-price {
-    font-size: 18px;
-  }
-
-  .cart-icon {
-    font-size: 20px;
-  }
 }
 
 @media (max-width: 480px) {
   .nav-rec-cards {
-    width: 220px;
+    width: 180px;
   }
 
-  .card-img {
-    height: 180px;
+  .product-name {
+    font-size: 14px;
   }
 
-  .card-title {
-    font-size: 15px;
+  .card-description {
+    font-size: 12px;
   }
 
-  .card-price {
-    font-size: 16px;
-  }
 
-  .counter-btn {
-    padding: 5px 10px;
-    font-size: 16px;
-  }
-
-  .cart-icon {
-    font-size: 18px;
-  }
 }

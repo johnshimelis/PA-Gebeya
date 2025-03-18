@@ -6,10 +6,9 @@ import { toast } from "react-toastify";
 import axios from "axios";
 
 const RecommendedDeals = () => {
-  const { addToCart, updateQuantity, cartItems, setCartItems } = useCart();
+  const { addToCart, cartItems, setCartItems } = useCart();
   const navigate = useNavigate();
   const [deals, setDeals] = useState([]);
-  const [refresh, setRefresh] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -22,12 +21,20 @@ const RecommendedDeals = () => {
       }
     };
     fetchProducts();
-  }, [refresh]);
+  }, []);
 
   const handleProductClick = (deal) => {
-    // Store product details in local storage
-    localStorage.setItem("selectedProduct", JSON.stringify(deal));
-    console.log("Product stored in localStorage:", deal);
+    // Add a status property to the product object
+    const productWithStatus = {
+      ...deal, // Spread the existing product properties
+      status: "Recommended", // Add the status property
+    };
+
+    // Store the product details in localStorage under the key "Stored Product"
+    localStorage.setItem("Stored Product", JSON.stringify(productWithStatus));
+
+    // Log the stored product details to the console
+    console.log("Product stored in localStorage:", productWithStatus);
 
     navigate("/product_detail", { state: { product: deal } });
   };
@@ -87,84 +94,46 @@ const RecommendedDeals = () => {
     }
   };
 
-  const handleUpdateQuantity = async (productId, currentQuantity, increment) => {
-    const newQuantity = increment ? currentQuantity + 1 : currentQuantity - 1;
-
-    if (newQuantity <= 0) return;
-
-    try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.put(
-        `https://pa-gebeya-backend.onrender.com/api/cart/${productId}`,
-        { quantity: newQuantity },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      if (response.status === 200) {
-        setCartItems((prevCart) =>
-          prevCart.map((item) =>
-            item.productId._id === productId ? { ...item, quantity: newQuantity } : item
-          )
-        );
-
-        toast.success(`Quantity updated to ${newQuantity}`);
-      } else {
-        throw new Error("Failed to update quantity in the backend");
-      }
-    } catch (error) {
-      console.error("Error updating quantity:", error);
-      toast.error("Failed to update quantity");
-    }
-  };
-
   return (
     <section>
       <h4 style={{ margin: "60px 20px", textAlign: "left", fontSize: "35px", fontWeight: 1000 }}>
         Recommended for you
       </h4>
       <div id="rec" className="nav-deals-main">
-        {deals.map((deal) => {
-          const cartItem = cartItems.find((item) => item.productId._id === deal._id);
-          const quantity = cartItem ? cartItem.quantity : 0;
-
-          return (
-            <div key={deal._id} className="nav-rec-cards">
-              <div className="card-img" onClick={() => handleProductClick(deal)}>
-                <img src={`https://pa-gebeya-backend.onrender.com/uploads/${deal.image}`} alt={deal.name} />
+        {deals.map((deal) => (
+          <div key={deal._id} className="nav-rec-cards" onClick={() => handleProductClick(deal)}>
+            <div className="card-img">
+              <img src={`https://pa-gebeya-backend.onrender.com/uploads/${deal.image}`} alt={deal.name} />
+            </div>
+            <div className="card-content">
+              <div className="card-header">
+                <span className="best-seller-tags">Recommended</span>
+                <span className="product-name">{deal.name}</span>
               </div>
-              <div className="card-title" onClick={() => handleProductClick(deal)}>
-                {deal.name}
+              {/* Add shortDescription with a fallback */}
+              {deal.shortDescription ? (
+                <p className="short-description">{deal.shortDescription}</p>
+              ) : (
+                <p className="short-description">No description available.</p>
+              )}
+              <div className="card-rating">
+                <div className="stars">
+                  {Array.from({ length: 5 }, (_, index) => (
+                    <span
+                      key={index}
+                      className={`star ${index < 5 ? "filled" : ""}`}
+                    >
+                      ★
+                    </span>
+                  ))}
+                </div>
+                <span className="rating-number">| 5</span>
+                <span className="sold-count">| {deal.sold}+ sold</span>
               </div>
               <div className="card-price">ETB {deal.price}</div>
-              <div className="card-bottom">
-                <div className="card-counter">
-                  <button
-                    className="counter-btn"
-                    disabled={quantity <= 0}
-                    onClick={() => handleUpdateQuantity(deal._id, quantity, false)}
-                  >
-                    -
-                  </button>
-                  <span className="counter-value">{quantity}</span>
-                  <button
-                    className="counter-btn"
-                    onClick={() => handleUpdateQuantity(deal._id, quantity, true)}
-                  >
-                    +
-                  </button>
-                </div>
-                <i
-                  className="cart-icon fa fa-shopping-cart"
-                  onClick={() => handleAddToCart(deal)}
-                  style={{ cursor: "pointer" }}
-                ></i>
-              </div>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
     </section>
   );
