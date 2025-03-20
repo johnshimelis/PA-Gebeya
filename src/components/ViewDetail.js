@@ -17,9 +17,6 @@ const ViewDetail = () => {
     return <p>Loading...</p>;
   }
 
-  // Base URL for images
-  const baseURL = 'https://pa-gebeya-backend.onrender.com';
-
   // Open modal when the image is clicked
   const openModal = (image) => {
     setModalImage(image);
@@ -68,12 +65,12 @@ const ViewDetail = () => {
               <div className="payment-image-header">
                 <strong>Payment Image</strong>
               </div>
-              {/* Dynamically load payment image with the base URL */}
+              {/* Use the paymentImage URL directly */}
               <img
-                src={`${baseURL}${orderDetails.paymentImage}`}
+                src={orderDetails.paymentImage} // No need to prepend baseURL
                 alt="Payment"
                 className="payment-image"
-                onClick={() => openModal(`${baseURL}${orderDetails.paymentImage}`)} // Open modal on image click
+                onClick={() => openModal(orderDetails.paymentImage)} // Open modal on image click
               />
             </div>
           </div>
@@ -84,11 +81,12 @@ const ViewDetail = () => {
             {orderDetails.orderDetails.map((product, index) => (
               <div key={index} className="order-detail-item">
                 <div className="product-image-container">
-                  {/* Dynamically load product image with the base URL */}
+                  {/* Use the productImage URL directly */}
                   <img
-                    src={`${baseURL}${product.productImage}`}
+                    src={product.productImage} // No need to prepend baseURL
                     alt={product.product}
                     className="product-image"
+                    onClick={() => openModal(product.productImage)} // Open modal on image click
                   />
                 </div>
                 <div className="product-info">

@@ -51,7 +51,7 @@ const Carousel = () => {
             <div className="carousel-inner">
               {ads.map((ad, index) => (
                 <div key={ad._id} className={`carousel-item ${index === 0 ? "active" : ""}`}>
-                  <img src={`https://pa-gebeya-backend.onrender.com/${ad.images[0]}`} className="d-block w-100" alt={`Ad ${index + 1}`} />
+                  <img src={ad.images[0]} className="d-block w-100" alt={`Ad ${index + 1}`} /> {/* Use the full URL directly */}
                 </div>
               ))}
             </div>

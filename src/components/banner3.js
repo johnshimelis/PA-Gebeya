@@ -10,7 +10,7 @@ const Banner3 = () => {
       try {
         const response = await axios.get("https://pa-gebeya-backend.onrender.com/api/ads/banner1");
         if (response.data.length > 0) {
-          setBanner1(response.data[0].images[0]); // Assuming only one banner1 image is displayed
+          setBanner1(response.data[0].images[0]); // Use the first image URL directly
         }
       } catch (error) {
         console.error("Error fetching banner1:", error);
@@ -23,7 +23,7 @@ const Banner3 = () => {
   return (
     <section style={{ width: "100%", height: "auto", backgroundColor: "#ebebeb", padding: "5px" }}>
       {banner1 ? (
-        <img src={`https://pa-gebeya-backend.onrender.com/${banner1}`} alt="Banner" className="w-100" />
+        <img src={banner1} alt="Banner" className="w-100" /> // Use the full URL directly
       ) : (
         <p>Loading banner...</p>
       )}

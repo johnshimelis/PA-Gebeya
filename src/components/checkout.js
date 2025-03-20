@@ -20,6 +20,7 @@ const Checkout = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [address, setAddress] = useState('');
   const [currentStep, setCurrentStep] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     // Load cart from localStorage
@@ -29,11 +30,10 @@ const Checkout = () => {
     }
   }, []);
 
-
   const handleProceedToDelivery = () => {
     const storedOrderData = localStorage.getItem("orderData");
     const orderData = storedOrderData ? JSON.parse(storedOrderData) : null;
-  
+
     if (orderData) {
       console.log("✅ Keeping Existing Order Data:", orderData);
     } else {
@@ -45,20 +45,20 @@ const Checkout = () => {
         productImage: cartItem.image || "/placeholder.jpg",
         _id: cartItem.uniqueId,
       }));
-  
+
       const balance = cartItems
         .reduce((acc, item) => acc + item.price * item.quantity, 0)
         .toFixed(2);
-  
+
       const newOrderData = { amount: balance, orderDetails };
-  
+
       localStorage.setItem("orderData", JSON.stringify(newOrderData));
       console.log("🛒 New Order Data Saved:", newOrderData);
     }
-  
+
     setCurrentStep(2);
   };
-  
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -91,7 +91,7 @@ const Checkout = () => {
       }
     };
   };
-  
+
   const handleOrderSubmit = async () => {
     // ✅ Validation checks
     if (!image) {
@@ -103,6 +103,8 @@ const Checkout = () => {
       return;
     }
   
+    setIsLoading(true); // Show loading modal
+  
     // ✅ Retrieve user information
     const storedUser = localStorage.getItem("user");
     const user = storedUser ? JSON.parse(storedUser) : null;
@@ -112,6 +114,7 @@ const Checkout = () => {
     if (!userId) {
       console.error("❌ User ID is missing! Cannot proceed.");
       setError("User authentication issue. Please log in again.");
+      setIsLoading(false); // Hide loading modal
       return;
     }
   
@@ -126,7 +129,7 @@ const Checkout = () => {
       product: item.product,
       quantity: item.quantity,
       price: item.price,
-      productImage: item.productImage,
+      productImage: item.productImage, // Ensure productImage is included
     }));
   
     console.log("📦 Order Details (with productId):", updatedOrderDetails);
@@ -151,18 +154,34 @@ const Checkout = () => {
     formData.append("deliveryAddress", updatedOrderData.deliveryAddress);
     formData.append("orderDetails", JSON.stringify(updatedOrderData.orderDetails || []));
   
+    // ✅ Convert base64 data URL to File
     const paymentBlob = await fetch(image).then(res => res.blob());
     const paymentFile = new File([paymentBlob], imageName || "payment.jpg", { type: paymentBlob.type });
     formData.append("paymentImage", paymentFile);
   
+    // ✅ Append product images from localStorage to FormData
     if (updatedOrderData.orderDetails) {
-      await Promise.all(updatedOrderData.orderDetails.map(async (item, index) => {
+      for (const item of updatedOrderData.orderDetails) {
         if (item.productImage && item.productImage !== "null") {
-          const productBlob = await fetch(`https://pa-gebeya-backend.onrender.com/proxy-image?url=${encodeURIComponent(item.productImage)}`).then(res => res.blob());
-          const productFile = new File([productBlob], `product-${index}.jpg`, { type: productBlob.type });
-          formData.append("productImages", productFile);
+          try {
+            const response = await fetch(item.productImage, { mode: 'cors' });
+            if (!response.ok) {
+              throw new Error(`Failed to fetch image: ${item.productImage}`);
+            }
+            const blob = await response.blob();
+            const productFile = new File([blob], `product-${item.productId}.jpg`, { type: blob.type });
+            formData.append("productImages", productFile);
+            console.log(`✅ Successfully appended product image for ${item.product}`);
+          } catch (error) {
+            console.error(`❌ Error fetching product image for ${item.product}:`, error);
+          }
         }
-      }));
+      }
+    }
+  
+    // Log FormData before sending
+    for (const [key, value] of formData.entries()) {
+      console.log(key, value);
     }
   
     // ✅ Submit order
@@ -195,13 +214,13 @@ const Checkout = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify({
           userId: submittedOrder.userId,
           orderId: orderId,
           message: `Hello ${submittedOrder.name}, your <a href="/view-detail" class="order-link">order</a> is submitted successfully and pending. Please wait for approval.`,
-          date: new Date().toISOString()
+          date: new Date().toISOString(),
         }),
       });
   
@@ -231,13 +250,14 @@ const Checkout = () => {
       });
   
       if (!userOrderResponse.ok) {
-        throw new Error("Failed to save order in UserOrders");
+        console.error("❌ Failed to save order in UserOrders. Proceeding without it.");
+      } else {
+        console.log("✅ Order successfully saved in UserOrders!");
       }
-  
-      console.log("✅ Order successfully saved in UserOrders!");
   
       // ✅ Show the success popup
       setOrderSubmitted(true);
+      setIsLoading(false); // Hide loading modal
   
       // ✅ Wait for 2 seconds to display the popup before clearing the cart and navigating
       setTimeout(() => {
@@ -286,12 +306,9 @@ const Checkout = () => {
     } catch (error) {
       console.error("❌ Error submitting order:", error);
       setError(error.message || "Failed to submit order. Please try again.");
+      setIsLoading(false); // Hide loading modal
     }
   };
-
-
-  
-
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -441,6 +458,12 @@ const Checkout = () => {
             <img src={successImage} alt="Success Icon" className="success-icon" />
             <h2>Your order has been submitted successfully!</h2>
           </div>
+        </div>
+      )}
+
+      {isLoading && (
+        <div className="loading-modal">
+          <div className="loading-spinner"></div>
         </div>
       )}
     </div>
