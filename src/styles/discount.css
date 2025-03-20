@@ -125,10 +125,10 @@
 }
 
 .card-pricing {
-  margin-left: 60px;
+  margin-left: 20px;
   margin-top: 10px;
   display: flex;
-  align-items: right;
+  align-items: left;
   gap: 10px; /* Creates a space between elements */
 }
 
@@ -155,6 +155,7 @@
   margin-top: 6px;
   text-decoration: line-through;
   color: #888; /* Makes original price gray */
+  margin-left: -20px;
 }
 
 .card-pricing .discount {

@@ -1,33 +1,60 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
-import { useCart } from "../components/CartContext"; // Ensure you have access to the cart context
-import { toast } from "react-toastify"; // Import toast
-import { useAuth } from "../components/AuthContext"; // Import useAuth to access the user
+import { useCart } from "../components/CartContext";
+import { toast } from "react-toastify";
+import { useAuth } from "../components/AuthContext";
 import "../styles/product.css";
 
 const ProductsPage = () => {
-  const { category } = useParams(); // Get the category ID from the URL
+  const { category: categoryId } = useParams(); // Rename to categoryId for clarity
   const navigate = useNavigate();
-  const { addToCart, updateQuantity, cartItems = [], setCartItems } = useCart(); // Default cartItems to an empty array
-  const { user } = useAuth(); // Access the user from AuthContext
-  const [products, setProducts] = useState([]); // State to store fetched products
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(null); // Error state
+  const { addToCart, updateQuantity, cartItems = [], setCartItems } = useCart();
+  const { user } = useAuth();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [categoryName, setCategoryName] = useState(""); // State to store the category name
 
-  // Fetch products by category whenever the category changes
+  // Helper function to format the sold count
+  const formatSoldCount = (sold) => {
+    // Ensure sold is a valid number, default to 0 if not
+    const soldCount = Number(sold) || 0;
+
+    if (soldCount === 0) {
+      return "0 sold"; // If sold is 0, return "0 sold"
+    } else if (soldCount >= 1 && soldCount <= 10) {
+      return `${soldCount} sold`; // If sold is between 1 and 10, return the exact number
+    } else if (soldCount >= 11 && soldCount < 20) {
+      return "10+ sold"; // If sold is between 11 and 19, return "10+ sold"
+    } else if (soldCount === 20) {
+      return "20 sold"; // If sold is exactly 20, return "20 sold"
+    } else if (soldCount >= 21 && soldCount < 30) {
+      return "20+ sold"; // If sold is between 21 and 29, return "20+ sold"
+    } else {
+      // For numbers 30 and above, return the nearest lower multiple of 10 followed by "+"
+      const base = Math.floor(soldCount / 10) * 10;
+      return `${base}+ sold`;
+    }
+  };
+
   useEffect(() => {
     const fetchProductsByCategory = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        console.log("Fetching products for category ID:", category); // Log the category ID
+        // Fetch products by category ID
         const response = await axios.get(
-          `https://pa-gebeya-backend.onrender.com/api/products/category/${category}`
+          `https://pa-gebeya-backend.onrender.com/api/products/category/${categoryId}`
         );
         if (response.status === 200) {
           setProducts(response.data);
+
+          // Extract the category name from the first product (if available)
+          if (response.data.length > 0) {
+            setCategoryName(response.data[0].category); // Assuming the category name is in the product object
+          }
         } else {
           throw new Error("Failed to fetch products");
         }
@@ -40,51 +67,40 @@ const ProductsPage = () => {
     };
 
     fetchProductsByCategory();
-  }, [category]);
-
-  // Debugging: Check if cartItems are being passed correctly
-  useEffect(() => {
-    console.log("Cart Items in ProductsPage:", cartItems);
-  }, [cartItems]);
+  }, [categoryId]);
 
   const handleProductClick = (product) => {
+    const productWithStatus = {
+      ...product,
+      status: `${categoryName} Product`, // Use the category name in the status
+    };
+    localStorage.setItem("Stored Product", JSON.stringify(productWithStatus));
     navigate("/product_detail", { state: { product } });
-  };
-
-  const handleQuantityUpdate = (uniqueId, quantity) => {
-    if (quantity > 0) {
-      updateQuantity(uniqueId, quantity);
-    }
   };
 
   const handleAddToCart = async (product) => {
     const userId = localStorage.getItem("userId");
     const token = localStorage.getItem("token");
 
-    console.log("Retrieved userId:", userId);
-    console.log("Retrieved Token:", token);
-    console.log("Product Data:", product);
-
     if (!userId || !token) {
       toast.error("Please log in to add items to the cart");
       return;
     }
 
-    let productId = product._id || product.id;
+    let productId = product._id;
     if (!productId) {
       console.error("Error: Product ID is undefined");
       toast.error("Error adding item to cart: Product ID missing");
       return;
     }
 
-    // Create the cart item payload
     const cartItem = {
       userId,
       productId,
-      productName: product.title || product.name || "Unnamed Product",
+      productName: product.name,
       price: product.price,
       quantity: 1,
-      img: product.image, // Use the image URL directly
+      img: product.photo, // Use the `photo` field for the image URL
     };
 
     try {
@@ -102,12 +118,11 @@ const ProductsPage = () => {
       if (response.status === 200) {
         toast.success(`${product.name} added to the cart!`);
 
-        // Refresh the cart
         const updatedCart = await axios.get("https://pa-gebeya-backend.onrender.com/api/cart", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        setCartItems(updatedCart.data.items); // Update the cart in the state
+        setCartItems(updatedCart.data.items);
       } else {
         throw new Error("Failed to add item to cart");
       }
@@ -127,50 +142,48 @@ const ProductsPage = () => {
 
   return (
     <section>
-      <h2 style={{ margin: "40px 20px", textAlign: "left", fontSize: "28px", fontWeight: 900 }}>
-        {products.length > 0 ? products[0].category : "Products"}
-      </h2>
+      <h4 style={{ margin: "60px 20px", textAlign: "left", fontSize: "35px", fontWeight: 1000 }}>
+        {categoryName || "Products"} {/* Display the category name */}
+      </h4>
       <div className="product-grid">
         {products.map((product) => {
-          const cartItem = cartItems.find((item) => item.productId === product._id) || { quantity: 0 };
-          const uniqueId = `${product._id}-${cartItem.id}`;
-
+          console.log("Image URL:", product.photo); // Log the image URL
           return (
-            <div key={product._id} className="product-card">
-              <div className="card-img" onClick={() => handleProductClick(product)}>
-                <img src={product.image} alt={product.name} />
+            <div key={product._id} className="product-card" onClick={() => handleProductClick(product)}>
+              <div className="card-img">
+                {/* Use the `photo` field for the image URL */}
+                <img src={product.photo} alt={product.name} />
               </div>
-              <div className="card-title" onClick={() => handleProductClick(product)}>
-                {product.name}
-              </div>
-              <div className="card-price">AED {product.price}</div>
-              {product.hasDiscount && (
-                <div className="card-pricing">
-                  <span className="original-price">AED {product.price + (product.price * product.discount) / 100}</span>
-                  <span className="discount">{product.discount}% off</span>
+              <div className="card-content">
+                <div className="card-header">
+                  <span className="best-seller-tags">{categoryName} Product</span> {/* Tag before product name */}
+                  <span className="product-name">{product.name}</span> {/* Product name with ellipsis */}
                 </div>
-              )}
-              <div className="quantity-control">
+                {product.shortDescription ? (
+                  <p className="short-description">{product.shortDescription}</p>
+                ) : (
+                  <p className="short-description">No description available.</p>
+                )}
+                <div className="card-rating">
+                  <div className="stars">
+                    {Array.from({ length: 5 }, (_, index) => (
+                      <span key={index} className={`star ${index < 5 ? "filled" : ""}`}>★</span>
+                    ))}
+                  </div>
+                  <span className="rating-number">| 5</span>
+                  <span className="sold-count">| {formatSoldCount(product.sold)}</span>
+                </div>
+                <div className="card-price">ETB {product.price.toFixed(2)}</div>
                 <button
-                  onClick={() => handleQuantityUpdate(uniqueId, cartItem.quantity - 1)}
-                  disabled={cartItem.quantity <= 1}
+                  className="add-to-cart"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddToCart(product);
+                  }}
                 >
-                  -
-                </button>
-                <span>{cartItem.quantity}</span>
-                <button onClick={() => handleQuantityUpdate(uniqueId, cartItem.quantity + 1)}>
-                  +
+                  Add to Cart
                 </button>
               </div>
-              <button
-                className="add-to-cart"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleAddToCart(product);
-                }}
-              >
-                Add to Cart
-              </button>
             </div>
           );
         })}

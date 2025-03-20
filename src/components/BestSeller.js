@@ -67,13 +67,8 @@ const BestSeller = () => {
         {deals.map((deal) => (
           <div key={deal._id} className="nav-rec-cards" onClick={() => handleProductClick(deal)}>
             <div className="card-img">
-              <img
-                src={deal.image.replace(
-                  "https://pa-gebeya-backend.onrender.com",
-                  "https://pa-gebeya-backend.onrender.com"
-                )}
-                alt={deal.name}
-              />
+              {/* Use the `photo` field for the image URL */}
+              <img src={deal.photo} alt={deal.name} />
             </div>
             <div className="card-content">
               <div className="card-header">
@@ -100,7 +95,8 @@ const BestSeller = () => {
                 <span className="rating-number">| 5</span>
                 <span className="sold-count">| {formatSoldCount(deal.sold)} sold</span>
               </div>
-              <div className="card-price">ETB {deal.price}</div>
+              {/* Format the price to 2 decimal places */}
+              <div className="card-price">ETB {deal.price.toFixed(2)}</div>
             </div>
           </div>
         ))}

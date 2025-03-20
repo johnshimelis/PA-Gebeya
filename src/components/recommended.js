@@ -23,20 +23,33 @@ const RecommendedDeals = () => {
     fetchProducts();
   }, []);
 
+  // Helper function to format the sold count
+  const formatSoldCount = (sold) => {
+    if (sold < 10) {
+      return `${sold} sold`;
+    } else if (sold >= 10 && sold < 20) {
+      return "10+ sold";
+    } else if (sold === 20) {
+      return "20 sold";
+    } else if (sold > 20 && sold < 30) {
+      return "20+ sold";
+    } else {
+      // Handle cases where sold is 30 or more
+      return `${Math.floor(sold / 10) * 10}+ sold`;
+    }
+  };
+
   const handleProductClick = (deal) => {
-    // Add a status property to the product object
     const productWithStatus = {
-      ...deal, // Spread the existing product properties
-      status: "Recommended", // Add the status property
+      ...deal,
+      status: "Recommended",
+      category: deal.category ? deal.category.name : "Uncategorized", // Handle null/undefined category
     };
 
-    // Store the product details in localStorage under the key "Stored Product"
     localStorage.setItem("Stored Product", JSON.stringify(productWithStatus));
-
-    // Log the stored product details to the console
     console.log("Product stored in localStorage:", productWithStatus);
 
-    navigate("/product_detail", { state: { product: deal } });
+    navigate("/product_detail", { state: { product: productWithStatus } });
   };
 
   const handleAddToCart = async (product) => {
@@ -61,7 +74,7 @@ const RecommendedDeals = () => {
       productName: product.name,
       price: product.price,
       quantity: 1,
-      img: `https://pa-gebeya-backend.onrender.com/uploads/${product.image}`, // Send the image URL directly
+      img: product.photo, // Use the `photo` field for the image URL
     };
 
     try {
@@ -79,7 +92,6 @@ const RecommendedDeals = () => {
       if (response.status === 200) {
         toast.success(`${product.name} added to the cart!`);
 
-        // Refresh the cart
         const updatedCart = await axios.get("https://pa-gebeya-backend.onrender.com/api/cart", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -103,14 +115,14 @@ const RecommendedDeals = () => {
         {deals.map((deal) => (
           <div key={deal._id} className="nav-rec-cards" onClick={() => handleProductClick(deal)}>
             <div className="card-img">
-              <img src={`https://pa-gebeya-backend.onrender.com/uploads/${deal.image}`} alt={deal.name} />
+              {/* Use the `photo` field for the image URL */}
+              <img src={deal.photo} alt={deal.name} />
             </div>
             <div className="card-content">
               <div className="card-header">
                 <span className="best-seller-tags">Recommended</span>
                 <span className="product-name">{deal.name}</span>
               </div>
-              {/* Add shortDescription with a fallback */}
               {deal.shortDescription ? (
                 <p className="short-description">{deal.shortDescription}</p>
               ) : (
@@ -128,7 +140,7 @@ const RecommendedDeals = () => {
                   ))}
                 </div>
                 <span className="rating-number">| 5</span>
-                <span className="sold-count">| {deal.sold}+ sold</span>
+                <span className="sold-count">| {formatSoldCount(deal.sold)}</span>
               </div>
               <div className="card-price">ETB {deal.price}</div>
             </div>
