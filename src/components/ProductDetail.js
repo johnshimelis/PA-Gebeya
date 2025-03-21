@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "../components/CartContext";
 import { toast } from "react-toastify";
 import axios from "axios";
+import "react-responsive-carousel/lib/styles/carousel.min.css"; // Import carousel styles
+import { Carousel } from "react-responsive-carousel"; // Import Carousel component
 import "../styles/ProductDetails.css";
 
 const ProductDetails = () => {
@@ -202,16 +204,27 @@ const ProductDetails = () => {
     }
   };
 
-  // Get image URL
-  const getImageUrl = (imagePath) => {
-    if (!imagePath) {
-      return "http://pa-gebeya-backend.onrender.com/uploads/default.jpg";
+  // Render rating stars
+  const renderRatingStars = (rating) => {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    const stars = [];
+
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(<span key={i} className="star filled">&#9733;</span>); // Full star
     }
-    if (imagePath.startsWith("http")) {
-      return imagePath;
-    } else {
-      return `https://pa-gebeya-backend.onrender.com/uploads/${imagePath}`;
+
+    if (hasHalfStar) {
+      stars.push(<span key="half" className="star half">&#9733;</span>); // Half star
     }
+
+    // Fill the remaining stars with empty stars
+    const remainingStars = 5 - stars.length;
+    for (let i = 0; i < remainingStars; i++) {
+      stars.push(<span key={`empty-${i}`} className="star">&#9733;</span>); // Empty star
+    }
+
+    return stars;
   };
 
   if (!product) {
@@ -228,17 +241,37 @@ const ProductDetails = () => {
     <div className="container">
       <div className="product-details">
         <div className="left-section">
-          <div
-            className="main-image-container"
-            style={{ "--small-image-url": `url(${getImageUrl(product.photo || product.image)})` }}
+          {/* TikTok Icon for Video Link */}
+          {product.videoLink && (
+            <div className="tiktok-icon">
+              <img
+                src="../images/assets/babys.png"
+                alt="TikTok"
+                className="tiktok-img"
+              />
+            </div>
+          )}
+          {/* Auto-Scrolling Carousel for Images */}
+          <Carousel
+            showThumbs={false}
+            showStatus={false}
+            infiniteLoop={true}
+            autoPlay={true}
+            interval={3000}
+            stopOnHover={true}
           >
-            <img
-              className="main-image"
-              src={getImageUrl(product.photo || product.image)}
-              alt={product.name}
-            />
-            <div className="small-image-overlay"></div> {/* Add this line */}
-          </div>
+            {product.images && product.images.length > 0 ? (
+              product.images.map((image, index) => (
+                <div key={index} className="carousel-image-container">
+                  <img src={image} alt={`Product ${index}`} className="carousel-image" />
+                </div>
+              ))
+            ) : (
+              <div className="carousel-image-container">
+                <img src={product.photo} alt={product.name} className="carousel-image" />
+              </div>
+            )}
+          </Carousel>
         </div>
 
         <div className="right-section">
@@ -263,17 +296,10 @@ const ProductDetails = () => {
 
           <div className="rating-sold-container">
             <div className="stars">
-              {Array.from({ length: 5 }, (_, index) => (
-                <span
-                  key={index}
-                  className={`star ${index < (product.rating || 5) ? "filled" : ""}`}
-                >
-                  ★
-                </span>
-              ))}
-              <span className="rating-number">5</span>
-              <span className="sold-count">| {formatSoldCount(product.sold || 0)} Sold</span>
+              {renderRatingStars(product.rating || 0)} {/* Default to 0 if rating is undefined */}
             </div>
+            <span className="rating-number">| {product.rating || 0}</span>
+            <span className="sold-count">| {formatSoldCount(product.sold || 0)} Sold</span>
           </div>
 
           <p className="short-description">{product.shortDescription}</p>
@@ -355,16 +381,9 @@ const ProductDetails = () => {
                   )}
                   <div className="card-rating">
                     <div className="stars">
-                      {Array.from({ length: 5 }, (_, index) => (
-                        <span
-                          key={index}
-                          className={`star ${index < 5 ? "filled" : ""}`}
-                        >
-                          ★
-                        </span>
-                      ))}
+                      {renderRatingStars(relatedProduct.rating || 0)}
                     </div>
-                    <span className="rating-number">| 5</span>
+                    <span className="rating-number">| {relatedProduct.rating || 0}</span>
                     <span className="sold-count">| {formatSoldCount(relatedProduct.sold)}</span>
                   </div>
                   <p className="card-price">ETB {relatedProduct.price.toFixed(2)}</p>
