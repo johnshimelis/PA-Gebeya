@@ -4,7 +4,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useCart } from "../components/CartContext";
 import { toast } from "react-toastify";
 import { useAuth } from "../components/AuthContext";
+import "react-responsive-carousel/lib/styles/carousel.min.css"; // Import carousel styles
+import { Carousel } from "react-responsive-carousel"; // Import Carousel component
 import "../styles/product.css";
+import tiktokIcon from "../images/assets/tiktok.png"; // Import TikTok icon
 
 const ProductsPage = () => {
   const { category: categoryId } = useParams(); // Rename to categoryId for clarity
@@ -18,24 +21,47 @@ const ProductsPage = () => {
 
   // Helper function to format the sold count
   const formatSoldCount = (sold) => {
-    // Ensure sold is a valid number, default to 0 if not
     const soldCount = Number(sold) || 0;
 
     if (soldCount === 0) {
-      return "0 sold"; // If sold is 0, return "0 sold"
+      return "0 sold";
     } else if (soldCount >= 1 && soldCount <= 10) {
-      return `${soldCount} sold`; // If sold is between 1 and 10, return the exact number
+      return `${soldCount} sold`;
     } else if (soldCount >= 11 && soldCount < 20) {
-      return "10+ sold"; // If sold is between 11 and 19, return "10+ sold"
+      return "10+ sold";
     } else if (soldCount === 20) {
-      return "20 sold"; // If sold is exactly 20, return "20 sold"
+      return "20 sold";
     } else if (soldCount >= 21 && soldCount < 30) {
-      return "20+ sold"; // If sold is between 21 and 29, return "20+ sold"
+      return "20+ sold";
     } else {
-      // For numbers 30 and above, return the nearest lower multiple of 10 followed by "+"
       const base = Math.floor(soldCount / 10) * 10;
       return `${base}+ sold`;
     }
+  };
+
+  // Helper function to render rating stars
+  const renderRatingStars = (rating) => {
+    const fullStars = Math.floor(rating);
+    const decimal = rating % 1;
+    const stars = [];
+
+    // Add full stars
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(<span key={i} className="products-page-star filled">&#9733;</span>); // Full star
+    }
+
+    // Add half star if decimal is between 0.1 and 0.9
+    if (decimal >= 0.1 && decimal <= 0.9) {
+      stars.push(<span key="half" className="products-page-star half">&#9733;</span>); // Half star
+    }
+
+    // Fill the remaining stars with empty stars
+    const remainingStars = 5 - stars.length;
+    for (let i = 0; i < remainingStars; i++) {
+      stars.push(<span key={`empty-${i}`} className="products-page-star">&#9733;</span>); // Empty star
+    }
+
+    return stars;
   };
 
   useEffect(() => {
@@ -94,13 +120,18 @@ const ProductsPage = () => {
       return;
     }
 
+    // Use the first image as the thumbnail (or fallback to product.photo)
+    const thumbnailImage = product.images && product.images.length > 0
+      ? product.images[0] // Use the first image in the array
+      : product.photo; // Fallback to the product's photo field
+
     const cartItem = {
       userId,
       productId,
       productName: product.name,
       price: product.price,
       quantity: 1,
-      img: product.photo, // Use the `photo` field for the image URL
+      img: thumbnailImage, // Pass only one image URL as the thumbnail
     };
 
     try {
@@ -118,6 +149,7 @@ const ProductsPage = () => {
       if (response.status === 200) {
         toast.success(`${product.name} added to the cart!`);
 
+        // Refresh the cart
         const updatedCart = await axios.get("https://pa-gebeya-backend.onrender.com/api/cart", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -145,48 +177,78 @@ const ProductsPage = () => {
       <h4 style={{ margin: "60px 20px", textAlign: "left", fontSize: "35px", fontWeight: 1000 }}>
         {categoryName || "Products"} {/* Display the category name */}
       </h4>
-      <div className="product-grid">
-        {products.map((product) => {
-          console.log("Image URL:", product.photo); // Log the image URL
-          return (
-            <div key={product._id} className="product-card" onClick={() => handleProductClick(product)}>
-              <div className="card-img">
-                {/* Use the `photo` field for the image URL */}
-                <img src={product.photo} alt={product.name} />
-              </div>
-              <div className="card-content">
-                <div className="card-header">
-                  <span className="best-seller-tags">{categoryName} Product</span> {/* Tag before product name */}
-                  <span className="product-name">{product.name}</span> {/* Product name with ellipsis */}
-                </div>
-                {product.shortDescription ? (
-                  <p className="short-description">{product.shortDescription}</p>
-                ) : (
-                  <p className="short-description">No description available.</p>
-                )}
-                <div className="card-rating">
-                  <div className="stars">
-                    {Array.from({ length: 5 }, (_, index) => (
-                      <span key={index} className={`star ${index < 5 ? "filled" : ""}`}>★</span>
-                    ))}
-                  </div>
-                  <span className="rating-number">| 5</span>
-                  <span className="sold-count">| {formatSoldCount(product.sold)}</span>
-                </div>
-                <div className="card-price">ETB {product.price.toFixed(2)}</div>
-                <button
-                  className="add-to-cart"
+      <div className="products-page-product-grid">
+        {products.map((product) => (
+          <div key={product._id} className="products-page-product-card" onClick={() => handleProductClick(product)}>
+            <div className="products-page-card-img">
+              {/* TikTok Icon for Video Link */}
+              {product.videoLink && (
+                <div
+                  className="products-page-tiktok-icon"
                   onClick={(e) => {
-                    e.stopPropagation();
-                    handleAddToCart(product);
+                    e.stopPropagation(); // Prevent card click event
+                    window.open(product.videoLink, "_blank"); // Open link in new tab
                   }}
                 >
-                  Add to Cart
-                </button>
-              </div>
+                  <img
+                    src={tiktokIcon}
+                    alt="TikTok"
+                    className="products-page-tiktok-img"
+                  />
+                </div>
+              )}
+              {/* Auto-Scrolling Carousel for Images */}
+              <Carousel
+                showThumbs={false}
+                showStatus={false}
+                infiniteLoop={true}
+                autoPlay={true}
+                interval={3000}
+                stopOnHover={true}
+              >
+                {product.images && product.images.length > 0 ? (
+                  product.images.map((image, index) => (
+                    <div key={index} className="products-page-carousel-image-container">
+                      <img src={image} alt={`Product ${index}`} className="products-page-carousel-image" />
+                    </div>
+                  ))
+                ) : (
+                  <div className="products-page-carousel-image-container">
+                    <img src={product.photo} alt={product.name} className="products-page-carousel-image" />
+                  </div>
+                )}
+              </Carousel>
             </div>
-          );
-        })}
+            <div className="products-page-card-content">
+              <div className="products-page-card-header">
+                <span className="products-page-best-seller-tags">{categoryName} Product</span>
+                <span className="products-page-product-name">{product.name}</span>
+              </div>
+              {product.shortDescription ? (
+                <p className="products-page-short-description">{product.shortDescription}</p>
+              ) : (
+                <p className="products-page-short-description">No description available.</p>
+              )}
+              <div className="products-page-card-rating">
+                <div className="products-page-stars">
+                  {renderRatingStars(product.rating || 0)} {/* Default to 0 if rating is undefined */}
+                </div>
+                <span className="products-page-rating-number">| {product.rating || 0}</span>
+                <span className="products-page-sold-count">| {formatSoldCount(product.sold)}</span>
+              </div>
+              <div className="products-page-card-price">ETB {product.price.toFixed(2)}</div>
+              <button
+                className="products-page-add-to-cart"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleAddToCart(product);
+                }}
+              >
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );

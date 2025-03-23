@@ -1,11 +1,11 @@
-.product-grid {
+.products-page-product-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(250px, 1fr)); /* Ensure each card has a minimum width of 250px */
   gap: 20px; /* Space between products */
   padding: 20px;
 }
 
-.product-card {
+.products-page-product-card {
   border: 1px solid #ddd;
   border-radius: 10px;
   padding: 15px; /* Slightly more padding */
@@ -16,36 +16,83 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between; /* Distribute space evenly */
-  height: 420px; /* Increase card height to accommodate larger image */
+  height: 380px; /* Increase card height to accommodate larger image */
   width: 100%; /* Ensure the card takes up the full width of its grid cell */
   max-width: 300px; /* Set a maximum width for consistency */
   margin: 0 auto; /* Center the card within its grid cell */
 }
 
-.product-card:hover {
+.products-page-product-card:hover {
   transform: translateY(-5px); /* Lift the card on hover */
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Enhance shadow on hover */
 }
 
-.card-img {
+.products-page-card-img {
   width: 100%; /* Full width of the container */
-  height: 220px; /* Fixed height for the image container */
+  height: 250px; /* Fixed height for the image container */
   overflow: hidden; /* Ensure the image doesn't overflow */
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: #f5f5f5; /* Optional: Add a background color for consistency */
+  position: relative; /* For positioning the TikTok icon */
 }
 
-.card-img img {
-  width: 100%; /* Ensure the image fills the container width */
-  height: 100%; /* Ensure the image fills the container height */
-  object-fit: cover; /* Ensure the image fits within the container */
+.products-page-carousel-image-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.products-page-carousel-image {
+  width: auto; /* Allow the image to scale proportionally */
+  height: 100%; /* Ensure the image takes the full height of the container */
+  max-width: 100%; /* Prevent the image from overflowing */
+  object-fit: contain; /* Ensure the image is fully visible without cropping */
   border-radius: 10px;
+  transition: transform 0.3s ease; /* Smooth zoom effect */
 }
 
-.card-content {
+.products-page-product-card:hover .products-page-carousel-image {
+  transform: scale(1.05); /* Slight zoom effect on hover */
+}
+
+/* TikTok Icon */
+.products-page-tiktok-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  width: 50px; /* Adjust size */
+  height: 50px; /* Adjust size */
+  background-color: #fff; /* Circular background */
+  border-radius: 50%; /* Make it circular */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: spin 2s linear infinite; /* Add rotation animation */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Add a subtle shadow */
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.products-page-tiktok-img {
+  width: 30px; /* Adjust icon size */
+  height: 30px; /* Adjust icon size */
+  cursor: pointer;
+}
+
+.products-page-card-content {
   padding: 10px 0;
   flex-grow: 1; /* Allow content to grow and fill space */
   display: flex;
@@ -53,25 +100,27 @@
   justify-content: flex-start; /* Align content to the top */
 }
 
-.card-header {
+.products-page-card-header {
   margin-top: 30px; /* Add space between image and name/tag */
   display: flex;
   align-items: center; /* Align tag and product name vertically */
   gap: 4px; /* Reduce gap between tag and product name to one space */
 }
 
-.best-seller-tags {
+.products-page-best-seller-tags {
   background-color: #ffcc00; /* Tag background color */
   color: #333; /* Tag text color */
   padding: 4px 8px;
+  margin-top: -30px;
   border-radius: 4px;
   font-size: 12px;
   font-weight: bold;
   white-space: nowrap; /* Prevent tag text from wrapping */
 }
 
-.product-name {
+.products-page-product-name {
   font-size: 16px;
+  margin-top: -30px;
   font-weight: bold;
   color: #333;
   text-align: left; /* Align product name to the left */
@@ -81,10 +130,11 @@
   flex-grow: 1; /* Allow product name to take remaining space */
 }
 
-.short-description {
+.products-page-card-content .products-page-short-description {
   font-size: 14px;
   color: #666;
   margin: 4px 0;
+  text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -92,35 +142,53 @@
   -webkit-box-orient: vertical;
 }
 
-.card-rating {
+.products-page-card-rating {
   display: flex;
   align-items: center;
   gap: 8px;
   margin: 8px 0;
 }
 
-.stars {
+.products-page-stars {
   display: flex;
   gap: 2px;
 }
 
-.star {
-  color: #ffcc00; /* Star color */
+.products-page-star {
+  font-size: 16px;
+  color: #ccc; /* Default star color */
 }
 
-.rating-number,
-.sold-count {
+.products-page-star.filled {
+  color: #ffcc00; /* Filled star color */
+}
+
+.products-page-star.half {
+  position: relative;
+}
+
+.products-page-star.half::before {
+  content: "★";
+  position: absolute;
+  width: 50%;
+  overflow: hidden;
+  color: #ffcc00; /* Half star color */
+}
+
+.products-page-rating-number,
+.products-page-sold-count {
   font-size: 14px;
   color: #666;
 }
 
-.card-price {
+.products-page-card-content .products-page-card-price {
+  color: green; /* Change price color to green */
+  text-align: left;
   font-size: 18px;
-  color: #333;
   margin: 4px 0;
 }
 
-.add-to-cart {
+.products-page-add-to-cart {
   padding: 10px 20px;
   border: none;
   background-color: #007bff;
@@ -131,31 +199,31 @@
   transition: background-color 0.3s ease;
 }
 
-.add-to-cart:hover {
+.products-page-add-to-cart:hover {
   background-color: #0056b3; /* Darker blue on hover */
 }
 
 /* Responsive Design */
 @media (max-width: 1200px) {
-  .product-grid {
+  .products-page-product-grid {
     grid-template-columns: repeat(4, minmax(250px, 1fr)); /* Keep 4 products per row on smaller screens */
   }
 }
 
 @media (max-width: 992px) {
-  .product-grid {
+  .products-page-product-grid {
     grid-template-columns: repeat(3, minmax(250px, 1fr)); /* 3 products per row on tablets */
   }
 }
 
 @media (max-width: 768px) {
-  .product-grid {
+  .products-page-product-grid {
     grid-template-columns: repeat(2, minmax(250px, 1fr)); /* 2 products per row on mobile */
   }
 }
 
 @media (max-width: 480px) {
-  .product-grid {
+  .products-page-product-grid {
     grid-template-columns: repeat(1, minmax(250px, 1fr)); /* 1 product per row on small mobile */
   }
 }

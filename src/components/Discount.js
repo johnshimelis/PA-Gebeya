@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../components/CartContext";
 import { toast } from "react-toastify";
 import axios from "axios";
+import "react-responsive-carousel/lib/styles/carousel.min.css"; // Import carousel styles
+import { Carousel } from "react-responsive-carousel"; // Import Carousel component
+import tiktokIcon from "../images/assets/tiktok.png"; // Import TikTok icon
 
 const Discount = () => {
   const { addToCart, cartItems, setCartItems } = useCart();
@@ -29,6 +32,49 @@ const Discount = () => {
 
     fetchDiscountedProducts();
   }, []);
+
+  // Helper function to format the sold count
+  const formatSoldCount = (sold) => {
+    const soldNumber = Number(sold); // Ensure sold is treated as a number
+    if (isNaN(soldNumber)) return "0 sold"; // Fallback if sold is not a number
+
+    if (soldNumber < 10) {
+      return `${soldNumber} sold`;
+    } else if (soldNumber >= 10 && soldNumber < 20) {
+      return "10+ sold";
+    } else if (soldNumber === 20) {
+      return "20 sold";
+    } else if (soldNumber > 20 && soldNumber < 30) {
+      return "20+ sold";
+    } else {
+      return `${Math.floor(soldNumber / 10) * 10}+ sold`;
+    }
+  };
+
+  // Helper function to render yellow stars based on rating
+  const renderRatingStars = (rating) => {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5; // Check if there's a half star
+    const stars = [];
+
+    // Add full stars
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(<span key={i} className="star filled">&#9733;</span>); // Full star
+    }
+
+    // Add half star if needed
+    if (hasHalfStar) {
+      stars.push(<span key="half" className="star half">&#9733;</span>); // Half star
+    }
+
+    // Add empty stars to fill the remaining space
+    const remainingStars = 5 - stars.length;
+    for (let i = 0; i < remainingStars; i++) {
+      stars.push(<span key={`empty-${i}`} className="star">&#9733;</span>); // Empty star
+    }
+
+    return stars;
+  };
 
   const handleProductClick = (deal) => {
     const productDetails = {
@@ -115,6 +161,10 @@ const Discount = () => {
     }
   };
 
+  const handleTikTokClick = (videoLink) => {
+    window.open(videoLink, "_blank");
+  };
+
   if (loading) return <p>Loading discounted products...</p>;
   if (error) return <p>Error: {error}</p>;
 
@@ -133,8 +183,43 @@ const Discount = () => {
           return (
             <div key={deal._id} className="nav-rec-cards" onClick={() => handleProductClick(deal)}>
               <div className="card-img">
-                {/* Use the `photo` field for the image URL */}
-                <img src={deal.photo} alt={deal.name} />
+                {/* TikTok Icon for Video Link */}
+                {deal.videoLink && (
+                  <div
+                    className="tiktok-icon"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent the parent onClick from firing
+                      handleTikTokClick(deal.videoLink);
+                    }}
+                  >
+                    <img
+                      src={tiktokIcon} // Use imported TikTok icon
+                      alt="TikTok"
+                      className="tiktok-img"
+                    />
+                  </div>
+                )}
+                {/* Auto-Scrolling Carousel for Images */}
+                <Carousel
+                  showThumbs={false}
+                  showStatus={false}
+                  infiniteLoop={true}
+                  autoPlay={true}
+                  interval={3000}
+                  stopOnHover={true}
+                >
+                  {deal.images && deal.images.length > 0 ? (
+                    deal.images.map((image, index) => (
+                      <div key={index} className="carousel-image-container">
+                        <img src={image} alt={`Product ${index}`} className="carousel-image" />
+                      </div>
+                    ))
+                  ) : (
+                    <div className="carousel-image-container">
+                      <img src={deal.photo} alt={deal.name} className="carousel-image" />
+                    </div>
+                  )}
+                </Carousel>
               </div>
               <div className="card-content">
                 <div className="card-header">
@@ -150,17 +235,10 @@ const Discount = () => {
                 )}
                 <div className="card-rating">
                   <div className="stars">
-                    {Array.from({ length: 5 }, (_, index) => (
-                      <span
-                        key={index}
-                        className={`star ${index < 5 ? "filled" : ""}`}
-                      >
-                        ★
-                      </span>
-                    ))}
+                    {renderRatingStars(deal.rating || 0)}
                   </div>
-                  <span className="rating-number">| 5</span>
-                  <span className="sold-count">| {deal.sold || 0}{deal.sold > 0 ? "+" : ""} sold</span>
+                  <span className="rating-number">| {deal.rating || 0}</span>
+                  <span className="sold-count">| {formatSoldCount(deal.sold)}</span>
                 </div>
                 <div className="card-pricing">
                   {/* Display calculated price with 2 decimal places */}

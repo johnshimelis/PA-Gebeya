@@ -60,13 +60,6 @@ const ProductDetails = () => {
     window.open(url, "_blank");
   };
 
-  // Handle related product click
-  const handleRelatedProductClick = (relatedProduct) => {
-    setProduct(relatedProduct); // Update the main product
-    setSelectedImage(relatedProduct.images?.[0] || relatedProduct.photo); // Set the first image as default
-    window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to the top
-  };
-
   // Fetch related products when the product is set
   useEffect(() => {
     if (product?.category) {
@@ -138,18 +131,13 @@ const ProductDetails = () => {
       return;
     }
 
-    // Use the first image as the thumbnail (or fallback to product.photo)
-    const thumbnailImage = productToAdd.images && productToAdd.images.length > 0
-      ? productToAdd.images[0] // Use the first image in the array
-      : productToAdd.photo; // Fallback to the product's photo field
-
     const cartItem = {
       userId,
       productId,
       productName: productToAdd.name,
       price: productToAdd.price,
       quantity: quantity,
-      img: thumbnailImage, // Pass only one image URL as the thumbnail
+      img: productToAdd.photo || productToAdd.image,
     };
 
     try {
@@ -355,7 +343,10 @@ const ProductDetails = () => {
               <div
                 key={relatedProduct._id}
                 className="related-product-card"
-                onClick={() => handleRelatedProductClick(relatedProduct)}
+                onClick={() => {
+                  setProduct(relatedProduct);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
               >
                 {/* TikTok Icon for Video Link */}
                 {relatedProduct.videoLink && (

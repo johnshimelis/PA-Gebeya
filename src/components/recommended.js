@@ -184,7 +184,7 @@ const RecommendedDeals = () => {
                 )}
               </Carousel>
             </div>
-            <div className="card-content">
+            <div className="card-content" id="recommend">
               <div className="card-header">
                 <span className="best-seller-tags">Recommended</span>
                 <span className="product-name">{deal.name}</span>

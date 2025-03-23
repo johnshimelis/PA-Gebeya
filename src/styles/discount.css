@@ -290,3 +290,40 @@
   align-items: center; /* Align tag and product name vertically */
   margin-bottom: 10px; /* Add spacing below the header */
 }
+/* TikTok Icon */
+.tiktok-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  background: white;
+  border-radius: 50%; /* Make it circular */
+  padding: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Add popup effect */
+  width: 50px; /* Fixed size */
+  height: 50px; /* Fixed size */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.tiktok-img {
+  width: 30px; /* Adjust size as needed */
+  height: 30px; /* Adjust size as needed */
+}
+
+/* Carousel Image Container */
+.carousel-image-container {
+  width: 100%;
+  height: 240px; /* Match the height of the card-img */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Ensure the entire image is visible without cropping */
+}

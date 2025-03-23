@@ -1,3 +1,4 @@
+
 /* Product Details Layout */
 .product-details {
     display: flex;
@@ -17,50 +18,86 @@
     position: relative;
   }
   
+  /* Existing CSS remains unchanged until the image section */
+
+/* Main Image Container */
+.main-image-container {
+  width: 90%; /* Reduced width */
+  height: 400px; /* Adjust height as needed */
+  overflow: hidden;
+  border-radius: 15px;
+  background-color: #f9f9f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin: 0 auto; /* Center the container */
+}
+
+.main-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.main-image:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Small Images Container */
+.small-images-container {
+  display: flex;
+  flex-direction: row; /* Changed to horizontal layout */
+  gap: 10px;
+  margin-top: 10px;
+  justify-content: center; /* Center the small images */
+  overflow-x: auto; /* Allow horizontal scrolling if needed */
+  padding-bottom: 10px; /* Add padding for scrollbar */
+}
+
+.small-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 2px solid transparent;
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+.small-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.small-image:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.small-image.active {
+  border-color: #f1c40f;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
   .main-image-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #f9f9f9;
-    border-radius: 15px;
-    padding: 20px;
-    position: relative;
-    overflow: hidden;
+    height: 300px;
+    width: 95%; /* Further reduce width on smaller screens */
   }
-  
-  .main-image {
-    width: 100%;
-    max-width: 400px;
-    height: auto;
-    border-radius: 10px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  .small-image {
+    width: 60px;
+    height: 60px;
   }
-  
-  .main-image:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  }
-  
-  /* Small image overlay */
-  .main-image-container::after {
-    content: "";
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    width: 80px;
-    height: 80px;
-    background-image: var(--small-image-url); /* Dynamically set in JS */
-    background-size: cover;
-    background-position: center;
-    border-radius: 8px;
-    border: 2px solid #fff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
-  }
-  
-  .main-image-container:hover::after {
-    transform: scale(1.1);
-  }
+}
+
+/* Existing CSS remains unchanged after the image section */
   
   /* Right Section */
   .right-section {
@@ -160,28 +197,41 @@
     gap: 6px; /* Reduced gap */
     margin-top: 4px; /* Reduced margin */
   }
-  
-  .stars {
+  .rating-sold-container .card-rating {
     display: flex;
-    gap: 4px; /* Reduced gap */
     align-items: center;
+    gap: 8px;
+    margin-bottom: 1px;
   }
   
-  .star {
-    font-size: 20px;
-    color: #ddd;
-    transition: color 0.3s ease;
+  .rating-sold-container.stars {
+    display: flex;
+    gap: 2px;
   }
   
-  .star.filled {
-    color: #f1c40f;
-  }
-  
-  .rating-number {
+  .rating-sold-container .star {
     font-size: 16px;
-    color: #777;
-    margin-left: 4px; /* Reduced margin */
+    color: #ccc;
   }
+  
+  .rating-sold-container .star.filled {
+    color: #ffc107; /* Yellow for filled stars */
+  }
+  
+  .rating-sold-container.star.half {
+    position: relative;
+  }
+  
+  .rating-sold-container.star.half::before {
+    content: "★";
+    position: absolute;
+    width: 50%;
+    overflow: hidden;
+    color: #ffc107; /* Yellow for half stars */
+  }
+ 
+ 
+  
   
   .sold-count {
     font-size: 16px;
@@ -513,10 +563,11 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 420px; /* Increase card height to accommodate larger image */
+  height: 400px; /* Adjust height as needed */
   width: 100%; /* Ensure the card takes up the full width of its grid cell */
   max-width: 300px; /* Set a maximum width for consistency */
   margin: 0 auto; /* Center the card within its grid cell */
+  position: relative; /* For positioning the TikTok icon */
 }
 
 .related-product-card:hover {
@@ -524,19 +575,46 @@
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Card Image */
-.card-img {
-  width: 100%;
-  height: 220px; /* Fixed height for the image container */
-  overflow: hidden;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #f5f5f5; /* Optional: Add a background color for consistency */
+/* TikTok Icon for Video Link */
+.tiktok-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  cursor: pointer;
+  transition: transform 0.3s ease;
 }
 
-.card-img img {
+.tiktok-icon:hover {
+  animation: rotateTikTok 1s infinite linear; /* Rotate animation on hover */
+}
+
+@keyframes rotateTikTok {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.tiktok-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Carousel Styling */
+.carousel {
+  width: 100%;
+  height: 150px; /* Further decreased height for the carousel */
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.carousel img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -554,10 +632,10 @@
 
 /* Card Header */
 .card-header {
-  margin-top: 30px; /* Add space between image and name/tag */
   display: flex;
-  align-items: center;
-  gap: 4px; /* Reduce gap between tag and product name to one space */
+  align-items: center; /* Align items vertically in the center */
+  gap: 8px; /* Space between tag and product name */
+  margin-bottom: 10px; /* Add space below the header */
 }
 
 .best-seller-tags {
@@ -633,6 +711,8 @@
   border-radius: 5px;
   font-size: 16px;
   transition: background-color 0.3s ease;
+  width: 100%; /* Make the button full width */
+  margin-top: auto; /* Push the button to the bottom */
 }
 
 .add-to-cart:hover {
@@ -657,7 +737,6 @@
     grid-template-columns: repeat(1, minmax(250px, 1fr)); /* 1 product per row on mobile */
   }
 }
-
 /* Existing CSS code remains unchanged until the image section */
 
 /* Left Section - Image and TikTok Link */
@@ -671,10 +750,10 @@
 }
 
 /* TikTok Icon for Video Link */
-.tiktok-icon {
+.related-product-card .tiktok-icon {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 20px;
+  right: 20px;
   z-index: 2;
   cursor: pointer;
   transition: transform 0.3s ease;
@@ -684,7 +763,7 @@
   transform: scale(1.1);
 }
 
-.tiktok-img {
+.related-product-card .tiktok-img {
   width: 40px;
   height: 40px;
   border-radius: 50%;

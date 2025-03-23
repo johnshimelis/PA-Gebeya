@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "../styles/cart.css";
+import { Carousel } from "react-responsive-carousel"; // Import Carousel component
+import "react-responsive-carousel/lib/styles/carousel.min.css"; // Import carousel styles
 
 const API_BASE_URL = "https://pa-gebeya-backend.onrender.com/api/cart"; // Backend API URL
 const IMAGE_BASE_URL = "https://pa-gebeya-backend.onrender.com"; // Base URL for images
@@ -120,12 +122,16 @@ const Cart = () => {
 
             return (
               <div key={product._id} className="cart-item">
-                <img
-                  src={imageUrl}
-                  alt={product.name}
-                  className="cart-item-image"
-                  onError={(e) => (e.target.src = "/placeholder.jpg")} // Handle broken images
-                />
+                {/* Display the product image */}
+                <div className="cart-item-image-container">
+                  <img
+                    src={imageUrl}
+                    alt={product.name}
+                    className="cart-item-image"
+                    onError={(e) => (e.target.src = "/placeholder.jpg")} // Handle broken images
+                  />
+                </div>
+
                 <div className="cart-item-details">
                   <div className="cart-item-header">
                     <div>
