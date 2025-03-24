@@ -123,7 +123,31 @@ html, body {
     align-items: center;
     gap: 10px;
 }
+.language-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
 
+.language-option {
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+}
+
+.language-code {
+  font-size: 12px;
+  margin-right: 8px;
+}
+
+.language-name {
+  font-size: 16px;
+}
 .nav-bar-lang .nav-language,
 .nav-bar-lang .nav-user,
 .nav-bar-lang .nav-cart {

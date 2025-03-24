@@ -18,8 +18,10 @@ const Header = () => {
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
+  const [isLanguageDropdownVisible, setLanguageDropdownVisible] = useState(false);
   const dropdownRef = useRef(null);
   const userRef = useRef(null);
+  const languageRef = useRef(null);
 
   // Function to decode JWT safely
   const decodeToken = (token) => {
@@ -106,8 +108,23 @@ const Header = () => {
     console.log("Logging out, redirecting to /auth");
     navigate("/auth"); // Redirect to /auth
   };
-  
-  
+
+  const toggleLanguageDropdown = () => {
+    setLanguageDropdownVisible(!isLanguageDropdownVisible);
+  };
+
+  const handleClickOutside = (event) => {
+    if (languageRef.current && !languageRef.current.contains(event.target)) {
+      setLanguageDropdownVisible(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <>
@@ -127,8 +144,25 @@ const Header = () => {
             </form>
           </div>
           <div className="nav-bar-lang me-4 d-flex justify-content-center align-items-center">
-            <div className="nav-language">
-              <i className="fas fa-globe"></i> Eng
+            <div 
+              ref={languageRef}
+              className="nav-language" 
+              onClick={toggleLanguageDropdown}
+              style={{ cursor: "pointer", position: "relative" }}
+            >
+              <i className="fas fa-globe"></i> Language
+              {isLanguageDropdownVisible && (
+                <div className="language-dropdown-menu">
+                  <div className="language-option">
+                    <span className="language-code">GB</span>
+                    <span className="language-name">English</span>
+                  </div>
+                  <div className="language-option">
+                    <span className="language-code">ET</span>
+                    <span className="language-name">አማርኛ</span>
+                  </div>
+                </div>
+              )}
             </div>
             <hr />
             {user ? (
