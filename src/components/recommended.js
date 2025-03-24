@@ -162,27 +162,38 @@ const RecommendedDeals = () => {
     />
   </div>
 )}
-              {/* Auto-Scrolling Carousel for Images */}
-              <Carousel
-                showThumbs={false}
-                showStatus={false}
-                infiniteLoop={true}
-                autoPlay={true}
-                interval={3000}
-                stopOnHover={true}
-              >
-                {deal.images && deal.images.length > 0 ? (
-                  deal.images.map((image, index) => (
-                    <div key={index} className="carousel-image-container">
-                      <img src={image} alt={`Product ${index}`} className="carousel-image" />
-                    </div>
-                  ))
-                ) : (
-                  <div className="carousel-image-container">
-                    <img src={deal.photo} alt={deal.name} className="carousel-image" />
-                  </div>
-                )}
-              </Carousel>
+           
+<Carousel
+  showThumbs={false}
+  showStatus={false}
+  infiniteLoop={true}
+  autoPlay={true}
+  interval={3000}
+  stopOnHover={true}
+>
+  {deal.imageUrls && deal.imageUrls.length > 0 ? (
+    deal.imageUrls.map((imageUrl, index) => (
+      <div key={index} className="carousel-image-container">
+        <img 
+          src={imageUrl} 
+          alt={`Product ${index}`} 
+          className="carousel-image"
+          onError={(e) => {
+            e.target.src = '/default-product-image.jpg'; // Fallback image
+          }}
+        />
+      </div>
+    ))
+  ) : (
+    <div className="carousel-image-container">
+      <img 
+        src="/default-product-image.jpg" 
+        alt={deal.name} 
+        className="carousel-image" 
+      />
+    </div>
+  )}
+</Carousel>
             </div>
             <div className="card-content" id="recommend">
               <div className="card-header">

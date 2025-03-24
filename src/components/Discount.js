@@ -208,15 +208,26 @@ const Discount = () => {
                   interval={3000}
                   stopOnHover={true}
                 >
-                  {deal.images && deal.images.length > 0 ? (
-                    deal.images.map((image, index) => (
+                  {deal.imageUrls && deal.imageUrls.length > 0 ? (
+                    deal.imageUrls.map((imageUrl, index) => (
                       <div key={index} className="carousel-image-container">
-                        <img src={image} alt={`Product ${index}`} className="carousel-image" />
+                        <img 
+                          src={imageUrl} 
+                          alt={`Product ${index}`} 
+                          className="carousel-image"
+                          onError={(e) => {
+                            e.target.src = '/default-product-image.jpg'; // Fallback image
+                          }}
+                        />
                       </div>
                     ))
                   ) : (
                     <div className="carousel-image-container">
-                      <img src={deal.photo} alt={deal.name} className="carousel-image" />
+                      <img 
+                        src="/default-product-image.jpg" 
+                        alt={deal.name} 
+                        className="carousel-image" 
+                      />
                     </div>
                   )}
                 </Carousel>

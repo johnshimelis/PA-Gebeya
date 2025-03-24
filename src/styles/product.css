@@ -1,6 +1,6 @@
 .products-page-product-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(250px, 1fr)); /* Ensure each card has a minimum width of 250px */
+  grid-template-columns: repeat(5, minmax(250px, 1fr)); /* Ensure each card has a minimum width of 250px */
   gap: 20px; /* Space between products */
   padding: 20px;
 }

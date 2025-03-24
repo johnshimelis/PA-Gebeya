@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useCart } from "../components/CartContext";
-import { toast } from "react-toastify";
-import axios from "axios";
-import "../styles/ProductDetails.css";
-import tiktokIcon from "../images/assets/tiktok.png"; // Import TikTok icon
-import "react-responsive-carousel/lib/styles/carousel.min.css"; // Import carousel styles
-import { Carousel } from "react-responsive-carousel"; // Import Carousel component
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useCart } from '../components/CartContext';
+import { toast } from 'react-toastify';
+import axios from 'axios';
+import '../styles/ProductDetails.css';
+import tiktokIcon from '../images/assets/tiktok.png';
+
+import 'react-responsive-carousel/lib/styles/carousel.min.css';
+import { Carousel } from 'react-responsive-carousel';
+
+const S3_BASE_URL = 'https://pa-gebeya-upload.s3.eu-north-1.amazonaws.com/';
 
 const ProductDetails = () => {
   const location = useLocation();
@@ -19,184 +22,162 @@ const ProductDetails = () => {
   const [discountPercentage, setDiscountPercentage] = useState(0);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loadingRelated, setLoadingRelated] = useState(false);
-  const [selectedImage, setSelectedImage] = useState("");
+  const [selectedImage, setSelectedImage] = useState('');
 
-  // Fetch product details from location.state or localStorage
+  const getFullImageUrl = (imagePath) => {
+    if (imagePath.startsWith('http')) return imagePath;
+    return `${S3_BASE_URL}${imagePath}`;
+  };
+
   useEffect(() => {
-    if (location.state?.product) {
-      const productData = location.state.product;
+    const initializeProduct = (productData) => {
       setProduct(productData);
-      setSelectedImage(productData.images?.[0] || productData.photo); // Set the first image as default
-      localStorage.setItem("selectedProduct", JSON.stringify(productData));
+      setSelectedImage(getFullImageUrl(productData.images?.[0] || productData.photo));
+      localStorage.setItem('selectedProduct', JSON.stringify(productData));
 
-      // Set discount-related states
       if (productData.hasDiscount) {
         setHasDiscount(true);
         setDiscountPercentage(productData.discount || 0);
       }
-    } else {
-      const storedProduct = localStorage.getItem("selectedProduct");
-      if (storedProduct) {
-        const parsedProduct = JSON.parse(storedProduct);
-        setProduct(parsedProduct);
-        setSelectedImage(parsedProduct.images?.[0] || parsedProduct.photo); // Set the first image as default
+    };
 
-        // Set discount-related states
-        if (parsedProduct.hasDiscount) {
-          setHasDiscount(true);
-          setDiscountPercentage(parsedProduct.discount || 0);
-        }
+    if (location.state?.product) {
+      initializeProduct(location.state.product);
+    } else {
+      const storedProduct = localStorage.getItem('selectedProduct');
+      if (storedProduct) {
+        initializeProduct(JSON.parse(storedProduct));
       }
     }
   }, [location.state]);
 
-  // Handle small image click
-  const handleSmallImageClick = (image) => {
-    setSelectedImage(image);
-  };
-
-  // Handle TikTok icon click
-  const handleTikTokClick = (url) => {
-    window.open(url, "_blank");
-  };
-
-  // Handle related product click
-  const handleRelatedProductClick = (relatedProduct) => {
-    setProduct(relatedProduct); // Update the main product
-    setSelectedImage(relatedProduct.images?.[0] || relatedProduct.photo); // Set the first image as default
-    window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to the top
-  };
-
-  // Fetch related products when the product is set
   useEffect(() => {
-    if (product?.category) {
-      fetchRelatedProducts();
-    } else {
-      console.warn("No category available for the product.");
-    }
-  }, [product]);
-
-  // Fetch related products by category
-  const fetchRelatedProducts = async () => {
-    if (!product?.category) {
-      console.error("No valid category available for the product.");
-      return;
-    }
-
-    setLoadingRelated(true);
-
-    try {
-      const categoryName = product.category;
-      const categoryResponse = await axios.get(
-        `https://pa-gebeya-backend.onrender.com/api/categories/name/${encodeURIComponent(categoryName)}`
-      );
-
-      if (categoryResponse.data && categoryResponse.data.categoryId) {
-        const categoryId = categoryResponse.data.categoryId;
+    const fetchRelatedProducts = async () => {
+      if (!product?.category?._id) {
+        console.error("No valid category ID available for the product.");
+        return;
+      }
+    
+      setLoadingRelated(true);
+    
+      try {
+        console.log("Fetching related products for category:", product.category._id);
         const response = await axios.get(
-          `https://pa-gebeya-backend.onrender.com/api/products/category/${categoryId}`
+          `https://pa-gebeya-backend.onrender.com/api/products/category/${product.category._id}`
         );
-
-        if (response.status === 200 && Array.isArray(response.data)) {
-          const filteredProducts = response.data.filter(
+    
+        console.log("API Response:", response);
+    
+        if (response.status === 200) {
+          const productsData = Array.isArray(response.data) 
+            ? response.data 
+            : response.data.products || [];
+          
+          console.log("Products data:", productsData);
+    
+          const filteredProducts = productsData.filter(
             (p) => p._id !== product._id
           );
+          
+          console.log("Filtered products:", filteredProducts);
           setRelatedProducts(filteredProducts);
         } else {
-          throw new Error("Invalid response format or empty data.");
+          throw new Error(`Unexpected status code: ${response.status}`);
         }
-      } else {
-        throw new Error("Category not found.");
+      } catch (error) {
+        console.error("Error fetching related products:", error);
+        toast.error("Failed to load related products");
+        setRelatedProducts([]);
+      } finally {
+        setLoadingRelated(false);
       }
-    } catch (error) {
-      console.error("Error fetching related products:", error);
-    } finally {
-      setLoadingRelated(false);
-    }
+    };
+
+    fetchRelatedProducts();
+  }, [product]);
+
+  const handleSmallImageClick = (image) => {
+    setSelectedImage(getFullImageUrl(image));
   };
 
-  // Add product to cart
+  const handleTikTokClick = (url) => {
+    window.open(url, '_blank');
+  };
+
+  const handleRelatedProductClick = (relatedProduct) => {
+    setProduct(relatedProduct);
+    setSelectedImage(getFullImageUrl(relatedProduct.images?.[0] || relatedProduct.photo));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleAddToCart = async (productToAdd) => {
-    const userId = localStorage.getItem("userId");
-    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem('token');
 
     if (!userId || !token) {
-      toast.error("Please log in to add items to the cart");
-      navigate("/auth");
+      toast.error('Please log in to add items to the cart');
+      navigate('/auth');
       return;
     }
 
     if (!productToAdd) {
-      toast.error("Error: No product data available.");
+      toast.error('Error: No product data available.');
       return;
     }
 
-    let productId = productToAdd._id;
+    const productId = productToAdd._id;
     if (!productId) {
-      console.error("Error: Product ID is undefined");
-      toast.error("Error adding item to cart: Product ID missing");
+      console.error('Error: Product ID is undefined');
+      toast.error('Error adding item to cart: Product ID missing');
       return;
     }
 
-    // Use the first image as the thumbnail (or fallback to product.photo)
-    const thumbnailImage = productToAdd.images && productToAdd.images.length > 0
-      ? productToAdd.images[0] // Use the first image in the array
-      : productToAdd.photo; // Fallback to the product's photo field
-
+    const thumbnailImage = productToAdd.images?.[0] || productToAdd.photo;
     const cartItem = {
       userId,
       productId,
       productName: productToAdd.name,
       price: productToAdd.price,
       quantity: quantity,
-      img: thumbnailImage, // Pass only one image URL as the thumbnail
+      img: getFullImageUrl(thumbnailImage),
     };
 
     try {
       const response = await axios.post(
-        "https://pa-gebeya-backend.onrender.com/api/cart",
+        'https://pa-gebeya-backend.onrender.com/api/cart',
         cartItem,
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
         }
       );
 
       if (response.status === 200) {
         toast.success(`${productToAdd.name} added to the cart!`);
-        const updatedCart = await axios.get("https://pa-gebeya-backend.onrender.com/api/cart", {
+        const updatedCart = await axios.get('https://pa-gebeya-backend.onrender.com/api/cart', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setCartItems(updatedCart.data.items);
-      } else {
-        throw new Error("Failed to add item to cart");
       }
     } catch (error) {
-      console.error("Error adding to cart:", error);
-      toast.error(error.message);
+      console.error('Error adding to cart:', error);
+      toast.error(error.response?.data?.message || error.message);
     }
   };
 
-  // Handle quantity change
   const handleQuantityChange = (delta) => {
     setQuantity((prevQuantity) => Math.max(1, prevQuantity + delta));
   };
 
-  // Format sold count
   const formatSoldCount = (sold) => {
     const soldCount = Number(sold) || 0;
-    if (soldCount === 0) return "0 sold";
-    if (soldCount >= 1 && soldCount <= 10) return `${soldCount} sold`;
-    if (soldCount >= 11 && soldCount < 20) return "10+ sold";
-    if (soldCount === 20) return "20 sold";
-    if (soldCount >= 21 && soldCount < 30) return "20+ sold";
-    const base = Math.floor(soldCount / 10) * 10;
-    return `${base}+ sold`;
+    if (soldCount === 0) return '0 sold';
+    if (soldCount < 10) return `${soldCount} sold`;
+    return `${Math.floor(soldCount / 10) * 10}+ sold`;
   };
 
-  // Render rating stars
   const renderRatingStars = (rating) => {
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 !== 0;
@@ -219,10 +200,9 @@ const ProductDetails = () => {
   };
 
   if (!product) {
-    return <p>Loading product details...</p>;
+    return <div className="loading-container">Loading product details...</div>;
   }
 
-  // Calculate discounted price
   const originalPrice = product.price.toFixed(2);
   const discountedPrice = hasDiscount
     ? (product.price * (1 - discountPercentage / 100)).toFixed(2)
@@ -232,44 +212,47 @@ const ProductDetails = () => {
     <div className="container">
       <div className="product-details">
         <div className="left-section">
-          {/* TikTok Icon for Video Link */}
           {product.videoLink && (
-            <div
-              className="tiktok-icon"
-              onClick={() => handleTikTokClick(product.videoLink)}
-            >
-              <img
-                src={tiktokIcon} // Use imported TikTok icon
-                alt="TikTok"
-                className="tiktok-img"
-              />
+            <div className="tiktok-icon" onClick={() => handleTikTokClick(product.videoLink)}>
+              <img src={tiktokIcon} alt="TikTok" className="tiktok-img" />
             </div>
           )}
 
-          {/* Main Image Container */}
           <div className="main-image-container">
-            <img src={selectedImage} alt="Main Product" className="main-image" />
+            <img
+              src={selectedImage}
+              alt="Main Product"
+              className="main-image"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = ''; // Fallback image or empty
+              }}
+            />
           </div>
 
-          {/* Small Images Container */}
           <div className="small-images-container">
             {product.images
-              ?.filter((img) => img !== selectedImage) // Exclude the selected image
+              ?.filter((img) => getFullImageUrl(img) !== selectedImage)
               .map((image, index) => (
                 <div
                   key={index}
                   className="small-image"
                   onClick={() => handleSmallImageClick(image)}
                 >
-                  <img src={image} alt={`Product ${index}`} />
+                  <img
+                    src={getFullImageUrl(image)}
+                    alt={`Product ${index}`}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = ''; // Fallback image or empty
+                    }}
+                  />
                 </div>
               ))}
           </div>
         </div>
 
-        {/* Right Section (unchanged) */}
         <div className="right-section">
-          {/* Discount, Recommended, or Best Seller Tag */}
           {hasDiscount ? (
             <span className="discount-tags" style={{ backgroundColor: "#e74c3c" }}>
               Discount
@@ -289,9 +272,7 @@ const ProductDetails = () => {
           </div>
 
           <div className="rating-sold-container">
-            <div className="stars">
-              {renderRatingStars(product.rating || 0)}
-            </div>
+            <div className="stars">{renderRatingStars(product.rating || 0)}</div>
             <span className="rating-number">| {product.rating || 0}</span>
             <span className="sold-count">| {formatSoldCount(product.sold || 0)} Sold</span>
           </div>
@@ -299,7 +280,6 @@ const ProductDetails = () => {
           <p className="short-description">{product.shortDescription}</p>
           <p className="full-description">{product.fullDescription}</p>
 
-          {/* Price Container */}
           <div className="price-container">
             {hasDiscount ? (
               <div className="discounted-price-row">
@@ -344,7 +324,7 @@ const ProductDetails = () => {
         </div>
       </div>
 
-      {/* Related Products Section */}
+      {/* Related Products Section - Using the structure from the second example */}
       <div className="related-products">
         <h3>Related Products</h3>
         {loadingRelated ? (
@@ -357,7 +337,6 @@ const ProductDetails = () => {
                 className="related-product-card"
                 onClick={() => handleRelatedProductClick(relatedProduct)}
               >
-                {/* TikTok Icon for Video Link */}
                 {relatedProduct.videoLink && (
                   <div
                     className="tiktok-icon"
@@ -366,15 +345,10 @@ const ProductDetails = () => {
                       handleTikTokClick(relatedProduct.videoLink);
                     }}
                   >
-                    <img
-                      src={tiktokIcon}
-                      alt="TikTok"
-                      className="tiktok-img"
-                    />
+                    <img src={tiktokIcon} alt="TikTok" className="tiktok-img" />
                   </div>
                 )}
 
-                {/* Carousel for Related Product Images */}
                 <Carousel
                   showThumbs={false}
                   showStatus={false}
@@ -385,14 +359,25 @@ const ProductDetails = () => {
                 >
                   {relatedProduct.images?.map((image, index) => (
                     <div key={index}>
-                      <img src={image} alt={`Product ${index}`} />
+                      <img 
+                        src={getFullImageUrl(image)} 
+                        alt={`Product ${index}`}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = ''; // Fallback image or empty
+                        }}
+                      />
                     </div>
                   ))}
                 </Carousel>
 
                 <div className="card-content">
                   <div className="card-header">
-                    <span className="best-seller-tags">{relatedProduct.category} Product</span>
+                    <span className="best-seller-tags">
+                      {typeof relatedProduct.category === 'object' 
+                        ? relatedProduct.category.name 
+                        : relatedProduct.category} Product
+                    </span>
                     <span className="product-name">{relatedProduct.name}</span>
                   </div>
                   {relatedProduct.shortDescription ? (

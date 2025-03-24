@@ -545,17 +545,17 @@
 /* Grid Layout for Related Products */
 .related-products-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(250px, 1fr)); /* 4 products per row with a minimum width of 250px */
-  gap: 20px; /* Space between products */
+  grid-template-columns: repeat(5, minmax(250px, 1fr)); /* 4 products per row with a minimum width of 250px */
+  gap: 10px; /* Space between products */
   padding: 20px;
-  width: 100%; /* Ensure the grid takes up the full width */
+  width: 100%; /* Ensure the grd takes up the full width */
 }
 
 /* Individual Product Card */
 .related-product-card {
   border: 1px solid #ddd;
   border-radius: 10px;
-  padding: 15px;
+  padding: 10px;
   text-align: center;
   background-color: #fff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
