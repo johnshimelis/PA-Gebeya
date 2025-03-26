@@ -144,9 +144,14 @@
     left: 250px;
     z-index: 1;
   }
+  .right-section .product-tags .discount-tag{
+    text-align: end;
+    margin-left: 440px;
+    width: 20%;
+  }
   /* Best Seller and Discount Tags */
-  .best-seller-tag,
-  .discount-tags 
+  .best-seller-tag
+ 
   {
     font-size: 14px;
     font-weight: 600;
@@ -550,6 +555,71 @@
   padding: 20px;
   width: 100%; /* Ensure the grd takes up the full width */
 }
+/* Product Tags */
+.product-tags {
+  margin-bottom: 15px;
+}
+
+.discount-tag {
+  display: inline-block;
+  background-color: #e74c3c;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.recommended-tag {
+  display: inline-block;
+  background-color: #2ecc71;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.best-seller-tag {
+  display: inline-block;
+  background-color: #3498db;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* Price Display */
+.price-display {
+ 
+}
+
+.discounted-price {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.current-price {
+  font-size: 24px;
+  font-weight: bold;
+  color: #e74c3c;
+}
+
+.original-price {
+  font-size: 18px;
+  color: #95a5a6;
+  text-decoration: line-through;
+}
+
+.price-display .regular-price .price {
+  font-size: 24px;
+  text-align: left;
+  margin-right: 210px;
+  font-weight: bold;
+  color: green;
+}
 
 /* Individual Product Card */
 .related-product-card {
@@ -648,9 +718,10 @@
   white-space: nowrap; /* Prevent tag text from wrapping */
 }
 
-.product-name {
+.card-header .product-name {
   font-size: 16px;
   font-weight: bold;
+
   color: #333;
   text-align: left; /* Align product name to the left */
   white-space: nowrap; /* Prevent wrapping */

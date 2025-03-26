@@ -5,7 +5,6 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import '../styles/ProductDetails.css';
 import tiktokIcon from '../images/assets/tiktok.png';
-
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { Carousel } from 'react-responsive-carousel';
 
@@ -35,9 +34,12 @@ const ProductDetails = () => {
       setSelectedImage(getFullImageUrl(productData.images?.[0] || productData.photo));
       localStorage.setItem('selectedProduct', JSON.stringify(productData));
 
-      if (productData.hasDiscount) {
+      if (productData.hasDiscount && productData.discount > 0) {
         setHasDiscount(true);
-        setDiscountPercentage(productData.discount || 0);
+        setDiscountPercentage(productData.discount);
+      } else {
+        setHasDiscount(false);
+        setDiscountPercentage(0);
       }
     };
 
@@ -203,8 +205,10 @@ const ProductDetails = () => {
     return <div className="loading-container">Loading product details...</div>;
   }
 
+  const isRecommended = product.status === "Recommended";
+  const showDiscount = hasDiscount && discountPercentage > 0;
   const originalPrice = product.price.toFixed(2);
-  const discountedPrice = hasDiscount
+  const discountedPrice = showDiscount
     ? (product.price * (1 - discountPercentage / 100)).toFixed(2)
     : originalPrice;
 
@@ -253,17 +257,22 @@ const ProductDetails = () => {
         </div>
 
         <div className="right-section">
-          {hasDiscount ? (
-            <span className="discount-tags" style={{ backgroundColor: "#e74c3c" }}>
-              Discount
-            </span>
-          ) : product.status === "Recommended" ? (
-            <span className="recommended-tag" style={{ backgroundColor: "#2ecc71" }}>
-              Recommended
-            </span>
-          ) : (
-            <span className="best-seller-tag">Best Seller</span>
-          )}
+          {/* Updated Tag Display */}
+          <div className="product-tags">
+            {showDiscount ? (
+              <span className="discount-tag">
+                {discountPercentage}% OFF
+              </span>
+            ) : isRecommended ? (
+              <span className="recommended-tag">
+                Recommended
+              </span>
+            ) : (
+              <span className="best-seller-tag">
+                Best Seller
+              </span>
+            )}
+          </div>
 
           <div className="product-header">
             <h1 className="product-title" style={{ wordWrap: "break-word", whiteSpace: "normal" }}>
@@ -280,18 +289,15 @@ const ProductDetails = () => {
           <p className="short-description">{product.shortDescription}</p>
           <p className="full-description">{product.fullDescription}</p>
 
-          <div className="price-container">
-            {hasDiscount ? (
-              <div className="discounted-price-row">
-                <span className="calculated-price">{discountedPrice} ETB</span>
-                <span className="strikethrough">{originalPrice} ETB</span>
-                <span className="discount-percentage" style={{ color: "#e74c3c" }}>
-                  {discountPercentage}% OFF
-                </span>
+          {/* Updated Price Display */}
+          <div className="price-display">
+            {showDiscount ? (
+              <div className="discounted-price">
+                <span className="current-price">{discountedPrice} ETB</span>
+                <span className="original-price">{originalPrice} ETB</span>
               </div>
             ) : (
-              <div className="calculated-price">
-                <span>Price: </span>
+              <div className="regular-price">
                 <span className="price">{originalPrice} ETB</span>
               </div>
             )}
@@ -324,7 +330,7 @@ const ProductDetails = () => {
         </div>
       </div>
 
-      {/* Related Products Section - Using the structure from the second example */}
+      {/* Related Products Section */}
       <div className="related-products">
         <h3>Related Products</h3>
         {loadingRelated ? (
