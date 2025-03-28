@@ -53,6 +53,8 @@
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@tailwindcss/postcss": "^4.0.8",
-    "cross-env": "^7.0.3"
+    "cross-env": "^7.0.3",
+    "react-router-sitemap": "^1.2.0",
+    "react-sitemap": "^1.0.1"
   }
 }
