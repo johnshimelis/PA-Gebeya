@@ -1,0 +1,73 @@
+/* Full Width Stretched Carousel */
+.full-width-carousel-container {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #f5f5f5;
+  }
+  
+  .stretched-carousel-image {
+    width: 100%;
+    height: auto;
+    min-height: 150px;
+    object-fit: fill; /* Stretches image to fill container */
+    display: block;
+  }
+  
+  .carousel {
+    width: 100%;
+  }
+  
+  .carousel-inner {
+    width: 100%;
+  }
+  
+  .carousel-indicators {
+    bottom: 10px;
+  }
+  
+  .carousel-indicators [data-bs-target] {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+    border: none;
+    margin: 0 4px;
+  }
+  
+  .carousel-indicators .active {
+    background-color: #fff;
+  }
+  
+  .carousel-control-prev,
+  .carousel-control-next {
+    width: 5%;
+    opacity: 0.8;
+  }
+  
+  .carousel-control-prev:hover,
+  .carousel-control-next:hover {
+    opacity: 1;
+  }
+  
+  .carousel-control-prev-icon,
+  .carousel-control-next-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    background-size: 100% 100%;
+    filter: invert(1);
+  }
+  
+  /* Responsive Height Control */
+  @media (min-width: 768px) {
+    .stretched-carousel-image {
+      min-height: 200px;
+    }
+  }
+  
+  @media (min-width: 1200px) {
+    .stretched-carousel-image {
+      min-height: 250px;
+    }
+  }

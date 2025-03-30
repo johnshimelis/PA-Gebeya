@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "../styles/recommended.css";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../components/CartContext";
@@ -12,19 +12,54 @@ const RecommendedDeals = () => {
   const { addToCart, cartItems, setCartItems } = useCart();
   const navigate = useNavigate();
   const [deals, setDeals] = useState([]);
+  const [shuffledDeals, setShuffledDeals] = useState([]);
+
+  // Fisher-Yates shuffle algorithm
+  const shuffleArray = useCallback((array) => {
+    const newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
+  }, []);
+
+  const fetchProducts = useCallback(async () => {
+    try {
+      const response = await axios.get("https://pa-gebeya-backend.onrender.com/api/products");
+      const nonDiscountedProducts = response.data.filter(product => !product.discount);
+      setDeals(nonDiscountedProducts);
+      setShuffledDeals(shuffleArray(nonDiscountedProducts));
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  }, [shuffleArray]);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await axios.get("https://pa-gebeya-backend.onrender.com/api/products");
-        const nonDiscountedProducts = response.data.filter(product => !product.discount);
-        setDeals(nonDiscountedProducts);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    };
     fetchProducts();
-  }, []);
+    
+    // Set up interval to shuffle every 10 minutes (600,000ms)
+    const shuffleInterval = setInterval(() => {
+      setShuffledDeals(prev => shuffleArray(prev));
+    }, 600000); // 10 minutes
+    
+    // Set up interval to refresh data every hour (3,600,000ms)
+    const refreshInterval = setInterval(() => {
+      fetchProducts();
+    }, 3600000); // 1 hour
+    
+    return () => {
+      clearInterval(shuffleInterval);
+      clearInterval(refreshInterval);
+    };
+  }, [fetchProducts, shuffleArray]);
+
+  // Shuffle on component mount and when deals change
+  useEffect(() => {
+    if (deals.length > 0) {
+      setShuffledDeals(shuffleArray(deals));
+    }
+  }, [deals, shuffleArray]);
 
   const formatSoldCount = (sold) => {
     if (sold < 10) return `${sold} sold`;
@@ -63,10 +98,8 @@ const RecommendedDeals = () => {
       categoryName: deal.category?.name || "Uncategorized"
     };
 
-    // Store in localStorage for persistence
     localStorage.setItem("currentProduct", JSON.stringify(productWithStatus));
     
-    // Navigate with state
     navigate("/product_detail", { 
       state: { 
         product: productWithStatus,
@@ -76,7 +109,7 @@ const RecommendedDeals = () => {
   };
 
   const handleAddToCart = async (product, e) => {
-    e.stopPropagation(); // Prevent triggering the product click
+    e.stopPropagation();
     
     const userId = localStorage.getItem("userId");
     const token = localStorage.getItem("token");
@@ -129,7 +162,7 @@ const RecommendedDeals = () => {
         Recommended for you
       </h4>
       <div id="rec" className="nav-deals-main">
-        {deals.map((deal) => (
+        {shuffledDeals.map((deal) => (
           <div key={deal._id} className="nav-rec-cards">
             <div className="card-img" onClick={() => handleProductClick(deal)}>
               {deal.videoLink && (
@@ -189,8 +222,6 @@ const RecommendedDeals = () => {
               </div>
               <div className="card-price">ETB {deal.price?.toFixed(2)}</div>
             </div>
-            
-          
           </div>
         ))}
       </div>

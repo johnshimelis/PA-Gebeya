@@ -1,81 +1,76 @@
-/* CAROUSEL STARTED  */
-.nav-carousel {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* CAROUSEL STYLING */
+.full-width-carousel-container1 {
     width: 100%;
-    height: auto;
+    height: 300px;
+    margin: 0 auto;
+    overflow: hidden;
 }
 
-.nav-carousel-1 {
-    width: 70%;
-    height: auto;
-}
-
-.nav-carousel-2 {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 30%;
-    height: auto;
-    /* border: 1px solid #000; */
-}
-
-.nav-carousel-img {
-    width: 100%;
-    height: auto;
-}
-
-.nav-carousel-2 img {
+.carousel {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+}
+
+.carousel-inner {
+    width: 100%;
+    height: 100%;
+}
+
+.carousel-item {
+    height: 50px; /* Adjust this value to your preferred height */
+    width: 100%;
+}
+
+.stretched-carousel-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* This will cover the area while maintaining aspect ratio */
+    object-position: center; /* Centers the image */
+}
+
+/* Carousel controls styling */
+.carousel-control-prev,
+.carousel-control-next {
+    width: 5%;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+}
+
+/* Carousel indicators */
+.carousel-indicators button {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin: 0 5px;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 992px) {
+    .carousel-item {
+        height: 400px;
+    }
 }
 
 @media screen and (max-width: 768px) {
-    .nav-carousel-1 {
-        width: 100%;
-        height: auto;
-    }
-
-    .carousel-item img {
-        width: 100%;
-        height: 150px;
-        object-fit: cover;
-    }
-
-    .nav-carousel-2 {
-        display: none;
+    .carousel-item {
+        height: 300px;
     }
 }
 
-/* Shop Buttons Styling */
-/* Shop Buttons Styling */
-.shop-btn {
-    position: absolute;
-    bottom: 0%; /* Moved lower */
-    padding: 5px 15px; /* Reduced size */
-    font-size: 0.9rem; /* Reduced font size */
-    border-radius: 4px;
-    cursor: pointer;
-    background-color: #455d79;
-    color: white;
-    border: none;
+@media screen and (max-width: 576px) {
+    .carousel-item {
+        height: 250px;
+    }
+    
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
 }
-
-.shop-btn:hover {
-    background-color: #455d79;
-}
-
-
-.shop-btn-left {
-    border-top-right-radius: 10px; /* Rounded top-right corner */
-    left:5%; /* Moved to the left */
-}
-
-.shop-btn-right {
-    border-top-left-radius: 10px; /* Rounded top-left corner */
-    right: 0%; /* Moved to the right */
-}
-
-/* CAROUSEL ENDED   */
