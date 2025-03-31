@@ -153,7 +153,7 @@ const AuthPage = () => {
     <div style={styles.container} className="container">
       <div style={styles.formContainer} className="form-container">
         <img src={logoImage} alt="Logo" style={styles.logo} />
-        <h2 style={styles.title}>{isLogin ? (isOtpSent ? "Enter OTP" : "Login") : "Sign Up"}</h2>
+        <h2 style={styles.title}>{isLogin ? (isOtpSent ? "Enter OTP Sent to Your Email" : "Login") : "Sign Up"}</h2>
 
         <form style={styles.form} onSubmit={handleSubmit}>
           {!isLogin && (
