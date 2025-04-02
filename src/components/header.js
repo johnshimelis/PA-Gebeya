@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCart } from "../components/CartContext"; // Import useCart hook
+import { useCart } from "../components/CartContext";
+import axios from "axios";
 import "../styles/header.css";
 import "../styles/style.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
@@ -19,14 +20,20 @@ const Header = () => {
   });
 
   const [isLanguageDropdownVisible, setLanguageDropdownVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchSuggestions, setSearchSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const dropdownRef = useRef(null);
   const userRef = useRef(null);
   const languageRef = useRef(null);
+  const searchRef = useRef(null);
+  const debounceTimer = useRef(null);
+  const apiUrl = "https://pa-gebeya-backend.onrender.com/api/products";
 
   // Function to decode JWT safely
   const decodeToken = (token) => {
     try {
-      const payload = JSON.parse(atob(token.split(".")[1])); // Decode payload
+      const payload = JSON.parse(atob(token.split(".")[1]));
       return payload;
     } catch (error) {
       console.error("Invalid token:", error);
@@ -48,23 +55,23 @@ const Header = () => {
         const currentTime = Math.floor(Date.now() / 1000);
 
         if (tokenExpiry && tokenExpiry < currentTime) {
-          handleLogout(); // Token expired, logout the user
+          handleLogout();
         } else {
-          setUser(parsedUser); // Valid token, user is logged in
+          setUser(parsedUser);
         }
       } else {
-        handleLogout(); // Invalid token, logout the user
+        handleLogout();
       }
     } else {
-      setUser(null); // No user, logout
+      setUser(null);
     }
   };
 
   useEffect(() => {
-    checkUser(); // Check user status on component mount
+    checkUser();
 
     const handleStorageChange = () => {
-      checkUser(); // Recheck on localStorage change (e.g., token expiry)
+      checkUser();
     };
 
     window.addEventListener("storage", handleStorageChange);
@@ -83,10 +90,10 @@ const Header = () => {
         const currentTime = Math.floor(Date.now() / 1000);
 
         if (tokenExpiry && tokenExpiry < currentTime) {
-          handleLogout(); // Token expired, logout user
+          handleLogout();
         }
       }
-    }, 60000); // Check every 60 seconds for token expiry
+    }, 60000);
 
     return () => clearInterval(interval);
   }, []);
@@ -105,8 +112,7 @@ const Header = () => {
     localStorage.removeItem("token");
     clearCart();
     setUser(null);
-    console.log("Logging out, redirecting to /auth");
-    navigate("/auth"); // Redirect to /auth
+    navigate("/auth");
   };
 
   const toggleLanguageDropdown = () => {
@@ -117,6 +123,9 @@ const Header = () => {
     if (languageRef.current && !languageRef.current.contains(event.target)) {
       setLanguageDropdownVisible(false);
     }
+    if (searchRef.current && !searchRef.current.contains(event.target)) {
+      setShowSuggestions(false);
+    }
   };
 
   useEffect(() => {
@@ -126,8 +135,81 @@ const Header = () => {
     };
   }, []);
 
+  // Search functionality
+  const updateSearchSuggestions = async (query) => {
+    if (!query) {
+      setSearchSuggestions([]);
+      return;
+    }
+
+    try {
+      const response = await axios.get(apiUrl);
+      if (response.status === 200) {
+        const allProducts = response.data;
+        const suggestions = [...new Set(
+          allProducts
+            .map(product => product.name?.toString())
+            .filter(name => name?.toLowerCase().startsWith(query.toLowerCase()))
+        )];
+        setSearchSuggestions(suggestions);
+      }
+    } catch (error) {
+      console.error('Error getting suggestions:', error);
+    }
+  };
+
+  const handleSearchChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    setShowSuggestions(true);
+
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+
+    debounceTimer.current = setTimeout(() => {
+      updateSearchSuggestions(query);
+    }, 300);
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setSearchQuery(suggestion);
+    setShowSuggestions(false);
+    navigate(`/search?q=${encodeURIComponent(suggestion)}`, {
+      state: { searchQuery: suggestion }
+    });
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      setShowSuggestions(false);
+      navigate(`/search?q=${encodeURIComponent(searchQuery)}`, {
+        state: { searchQuery }
+      });
+    }
+  };
+
   return (
     <>
+      {/* Global search suggestions portal */}
+      {showSuggestions && searchSuggestions.length > 0 && createPortal(
+        <div className="global-search-suggestions">
+          <div className="suggestions-container">
+            {searchSuggestions.map((suggestion, index) => (
+              <div
+                key={index}
+                className="suggestion-item"
+                onClick={() => handleSuggestionClick(suggestion)}
+              >
+                {suggestion}
+              </div>
+            ))}
+          </div>
+        </div>,
+        document.body
+      )}
+
       <section className="justify-content-center align-items-center d-flex">
         <div className="navbar" id="nav">
           <div className="nav-logo" onClick={() => navigate("/")}>
@@ -138,9 +220,15 @@ const Header = () => {
               <img src={flagImage} alt="ETH" />
             </div>
           </div>
-          <div className="nav-search text-nav">
-            <form>
-              <input type="text" placeholder="What are you looking for?" />
+          <div className="nav-search text-nav" ref={searchRef}>
+            <form onSubmit={handleSearchSubmit}>
+              <input
+                type="text"
+                placeholder="What are you looking for?"
+                value={searchQuery}
+                onChange={handleSearchChange}
+                onFocus={() => setShowSuggestions(true)}
+              />
             </form>
           </div>
           <div className="nav-bar-lang me-4 d-flex justify-content-center align-items-center">

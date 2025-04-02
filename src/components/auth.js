@@ -6,14 +6,11 @@ import "../styles/cart.css";
 
 const API_BASE_URL = "https://pa-gebeya-backend.onrender.com/api/auth";
 
-
-
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
-    phoneNumber: "",
     email: "",
     password: "",
     otp: "",
@@ -27,12 +24,12 @@ const AuthPage = () => {
     setIsOtpSent(false);
     setFormData({
       fullName: "",
-      phoneNumber: "",
       email: "",
       password: "",
       otp: "",
     });
   };
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -53,12 +50,14 @@ const AuthPage = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.phoneNumber) {
-      newErrors.phoneNumber = "Phone number is required";
+    if (!formData.email) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Please enter a valid email";
     }
+    
     if (!isLogin) {
       if (!formData.fullName) newErrors.fullName = "Full name is required";
-      if (!formData.email) newErrors.email = "Email is required";
       if (!formData.password) newErrors.password = "Password is required";
     }
     setErrors(newErrors);
@@ -105,7 +104,10 @@ const AuthPage = () => {
       const response = await fetch(`${API_BASE_URL}/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phoneNumber: formData.phoneNumber, otp: formData.otp }),
+        body: JSON.stringify({ 
+          email: formData.email, 
+          otp: formData.otp 
+        }),
       });
   
       const data = await response.json();
@@ -113,7 +115,7 @@ const AuthPage = () => {
   
       console.log("✅ OTP Verified:", data);
   
-      // Store userId separately
+      // Store user data
       localStorage.setItem("userId", data.user.userId);
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
@@ -147,7 +149,6 @@ const AuthPage = () => {
     }
     setLoading(false);
   };
-  
 
   return (
     <div style={styles.container} className="container">
@@ -170,34 +171,15 @@ const AuthPage = () => {
             </>
           )}
 
-          {!isOtpSent && (
-            <div style={styles.phoneContainer}>
-              <span style={styles.countryCode}>+251</span>
-              <input
-                type="text"
-                name="phoneNumber"
-                value={formData.phoneNumber}
-                placeholder="Phone Number"
-                style={styles.input}
-                onChange={handleInputChange}
-              />
-              {errors.phoneNumber && <span style={styles.error}>{errors.phoneNumber}</span>}
-            </div>
-          )}
-
-          {!isLogin && (
-            <>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                placeholder="Email"
-                style={styles.input}
-                onChange={handleInputChange}
-              />
-              {errors.email && <span style={styles.error}>{errors.email}</span>}
-            </>
-          )}
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            placeholder="Email Address"
+            style={styles.input}
+            onChange={handleInputChange}
+          />
+          {errors.email && <span style={styles.error}>{errors.email}</span>}
 
           {!isLogin && (
             <>

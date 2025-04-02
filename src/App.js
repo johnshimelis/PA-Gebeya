@@ -27,6 +27,7 @@ import Profile from "./components/profile";
 import Notifications from "./components/Notification";
 import Orders from "./components/Order";
 import Messages from "./components/Message";
+import Search from "./components/search";
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
               <Route path="/products/:category" element={<ProductsPage />} />
               <Route path="/view-detail" element={<ViewDetail />} />
               <Route path="/products" element={<ProductsPage />} />
+              <Route path="/search" element={<Search />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/checkout" element={<Checkout />} />
