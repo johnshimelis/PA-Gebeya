@@ -4,13 +4,14 @@ import logoImage from "../images/assets/PA-Logos.png";
 import backgroundImage from "../images/assets/ecommerce.jpg";
 import "../styles/cart.css";
 
-const API_BASE_URL = "https://pa-gebeya-backend.onrender.com/api/auth";
+const API_BASE_URL = "https://outlier-and-da-backend.onrender.com/api/auth";
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
+    phoneNumber: "",
     email: "",
     password: "",
     otp: "",
@@ -24,12 +25,12 @@ const AuthPage = () => {
     setIsOtpSent(false);
     setFormData({
       fullName: "",
+      phoneNumber: "",
       email: "",
       password: "",
       otp: "",
     });
   };
-
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -50,14 +51,14 @@ const AuthPage = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.email) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email";
-    }
-    
-    if (!isLogin) {
+    if (isLogin) {
+      if (!formData.email) {
+        newErrors.email = "Email is required";
+      }
+    } else {
       if (!formData.fullName) newErrors.fullName = "Full name is required";
+      if (!formData.phoneNumber) newErrors.phoneNumber = "Phone number is required";
+      if (!formData.email) newErrors.email = "Email is required";
       if (!formData.password) newErrors.password = "Password is required";
     }
     setErrors(newErrors);
@@ -104,10 +105,7 @@ const AuthPage = () => {
       const response = await fetch(`${API_BASE_URL}/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          email: formData.email, 
-          otp: formData.otp 
-        }),
+        body: JSON.stringify({ email: formData.email, otp: formData.otp }),
       });
   
       const data = await response.json();
@@ -115,7 +113,7 @@ const AuthPage = () => {
   
       console.log("✅ OTP Verified:", data);
   
-      // Store user data
+      // Store userId separately
       localStorage.setItem("userId", data.user.userId);
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
@@ -123,7 +121,7 @@ const AuthPage = () => {
       console.log("Stored userId:", data.user.userId);
   
       // Fetch and restore the user's cart
-      const cartResponse = await fetch(`https://pa-gebeya-backend.onrender.com/api/cart`, {
+      const cartResponse = await fetch(`https://outlier-and-da-backend.onrender.com/api/cart`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -149,6 +147,7 @@ const AuthPage = () => {
     }
     setLoading(false);
   };
+  
 
   return (
     <div style={styles.container} className="container">
@@ -171,17 +170,36 @@ const AuthPage = () => {
             </>
           )}
 
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            placeholder="Email Address"
-            style={styles.input}
-            onChange={handleInputChange}
-          />
-          {errors.email && <span style={styles.error}>{errors.email}</span>}
+          {!isOtpSent && (
+            <>
+              {!isLogin && (
+                <div style={styles.phoneContainer}>
+                  <span style={styles.countryCode}>+251</span>
+                  <input
+                    type="text"
+                    name="phoneNumber"
+                    value={formData.phoneNumber}
+                    placeholder="Phone Number"
+                    style={styles.input}
+                    onChange={handleInputChange}
+                  />
+                  {errors.phoneNumber && <span style={styles.error}>{errors.phoneNumber}</span>}
+                </div>
+              )}
+              
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                placeholder="Email"
+                style={styles.input}
+                onChange={handleInputChange}
+              />
+              {errors.email && <span style={styles.error}>{errors.email}</span>}
+            </>
+          )}
 
-          {!isLogin && (
+          {!isLogin && !isOtpSent && (
             <>
               <input
                 type="password"
@@ -234,9 +252,6 @@ const AuthPage = () => {
     </div>
   );
 };
-
-
-
 const styles = {
   container: {
     display: "flex",
