@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../styles/carousel.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import * as bootstrap from "bootstrap";
+window.bootstrap = bootstrap;
 import "bootstrap";
 
 const Carousel2 = () => {
