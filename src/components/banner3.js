@@ -3,10 +3,9 @@ import axios from "axios";
 import "../styles/carousel.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import * as bootstrap from "bootstrap";
+import "bootstrap"; // ✅ All imports are now at the top
 
-import "bootstrap";
-
-window.bootstrap = bootstrap;
+window.bootstrap = bootstrap; // ✅ Executable statement comes after all imports
 
 const Banner3 = () => {
   const [banners, setBanners] = useState([]);
@@ -16,13 +15,13 @@ const Banner3 = () => {
       try {
         const response = await axios.get("https://pa-gebeya-backend.onrender.com/api/ads/banner1");
         setBanners(response.data);
-        
+
         // Initialize carousel after data loads
-        const carouselElement = document.getElementById('carouselExampleIndicators');
+        const carouselElement = document.getElementById("carouselExampleIndicators");
         if (carouselElement) {
           new window.bootstrap.Carousel(carouselElement, {
-            interval: 1000, // 1 seconds
-            ride: 'carousel'
+            interval: 1000,
+            ride: "carousel",
           });
         }
       } catch (error) {
@@ -49,29 +48,39 @@ const Banner3 = () => {
             ></button>
           ))}
         </div>
-        
+
         {/* Carousel Items */}
         <div className="carousel-inner h-100">
           {banners.map((banner, index) => (
             <div key={banner._id} className={`carousel-item h-100 ${index === 0 ? "active" : ""}`}>
-              <img 
-                src={banner.images[0]} 
-                className="d-block w-100 stretched-carousel-image" 
+              <img
+                src={banner.images[0]}
+                className="d-block w-100 stretched-carousel-image"
                 alt={`Banner ${index + 1}`}
                 onError={(e) => {
-                  e.target.src = '/default-banner.jpg';
+                  e.target.src = "/default-banner.jpg";
                 }}
               />
             </div>
           ))}
         </div>
-        
+
         {/* Controls */}
-        <button className="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+        <button
+          className="carousel-control-prev"
+          type="button"
+          data-bs-target="#carouselExampleIndicators"
+          data-bs-slide="prev"
+        >
           <span className="carousel-control-prev-icon" aria-hidden="true"></span>
           <span className="visually-hidden">Previous</span>
         </button>
-        <button className="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+        <button
+          className="carousel-control-next"
+          type="button"
+          data-bs-target="#carouselExampleIndicators"
+          data-bs-slide="next"
+        >
           <span className="carousel-control-next-icon" aria-hidden="true"></span>
           <span className="visually-hidden">Next</span>
         </button>
