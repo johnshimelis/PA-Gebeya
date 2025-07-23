@@ -4,6 +4,7 @@ import "../styles/carousel1.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import * as bootstrap from "bootstrap";
+
 import carouselSecond1 from "../images/assets/carousel-second.png";
 import carouselSecond2 from "../images/assets/carousel-second1.png";
 
@@ -17,15 +18,6 @@ const Carousel = () => {
       try {
         const response = await axios.get("https://pa-gebeya-backend.onrender.com/api/ads/ads");
         setAds(response.data);
-
-        // Initialize carousel after data loads
-        const carouselElement = document.getElementById("carouselExampleIndicators");
-        if (carouselElement) {
-          new window.bootstrap.Carousel(carouselElement, {
-            interval: 1000,
-            ride: "carousel",
-          });
-        }
       } catch (error) {
         console.error("Error fetching ads:", error);
       }
@@ -34,7 +26,17 @@ const Carousel = () => {
     fetchAds();
   }, []);
 
-  const BASE_IMAGE_URL = "https://pa-gebeya-backend.onrender.com/uploads/";
+  useEffect(() => {
+    if (ads.length > 0) {
+      const carouselElement = document.getElementById("carouselExampleIndicators");
+      if (carouselElement) {
+        new window.bootstrap.Carousel(carouselElement, {
+          interval: 3000,
+          ride: "carousel"
+        });
+      }
+    }
+  }, [ads]);
 
   return (
     <section>
@@ -63,9 +65,12 @@ const Carousel = () => {
             {/* Carousel Items */}
             <div className="carousel-inner h-100">
               {ads.map((ad, index) => (
-                <div key={ad._id} className={`carousel-item h-100 ${index === 0 ? "active" : ""}`}>
+                <div
+                  key={ad._id}
+                  className={`carousel-item h-100 ${index === 0 ? "active" : ""}`}
+                >
                   <img
-                    src={`${BASE_IMAGE_URL}${ad.images[0]}`}
+                    src={ad.images[0]}
                     className="d-block w-100 stretched-carousel-image"
                     alt={`Ad ${index + 1}`}
                     onError={(e) => {
@@ -98,7 +103,7 @@ const Carousel = () => {
           </div>
         </div>
 
-        {/* Secondary Static Images */}
+        {/* Secondary Images */}
         <div className="nav-carousel-2">
           <div className="nav-carousel-img position-relative">
             <img src={carouselSecond1} alt="Secondary 1" />
