@@ -59,9 +59,8 @@ const ProductsPage = () => {
         const response = await axios.get(
           `https://pa-gebeya-backend.onrender.com/api/products/category/${categoryId}`
         );
-        
+
         if (response.status === 200) {
-          // Updated to match backend response structure
           setProducts(response.data.products || []);
           setCategoryName(response.data.categoryName || "");
         } else {
@@ -82,6 +81,10 @@ const ProductsPage = () => {
     const productWithStatus = {
       ...product,
       status: `${categoryName} Product`,
+      category: {
+        _id: categoryId,
+        name: categoryName,
+      },
     };
     localStorage.setItem("Stored Product", JSON.stringify(productWithStatus));
     navigate("/product_detail", { state: { product: productWithStatus } });
@@ -108,7 +111,7 @@ const ProductsPage = () => {
       productName: product.name,
       price: product.price,
       quantity: 1,
-      img: product.imageUrls?.[0] || product.photo || '/default-product-image.jpg',
+      img: product.imageUrls?.[0] || product.photo || "/default-product-image.jpg",
     };
 
     try {
@@ -171,22 +174,22 @@ const ProductsPage = () => {
                   {product.imageUrls?.length > 0 ? (
                     product.imageUrls.map((imageUrl, index) => (
                       <div key={index} className="products-page-carousel-image-container">
-                        <img 
-                          src={imageUrl} 
-                          alt={`Product ${index}`} 
+                        <img
+                          src={imageUrl}
+                          alt={`Product ${index}`}
                           className="products-page-carousel-image"
                           onError={(e) => {
-                            e.target.src = '/default-product-image.jpg';
+                            e.target.src = "/default-product-image.jpg";
                           }}
                         />
                       </div>
                     ))
                   ) : (
                     <div className="products-page-carousel-image-container">
-                      <img 
-                        src="/default-product-image.jpg" 
-                        alt={product.name} 
-                        className="products-page-carousel-image" 
+                      <img
+                        src="/default-product-image.jpg"
+                        alt={product.name}
+                        className="products-page-carousel-image"
                       />
                     </div>
                   )}
