@@ -70,6 +70,7 @@ const Carousel = () => {
                   className={`carousel-item h-100 ${index === 0 ? "active" : ""}`}
                 >
                   <img
+                  alt="Ads is loading"
                     src={ad.images[0]}
                     className="d-block w-100 stretched-carousel-image"
                     alt={`Ad ${index + 1}`}
