@@ -3,9 +3,9 @@ import axios from "axios";
 import "../styles/carousel.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import * as bootstrap from "bootstrap";
-window.bootstrap = bootstrap;
-import "bootstrap";
 
+import "bootstrap";
+window.bootstrap = bootstrap;
 const Carousel2 = () => {
   const [banners, setBanners] = useState([]);
 
