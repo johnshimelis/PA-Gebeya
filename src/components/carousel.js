@@ -38,6 +38,10 @@ const Carousel = () => {
     }
   }, [ads]);
 
+  const getImageUrl = (relativePath) => {
+    return `https://pa-gebeya-backend.onrender.com/${relativePath.replace(/\\/g, "/")}`;
+  };
+
   return (
     <section>
       <div className="nav-carousel">
@@ -70,8 +74,7 @@ const Carousel = () => {
                   className={`carousel-item h-100 ${index === 0 ? "active" : ""}`}
                 >
                   <img
-                  alt="Ads is loading"
-                    src={ad.images[0]}
+                    src={getImageUrl(ad.images[0])}
                     className="d-block w-100 stretched-carousel-image"
                     alt={`Ad ${index + 1}`}
                     onError={(e) => {
