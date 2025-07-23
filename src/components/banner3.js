@@ -3,9 +3,9 @@ import axios from "axios";
 import "../styles/carousel.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import * as bootstrap from "bootstrap";
-import "bootstrap"; // ✅ All imports are now at the top
+import "bootstrap";
 
-window.bootstrap = bootstrap; // ✅ Executable statement comes after all imports
+window.bootstrap = bootstrap;
 
 const Banner3 = () => {
   const [banners, setBanners] = useState([]);
@@ -14,13 +14,16 @@ const Banner3 = () => {
     const fetchBanners = async () => {
       try {
         const response = await axios.get("https://pa-gebeya-backend.onrender.com/api/ads/banner1");
-        setBanners(response.data);
 
-        // Initialize carousel after data loads
+        // Optional: Filter only documents that have type === "ads" (if applicable)
+        const filtered = response.data.filter((banner) => banner.images?.length > 0);
+        setBanners(filtered);
+
+        // Initialize Bootstrap carousel after loading banners
         const carouselElement = document.getElementById("carouselExampleIndicators");
         if (carouselElement) {
           new window.bootstrap.Carousel(carouselElement, {
-            interval: 1000,
+            interval: 3000,
             ride: "carousel",
           });
         }
@@ -51,18 +54,22 @@ const Banner3 = () => {
 
         {/* Carousel Items */}
         <div className="carousel-inner h-100">
-          {banners.map((banner, index) => (
-            <div key={banner._id} className={`carousel-item h-100 ${index === 0 ? "active" : ""}`}>
-              <img
-                src={banner.images[0]}
-                className="d-block w-100 stretched-carousel-image"
-                alt={`Banner ${index + 1}`}
-                onError={(e) => {
-                  e.target.src = "/default-banner.jpg";
-                }}
-              />
-            </div>
-          ))}
+          {banners.map((banner, index) => {
+            const imagePath = banner.images[0].replace(/\\/g, "/");
+            const imageUrl = `https://pa-gebeya-backend.onrender.com/${imagePath}`;
+            return (
+              <div key={banner._id} className={`carousel-item h-100 ${index === 0 ? "active" : ""}`}>
+                <img
+                  src={imageUrl}
+                  className="d-block w-100 stretched-carousel-image"
+                  alt={`Banner ${index + 1}`}
+                  onError={(e) => {
+                    e.target.src = "/default-banner.jpg"; // fallback image
+                  }}
+                />
+              </div>
+            );
+          })}
         </div>
 
         {/* Controls */}
