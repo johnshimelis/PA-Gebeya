@@ -4,9 +4,11 @@ import "../styles/carousel1.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import * as bootstrap from "bootstrap";
-window.bootstrap = bootstrap;
+
 import carouselSecond1 from "../images/assets/carousel-second.png";
 import carouselSecond2 from "../images/assets/carousel-second1.png";
+
+window.bootstrap = bootstrap;
 
 const Carousel = () => {
   const [ads, setAds] = useState([]);
