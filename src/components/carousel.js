@@ -4,7 +4,6 @@ import "../styles/carousel1.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import * as bootstrap from "bootstrap";
-
 import carouselSecond1 from "../images/assets/carousel-second.png";
 import carouselSecond2 from "../images/assets/carousel-second1.png";
 
@@ -18,13 +17,13 @@ const Carousel = () => {
       try {
         const response = await axios.get("https://pa-gebeya-backend.onrender.com/api/ads/ads");
         setAds(response.data);
-        
+
         // Initialize carousel after data loads
-        const carouselElement = document.getElementById('carouselExampleIndicators');
+        const carouselElement = document.getElementById("carouselExampleIndicators");
         if (carouselElement) {
           new window.bootstrap.Carousel(carouselElement, {
-            interval: 1000, // 1 second as in Carousel2
-            ride: 'carousel'
+            interval: 1000,
+            ride: "carousel",
           });
         }
       } catch (error) {
@@ -35,10 +34,12 @@ const Carousel = () => {
     fetchAds();
   }, []);
 
+  const BASE_IMAGE_URL = "https://pa-gebeya-backend.onrender.com/uploads/";
+
   return (
     <section>
       <div className="nav-carousel">
-        {/* Main Carousel - Updated to match Carousel2 */}
+        {/* Main Carousel */}
         <div className="nav-carousel-1">
           <div
             id="carouselExampleIndicators"
@@ -58,23 +59,23 @@ const Carousel = () => {
                 ></button>
               ))}
             </div>
-            
-            {/* Carousel Items - Updated to match Carousel2 */}
+
+            {/* Carousel Items */}
             <div className="carousel-inner h-100">
               {ads.map((ad, index) => (
                 <div key={ad._id} className={`carousel-item h-100 ${index === 0 ? "active" : ""}`}>
-                  <img 
-                    src={ad.images[0]} 
-                    className="d-block w-100 stretched-carousel-image" 
+                  <img
+                    src={`${BASE_IMAGE_URL}${ad.images[0]}`}
+                    className="d-block w-100 stretched-carousel-image"
                     alt={`Ad ${index + 1}`}
                     onError={(e) => {
-                      e.target.src = '/default-banner.jpg';
+                      e.target.src = "/default-banner.jpg";
                     }}
                   />
                 </div>
               ))}
             </div>
-            
+
             {/* Controls */}
             <button
               className="carousel-control-prev"
@@ -96,8 +97,8 @@ const Carousel = () => {
             </button>
           </div>
         </div>
-        
-        {/* Secondary Images with Buttons - Kept exactly the same */}
+
+        {/* Secondary Static Images */}
         <div className="nav-carousel-2">
           <div className="nav-carousel-img position-relative">
             <img src={carouselSecond1} alt="Secondary 1" />
