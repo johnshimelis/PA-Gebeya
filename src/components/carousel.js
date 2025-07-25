@@ -3,12 +3,8 @@ import axios from "axios";
 import "../styles/carousel1.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import * as bootstrap from "bootstrap";
-
 import carouselSecond1 from "../images/assets/carousel-second.png";
 import carouselSecond2 from "../images/assets/carousel-second1.png";
-
-window.bootstrap = bootstrap;
 
 const Carousel = () => {
   const [ads, setAds] = useState([]);
@@ -18,6 +14,15 @@ const Carousel = () => {
       try {
         const response = await axios.get("https://pa-gebeya-backend.onrender.com/api/ads/ads");
         setAds(response.data);
+        
+        // Initialize carousel after data loads
+        const carouselElement = document.getElementById('carouselExampleIndicators');
+        if (carouselElement) {
+          new window.bootstrap.Carousel(carouselElement, {
+            interval: 1000,
+            ride: 'carousel'
+          });
+        }
       } catch (error) {
         console.error("Error fetching ads:", error);
       }
@@ -26,33 +31,15 @@ const Carousel = () => {
     fetchAds();
   }, []);
 
-  useEffect(() => {
-    if (ads.length > 0) {
-      const carouselElement = document.getElementById("carouselExampleIndicators");
-      if (carouselElement) {
-        new window.bootstrap.Carousel(carouselElement, {
-          interval: 3000,
-          ride: "carousel"
-        });
-      }
-    }
-  }, [ads]);
-
-  const getImageUrl = (relativePath) => {
-    return `https://pa-gebeya-backend.onrender.com/${relativePath.replace(/\\/g, "/")}`;
-  };
-
   return (
     <section>
       <div className="nav-carousel">
-        {/* Main Carousel */}
         <div className="nav-carousel-1">
           <div
             id="carouselExampleIndicators"
             className="carousel slide h-100"
             data-bs-ride="carousel"
           >
-            {/* Indicators */}
             <div className="carousel-indicators">
               {ads.map((_, index) => (
                 <button
@@ -65,27 +52,22 @@ const Carousel = () => {
                 ></button>
               ))}
             </div>
-
-            {/* Carousel Items */}
+            
             <div className="carousel-inner h-100">
               {ads.map((ad, index) => (
-                <div
-                  key={ad._id}
-                  className={`carousel-item h-100 ${index === 0 ? "active" : ""}`}
-                >
-                  <img
-                    src={getImageUrl(ad.images[0])}
-                    className="d-block w-100 stretched-carousel-image"
+                <div key={ad._id} className={`carousel-item h-100 ${index === 0 ? "active" : ""}`}>
+                  <img 
+                    src={ad.images[0]?.url || '/default-banner.jpg'} 
+                    className="d-block w-100 stretched-carousel-image" 
                     alt={`Ad ${index + 1}`}
                     onError={(e) => {
-                      e.target.src = "/default-banner.jpg";
+                      e.target.src = '/default-banner.jpg';
                     }}
                   />
                 </div>
               ))}
             </div>
-
-            {/* Controls */}
+            
             <button
               className="carousel-control-prev"
               type="button"
@@ -106,8 +88,7 @@ const Carousel = () => {
             </button>
           </div>
         </div>
-
-        {/* Secondary Images */}
+        
         <div className="nav-carousel-2">
           <div className="nav-carousel-img position-relative">
             <img src={carouselSecond1} alt="Secondary 1" />
