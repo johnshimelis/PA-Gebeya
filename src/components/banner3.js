@@ -5,7 +5,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import * as bootstrap from "bootstrap";
 
-// Make bootstrap globally accessible
 window.bootstrap = bootstrap;
 
 const Banner3 = () => {
@@ -16,14 +15,14 @@ const Banner3 = () => {
       try {
         const response = await axios.get("https://pa-gebeya-backend.onrender.com/api/ads/banner1");
         
-        // Filter banners with at least one image
-        const filtered = response.data.filter((banner) => 
+        // Filter banners with at least one valid image URL
+        const filtered = response.data.filter(banner => 
           banner.images?.length > 0 && banner.images[0]?.url
         );
         
         setBanners(filtered);
 
-        // Initialize carousel with better timing handling
+        // Initialize carousel
         const initializeCarousel = () => {
           const carouselElement = document.getElementById("carouselExampleIndicators");
           if (carouselElement && !carouselElement._carousel) {
@@ -35,11 +34,10 @@ const Banner3 = () => {
           }
         };
 
-        // Try initialization immediately and after a short delay
         initializeCarousel();
         const timeoutId = setTimeout(initializeCarousel, 500);
         
-        return () => clearTimeout(timeoutId); // Cleanup
+        return () => clearTimeout(timeoutId);
       } catch (error) {
         console.error("Error fetching banners:", error);
       }
@@ -82,7 +80,6 @@ const Banner3 = () => {
                 alt={`Banner ${index + 1}`}
                 onError={(e) => {
                   e.target.src = "/default-banner.jpg";
-                  console.error(`Failed to load banner image: ${banner.images[0]?.url}`);
                 }}
                 loading="lazy"
               />
