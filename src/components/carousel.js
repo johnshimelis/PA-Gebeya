@@ -19,7 +19,7 @@ const Carousel = () => {
         const carouselElement = document.getElementById('carouselExampleIndicators');
         if (carouselElement) {
           new window.bootstrap.Carousel(carouselElement, {
-            interval: 1000,
+            interval: 3000,
             ride: 'carousel'
           });
         }
