@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../styles/carousel.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import * as bootstrap from "bootstrap";
-import "bootstrap";
 
+// Make bootstrap globally accessible
 window.bootstrap = bootstrap;
 
 const Banner3 = () => {
@@ -14,19 +15,31 @@ const Banner3 = () => {
     const fetchBanners = async () => {
       try {
         const response = await axios.get("https://pa-gebeya-backend.onrender.com/api/ads/banner1");
-
-        // Optional: Filter only documents that have type === "ads" (if applicable)
-        const filtered = response.data.filter((banner) => banner.images?.length > 0);
+        
+        // Filter banners with at least one image
+        const filtered = response.data.filter((banner) => 
+          banner.images?.length > 0 && banner.images[0]?.url
+        );
+        
         setBanners(filtered);
 
-        // Initialize Bootstrap carousel after loading banners
-        const carouselElement = document.getElementById("carouselExampleIndicators");
-        if (carouselElement) {
-          new window.bootstrap.Carousel(carouselElement, {
-            interval: 3000,
-            ride: "carousel",
-          });
-        }
+        // Initialize carousel with better timing handling
+        const initializeCarousel = () => {
+          const carouselElement = document.getElementById("carouselExampleIndicators");
+          if (carouselElement && !carouselElement._carousel) {
+            carouselElement._carousel = new window.bootstrap.Carousel(carouselElement, {
+              interval: 3000,
+              ride: "carousel",
+              wrap: true
+            });
+          }
+        };
+
+        // Try initialization immediately and after a short delay
+        initializeCarousel();
+        const timeoutId = setTimeout(initializeCarousel, 500);
+        
+        return () => clearTimeout(timeoutId); // Cleanup
       } catch (error) {
         console.error("Error fetching banners:", error);
       }
@@ -37,7 +50,11 @@ const Banner3 = () => {
 
   return (
     <section className="full-width-carousel-container1">
-      <div id="carouselExampleIndicators" className="carousel slide h-100" data-bs-ride="carousel">
+      <div 
+        id="carouselExampleIndicators" 
+        className="carousel slide h-100" 
+        data-bs-ride="carousel"
+      >
         {/* Indicators */}
         <div className="carousel-indicators">
           {banners.map((_, index) => (
@@ -54,22 +71,23 @@ const Banner3 = () => {
 
         {/* Carousel Items */}
         <div className="carousel-inner h-100">
-          {banners.map((banner, index) => {
-            const imagePath = banner.images[0].replace(/\\/g, "/");
-            const imageUrl = `https://pa-gebeya-backend.onrender.com/${imagePath}`;
-            return (
-              <div key={banner._id} className={`carousel-item h-100 ${index === 0 ? "active" : ""}`}>
-                <img
-                  src={imageUrl}
-                  className="d-block w-100 stretched-carousel-image"
-                  alt={`Banner ${index + 1}`}
-                  onError={(e) => {
-                    e.target.src = "/default-banner.jpg"; // fallback image
-                  }}
-                />
-              </div>
-            );
-          })}
+          {banners.map((banner, index) => (
+            <div 
+              key={banner._id} 
+              className={`carousel-item h-100 ${index === 0 ? "active" : ""}`}
+            >
+              <img
+                src={banner.images[0]?.url || "/default-banner.jpg"}
+                className="d-block w-100 stretched-carousel-image"
+                alt={`Banner ${index + 1}`}
+                onError={(e) => {
+                  e.target.src = "/default-banner.jpg";
+                  console.error(`Failed to load banner image: ${banner.images[0]?.url}`);
+                }}
+                loading="lazy"
+              />
+            </div>
+          ))}
         </div>
 
         {/* Controls */}
