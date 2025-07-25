@@ -5,7 +5,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import * as bootstrap from "bootstrap";
 
-// Make bootstrap globally accessible (for manual JS instantiation)
+// Make bootstrap globally accessible
 window.bootstrap = bootstrap;
 
 const Carousel2 = () => {
@@ -17,8 +17,8 @@ const Carousel2 = () => {
         const response = await axios.get("https://pa-gebeya-backend.onrender.com/api/ads/banner");
         setBanners(response.data);
 
-        // Delay init to ensure DOM is ready
-        setTimeout(() => {
+        // Initialize carousel after data loads
+        const initializeCarousel = () => {
           const carouselElement = document.getElementById("carouselExampleIndicators2");
           if (carouselElement) {
             new window.bootstrap.Carousel(carouselElement, {
@@ -26,7 +26,13 @@ const Carousel2 = () => {
               ride: "carousel"
             });
           }
-        }, 300); // Give the DOM a moment to update
+        };
+
+        // Try immediately, then again after short delay if needed
+        initializeCarousel();
+        const timeoutId = setTimeout(initializeCarousel, 300);
+        
+        return () => clearTimeout(timeoutId); // Cleanup
       } catch (error) {
         console.error("Error fetching banners:", error);
       }
@@ -37,7 +43,11 @@ const Carousel2 = () => {
 
   return (
     <section className="full-width-carousel-container1">
-      <div id="carouselExampleIndicators2" className="carousel slide h-100" data-bs-ride="carousel">
+      <div 
+        id="carouselExampleIndicators2" 
+        className="carousel slide h-100" 
+        data-bs-ride="carousel"
+      >
         {/* Indicators */}
         <div className="carousel-indicators">
           {banners.map((_, index) => (
@@ -55,9 +65,12 @@ const Carousel2 = () => {
         {/* Carousel Items */}
         <div className="carousel-inner h-100">
           {banners.map((banner, index) => (
-            <div key={banner._id} className={`carousel-item h-100 ${index === 0 ? "active" : ""}`}>
+            <div 
+              key={banner._id} 
+              className={`carousel-item h-100 ${index === 0 ? "active" : ""}`}
+            >
               <img
-                src={`https://pa-gebeya-backend.onrender.com/${banner.images[0]}`}
+                src={banner.images[0]?.url || "/default-banner.jpg"}
                 className="d-block w-100 stretched-carousel-image"
                 alt={`Banner ${index + 1}`}
                 onError={(e) => {
