@@ -19,7 +19,7 @@ const Carousel = () => {
         const carouselElement = document.getElementById('carouselExampleIndicators');
         if (carouselElement) {
           new window.bootstrap.Carousel(carouselElement, {
-            interval: 1000,
+            interval: 1000, // 1 second as in Carousel2
             ride: 'carousel'
           });
         }
@@ -34,12 +34,14 @@ const Carousel = () => {
   return (
     <section>
       <div className="nav-carousel">
+        {/* Main Carousel - Updated to match Carousel2 */}
         <div className="nav-carousel-1">
           <div
             id="carouselExampleIndicators"
             className="carousel slide h-100"
             data-bs-ride="carousel"
           >
+            {/* Indicators */}
             <div className="carousel-indicators">
               {ads.map((_, index) => (
                 <button
@@ -53,11 +55,12 @@ const Carousel = () => {
               ))}
             </div>
             
+            {/* Carousel Items - Updated to match Carousel2 */}
             <div className="carousel-inner h-100">
               {ads.map((ad, index) => (
                 <div key={ad._id} className={`carousel-item h-100 ${index === 0 ? "active" : ""}`}>
                   <img 
-                    src={ad.images[0]?.url || '/default-banner.jpg'} 
+                    src={ad.images[0]} 
                     className="d-block w-100 stretched-carousel-image" 
                     alt={`Ad ${index + 1}`}
                     onError={(e) => {
@@ -68,6 +71,7 @@ const Carousel = () => {
               ))}
             </div>
             
+            {/* Controls */}
             <button
               className="carousel-control-prev"
               type="button"
@@ -89,6 +93,7 @@ const Carousel = () => {
           </div>
         </div>
         
+        {/* Secondary Images with Buttons - Kept exactly the same */}
         <div className="nav-carousel-2">
           <div className="nav-carousel-img position-relative">
             <img src={carouselSecond1} alt="Secondary 1" />
