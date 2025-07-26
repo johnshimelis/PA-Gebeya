@@ -9,7 +9,7 @@ import { Carousel } from "react-responsive-carousel";
 import tiktokIcon from "../images/assets/tiktok.png";
 
 const Discount = () => {
-  const { setCartItems } = useCart();
+  const { addToCart, cartItems, setCartItems } = useCart();
   const navigate = useNavigate();
   const [deals, setDeals] = useState([]);
   const [shuffledDeals, setShuffledDeals] = useState([]);
@@ -17,6 +17,7 @@ const Discount = () => {
   const [error, setError] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
 
+  // Fisher-Yates shuffle algorithm
   const shuffleArray = useCallback((array) => {
     const newArray = [...array];
     for (let i = newArray.length - 1; i > 0; i--) {
@@ -46,55 +47,28 @@ const Discount = () => {
         throw new Error("Invalid data format received from server");
       }
 
-      const validProducts = response.data
-        .map(product => {
-          try {
-            return {
-              ...product,
-              _id: product._id || Math.random().toString(36).substring(2, 11),
-              imageUrls: product.imageUrls || (product.images?.map(img => img.url) || []),
-              rating: Math.min(5, Math.max(0, Number(product.rating) || 0)),
-              sold: Math.max(0, Number(product.sold) || 0),
-              price: Math.max(0, Number(product.price) || 0),
-              discount: Math.min(100, Math.max(0, Number(product.discount) || 0),
-              hasDiscount: Boolean(product.hasDiscount),
-              shortDescription: product.shortDescription || "No description available",
-              category: product.category || { _id: null, name: "Uncategorized" }
-            };
-          } catch (e) {
-            console.error("Error processing product:", product, e);
-            return null;
-          }
-        })
-        .filter(Boolean);
+      const filteredDeals = response.data.filter(product => 
+        product.hasDiscount && product.discount > 0
+      ).map(product => ({
+        ...product,
+        imageUrls: product.imageUrls || (product.images?.map(img => img.url) || [],
+        rating: Math.min(5, Math.max(0, Number(product.rating) || 0),
+        sold: Math.max(0, Number(product.sold) || 0),
+        price: Math.max(0, Number(product.price) || 0),
+        discount: Math.min(100, Math.max(0, Number(product.discount) || 0))
+      }));
 
-      if (validProducts.length === 0) {
-        throw new Error("No valid discounted products found");
+      if (filteredDeals.length === 0) {
+        throw new Error("No discounted products available");
       }
 
-      setDeals(validProducts);
-      setShuffledDeals(shuffleArray(validProducts));
+      setDeals(filteredDeals);
+      setShuffledDeals(shuffleArray(filteredDeals));
     } catch (err) {
-      console.error("Fetch error details:", {
-        error: err,
-        response: err.response?.data,
-        config: err.config
-      });
-
-      let errorMessage = "Failed to load discounted products";
-      if (err.response) {
-        errorMessage += ` (Status: ${err.response.status})`;
-        if (err.response.data?.message) {
-          errorMessage += `: ${err.response.data.message}`;
-        }
-      } else if (err.code === "ECONNABORTED") {
-        errorMessage = "Request timed out. Please check your connection";
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
-
-      setError(errorMessage);
+      console.error("Fetch error:", err);
+      setError(err.message);
       
+      // Auto-retry logic
       if (retryCount < 3) {
         const retryDelay = Math.min(3000, 1000 * (2 ** retryCount));
         setTimeout(() => {
@@ -109,14 +83,20 @@ const Discount = () => {
 
   useEffect(() => {
     fetchDiscountedProducts();
-
+    
+    const shuffleInterval = setInterval(() => {
+      setShuffledDeals(prev => shuffleArray(prev));
+    }, 600000); // 10 minutes
+    
     const refreshInterval = setInterval(() => {
-      setRetryCount(0);
       fetchDiscountedProducts();
-    }, 3600000);
-
-    return () => clearInterval(refreshInterval);
-  }, [fetchDiscountedProducts]);
+    }, 3600000); // 1 hour
+    
+    return () => {
+      clearInterval(shuffleInterval);
+      clearInterval(refreshInterval);
+    };
+  }, [fetchDiscountedProducts, shuffleArray]);
 
   useEffect(() => {
     if (deals.length > 0) {
@@ -125,11 +105,11 @@ const Discount = () => {
   }, [deals, shuffleArray]);
 
   const formatSoldCount = (sold) => {
-    const num = Math.max(0, Number(sold) || 0);
-    if (num < 10) return `${num} sold`;
-    if (num < 20) return "10+ sold";
-    if (num < 50) return "20+ sold";
-    if (num < 100) return "50+ sold";
+    const soldNumber = Number(sold) || 0;
+    if (soldNumber < 10) return `${soldNumber} sold`;
+    if (soldNumber < 20) return "10+ sold";
+    if (soldNumber < 50) return "20+ sold";
+    if (soldNumber < 100) return "50+ sold";
     return "100+ sold";
   };
 
@@ -151,18 +131,16 @@ const Discount = () => {
     );
   };
 
-  const handleProductClick = (product) => {
-    if (!product?._id) {
-      console.error("Invalid product data:", product);
-      toast.error("Cannot view this product");
+  const handleProductClick = (deal) => {
+    if (!deal?._id) {
+      toast.error("Invalid product data");
       return;
     }
 
     const productDetails = {
-      ...product,
-      calculatedPrice: (product.price * (100 - product.discount) / 100).toFixed(2),
-      originalPrice: product.price.toFixed(2),
-      status: "Discounted"
+      ...deal,
+      calculatedPrice: (deal.price * (100 - deal.discount) / 100).toFixed(2),
+      originalPrice: deal.price.toFixed(2)
     };
 
     localStorage.setItem("currentProduct", JSON.stringify(productDetails));
@@ -171,7 +149,6 @@ const Discount = () => {
 
   const handleAddToCart = async (product, e) => {
     e.stopPropagation();
-    
     const userId = localStorage.getItem("userId");
     const token = localStorage.getItem("token");
 
@@ -209,9 +186,9 @@ const Discount = () => {
         );
         setCartItems(updatedCart.data.items || []);
       }
-    } catch (err) {
-      console.error("Add to cart error:", err);
-      toast.error(err.response?.data?.message || "Failed to add to cart");
+    } catch (error) {
+      console.error("Add to cart error:", error);
+      toast.error(error.response?.data?.message || "Failed to add to cart");
     }
   };
 
@@ -252,54 +229,48 @@ const Discount = () => {
           >
             {loading ? 'Retrying...' : 'Try Again'}
           </button>
-          {retryCount > 0 && (
-            <p className="retry-count">Attempt {retryCount + 1} of 3</p>
-          )}
         </div>
       </section>
     );
   }
 
   return (
-    <section className="discount-section">
-      <h4>Discounted Products</h4>
-      
-      {shuffledDeals.length > 0 ? (
-        <div className="products-grid">
-          {shuffledDeals.map((deal) => {
+    <section>
+      <h4 style={{ margin: "60px 20px", textAlign: "left", fontSize: "35px", fontWeight: 1000 }}>
+        Discount
+      </h4>
+      <div id="rec" className="nav-deals-main">
+        {shuffledDeals.length > 0 ? (
+          shuffledDeals.map((deal) => {
             const calculatedPrice = (deal.price * (100 - deal.discount) / 100).toFixed(2);
             const originalPrice = deal.price.toFixed(2);
 
             return (
-              <div key={deal._id} className="product-card">
-                <div className="image-container" onClick={() => handleProductClick(deal)}>
+              <div key={deal._id} className="nav-rec-cards" onClick={() => handleProductClick(deal)}>
+                <div className="card-img">
                   {deal.videoLink && (
-                    <div 
-                      className="tiktok-badge"
+                    <div
+                      className="tiktok-icon"
                       onClick={(e) => handleTikTokClick(deal.videoLink, e)}
-                      title="View TikTok video"
                     >
-                      <img src={tiktokIcon} alt="TikTok" />
+                      <img src={tiktokIcon} alt="TikTok" className="tiktok-img" />
                     </div>
                   )}
-                  
                   <Carousel
                     showThumbs={false}
                     showStatus={false}
                     infiniteLoop={true}
                     autoPlay={true}
-                    interval={5000}
+                    interval={3000}
                     stopOnHover={true}
-                    showArrows={deal.imageUrls?.length > 1}
-                    showIndicators={deal.imageUrls?.length > 1}
-                    dynamicHeight={true}
                   >
                     {deal.imageUrls?.length > 0 ? (
-                      deal.imageUrls.map((url, index) => (
-                        <div key={index} className="carousel-slide">
-                          <img
-                            src={url}
-                            alt={`${deal.name} - ${index + 1}`}
+                      deal.imageUrls.map((imageUrl, index) => (
+                        <div key={index} className="carousel-image-container">
+                          <img 
+                            src={imageUrl} 
+                            alt={`Product ${index}`} 
+                            className="carousel-image"
                             onError={(e) => {
                               e.target.src = '/default-product-image.jpg';
                               e.target.onerror = null;
@@ -309,51 +280,47 @@ const Discount = () => {
                         </div>
                       ))
                     ) : (
-                      <div className="carousel-slide">
+                      <div className="carousel-image-container">
                         <img 
                           src="/default-product-image.jpg" 
                           alt={deal.name} 
+                          className="carousel-image" 
                         />
                       </div>
                     )}
                   </Carousel>
                 </div>
-
-                <div className="product-info">
-                  <div className="discount-badge">
-                    {deal.discount}% OFF
+                <div className="card-content">
+                  <div className="card-header">
+                    <span className="discount-tag">Discount</span>
+                    <span className="product-name">{deal.name}</span>
                   </div>
-                  <h3 onClick={() => handleProductClick(deal)}>{deal.name}</h3>
-                  <p className="description">{deal.shortDescription}</p>
-                  
-                  <div className="rating-container">
-                    {renderRatingStars(deal.rating)}
-                    <span className="rating-value">{deal.rating.toFixed(1)}</span>
-                    <span className="sold-count">{formatSoldCount(deal.sold)}</span>
+                  <p className="short-description">
+                    {deal.shortDescription || "No description available."}
+                  </p>
+                  <div className="card-rating">
+                    <div className="stars">
+                      {renderRatingStars(deal.rating)}
+                    </div>
+                    <span className="rating-number">| {deal.rating.toFixed(1)}</span>
+                    <span className="sold-count">| {formatSoldCount(deal.sold)}</span>
                   </div>
-
-                  <div className="price-container">
-                    <span className="current-price">ETB {calculatedPrice}</span>
+                  <div className="card-pricing">
+                    <span className="calculated-price">ETB {calculatedPrice}</span>
                     <span className="original-price">ETB {originalPrice}</span>
+                    <span className="discount">{deal.discount}% OFF</span>
                   </div>
-
-                  <button 
-                    className="add-to-cart-btn"
-                    onClick={(e) => handleAddToCart(deal, e)}
-                  >
-                    Add to Cart
-                  </button>
                 </div>
               </div>
             );
-          })}
-        </div>
-      ) : (
-        <div className="no-products">
-          <p>No discounted products available right now.</p>
-          <button onClick={fetchDiscountedProducts}>Check Again</button>
-        </div>
-      )}
+          })
+        ) : (
+          <div className="no-products">
+            <p>No discounted products available right now.</p>
+            <button onClick={fetchDiscountedProducts}>Check Again</button>
+          </div>
+        )}
+      </div>
     </section>
   );
 };
