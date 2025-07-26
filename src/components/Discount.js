@@ -46,17 +46,17 @@ const Discount = () => {
         throw new Error("Invalid data format received from server");
       }
 
-      // Process products to ensure consistent structure
-      const processedDeals = response.data
+      // Process products to ensure images are properly formatted
+      const filteredDeals = response.data
         .filter(product => product.hasDiscount && product.discount > 0)
         .map(product => ({
           ...product,
-          // Create imageUrls array from images array if it exists
+          // Create imageUrls from images array
           imageUrls: product.images?.map(img => img.url) || []
         }));
 
-      setDeals(processedDeals);
-      setShuffledDeals(shuffleArray(processedDeals));
+      setDeals(filteredDeals);
+      setShuffledDeals(shuffleArray(filteredDeals));
     } catch (err) {
       console.error("Fetch error:", err);
       setError(err.message);
@@ -68,12 +68,12 @@ const Discount = () => {
   useEffect(() => {
     fetchDiscountedProducts();
     
-    // Set up interval to shuffle every 10 minutes
+    // Set up interval to shuffle every 10 minutes (600,000ms)
     const shuffleInterval = setInterval(() => {
       setShuffledDeals(prev => shuffleArray(prev));
     }, 600000);
     
-    // Set up interval to refresh data every hour
+    // Set up interval to refresh data every hour (3,600,000ms)
     const refreshInterval = setInterval(() => {
       fetchDiscountedProducts();
     }, 3600000);
@@ -101,7 +101,7 @@ const Discount = () => {
   };
 
   const renderRatingStars = (rating) => {
-    const numRating = Math.min(5, Math.max(0, Number(rating) || 0);
+    const numRating = Math.min(5, Math.max(0, Number(rating) || 0));
     const fullStars = Math.floor(numRating);
     const hasHalfStar = numRating % 1 >= 0.5;
     
@@ -149,7 +149,7 @@ const Discount = () => {
           price: product.price,
           discount: product.discount,
           quantity: 1,
-          img: product.images?.[0]?.url || "" // Use first image URL if available
+          img: product.images?.[0]?.url || "" // Use first image URL
         },
         {
           headers: {
