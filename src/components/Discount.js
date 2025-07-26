@@ -17,7 +17,6 @@ const Discount = () => {
   const [error, setError] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
 
-  // Enhanced shuffle function with Fisher-Yates algorithm
   const shuffleArray = useCallback((array) => {
     const newArray = [...array];
     for (let i = newArray.length - 1; i > 0; i--) {
@@ -27,7 +26,6 @@ const Discount = () => {
     return newArray;
   }, []);
 
-  // Robust data fetching with retry logic
   const fetchDiscountedProducts = useCallback(async () => {
     try {
       setLoading(true);
@@ -48,19 +46,17 @@ const Discount = () => {
         throw new Error("Invalid data format received from server");
       }
 
-      // Data normalization and validation
       const validProducts = response.data
         .map(product => {
           try {
             return {
               ...product,
               _id: product._id || Math.random().toString(36).substring(2, 11),
-              imageUrls: product.imageUrls || 
-                        (product.images?.map(img => img.url) || []),
+              imageUrls: product.imageUrls || (product.images?.map(img => img.url) || []),
               rating: Math.min(5, Math.max(0, Number(product.rating) || 0)),
               sold: Math.max(0, Number(product.sold) || 0),
               price: Math.max(0, Number(product.price) || 0),
-              discount: Math.min(100, Math.max(0, Number(product.discount) || 0)),
+              discount: Math.min(100, Math.max(0, Number(product.discount) || 0),
               hasDiscount: Boolean(product.hasDiscount),
               shortDescription: product.shortDescription || "No description available",
               category: product.category || { _id: null, name: "Uncategorized" }
@@ -99,7 +95,6 @@ const Discount = () => {
 
       setError(errorMessage);
       
-      // Auto-retry logic (max 3 retries)
       if (retryCount < 3) {
         const retryDelay = Math.min(3000, 1000 * (2 ** retryCount));
         setTimeout(() => {
@@ -118,7 +113,7 @@ const Discount = () => {
     const refreshInterval = setInterval(() => {
       setRetryCount(0);
       fetchDiscountedProducts();
-    }, 3600000); // Refresh every hour
+    }, 3600000);
 
     return () => clearInterval(refreshInterval);
   }, [fetchDiscountedProducts]);
@@ -129,7 +124,6 @@ const Discount = () => {
     }
   }, [deals, shuffleArray]);
 
-  // Helper functions with validation
   const formatSoldCount = (sold) => {
     const num = Math.max(0, Number(sold) || 0);
     if (num < 10) return `${num} sold`;
