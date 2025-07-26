@@ -60,7 +60,7 @@ const Discount = () => {
               rating: Math.min(5, Math.max(0, Number(product.rating) || 0)),
               sold: Math.max(0, Number(product.sold) || 0),
               price: Math.max(0, Number(product.price) || 0),
-              discount: Math.min(100, Math.max(0, Number(product.discount) || 0),
+              discount: Math.min(100, Math.max(0, Number(product.discount) || 0)),
               hasDiscount: Boolean(product.hasDiscount),
               shortDescription: product.shortDescription || "No description available",
               category: product.category || { _id: null, name: "Uncategorized" }
@@ -343,7 +343,12 @@ const Discount = () => {
                     <span className="original-price">ETB {originalPrice}</span>
                   </div>
 
-              
+                  <button 
+                    className="add-to-cart-btn"
+                    onClick={(e) => handleAddToCart(deal, e)}
+                  >
+                    Add to Cart
+                  </button>
                 </div>
               </div>
             );
