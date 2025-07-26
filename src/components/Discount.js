@@ -343,12 +343,7 @@ const Discount = () => {
                     <span className="original-price">ETB {originalPrice}</span>
                   </div>
 
-                  <button 
-                    className="add-to-cart"
-                    onClick={(e) => handleAddToCart(deal, e)}
-                  >
-                    Add to Cart
-                  </button>
+              
                 </div>
               </div>
             );
