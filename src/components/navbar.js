@@ -94,16 +94,16 @@ const Navbar = () => {
 
               return (
                 <li
-                  key={index}
+                  key={category._id}
                   className={isActive ? "active-category" : ""}
-                  onClick={() =>
+                  onClick={() => {
                     navigate(categoryPath, {
                       state: {
                         categoryId: category._id,
                         categoryName: category.name,
                       },
-                    })
-                  }
+                    });
+                  }}
                 >
                   {category.name}
                 </li>
