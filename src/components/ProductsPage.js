@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "../components/CartContext";
 import { toast } from "react-toastify";
 import { useAuth } from "../components/AuthContext";
@@ -12,12 +12,34 @@ import tiktokIcon from "../images/assets/tiktok.png";
 const ProductsPage = () => {
   const { category: categoryId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { addToCart, cartItems = [], setCartItems } = useCart();
   const { user } = useAuth();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [categoryName, setCategoryName] = useState("");
+
+  // Get category name from navigation state or fetch it
+  useEffect(() => {
+    if (location.state?.categoryName) {
+      setCategoryName(location.state.categoryName);
+    } else if (categoryId) {
+      const fetchCategoryName = async () => {
+        try {
+          const response = await axios.get(
+            `https://pa-gebeya-backend.onrender.com/api/categories/${categoryId}`
+          );
+          if (response.status === 200) {
+            setCategoryName(response.data.name);
+          }
+        } catch (error) {
+          console.error("Error fetching category name:", error);
+        }
+      };
+      fetchCategoryName();
+    }
+  }, [categoryId, location.state]);
 
   const formatSoldCount = (sold) => {
     const soldCount = Number(sold) || 0;
@@ -62,7 +84,10 @@ const ProductsPage = () => {
 
         if (response.status === 200) {
           setProducts(response.data.products || []);
-          setCategoryName(response.data.categoryName || "");
+          // Only update category name if not already set from location state
+          if (!location.state?.categoryName && response.data.categoryName) {
+            setCategoryName(response.data.categoryName);
+          }
         } else {
           throw new Error("Failed to fetch products");
         }
@@ -74,8 +99,10 @@ const ProductsPage = () => {
       }
     };
 
-    fetchProductsByCategory();
-  }, [categoryId]);
+    if (categoryId) {
+      fetchProductsByCategory();
+    }
+  }, [categoryId, location.state]);
 
   const handleProductClick = (product) => {
     const productWithStatus = {
