@@ -41,6 +41,7 @@ const ProductsPage = () => {
     }
   }, [categoryId, location.state]);
 
+  // Format sold count display
   const formatSoldCount = (sold) => {
     const soldCount = Number(sold) || 0;
     if (soldCount === 0) return "0 sold";
@@ -51,6 +52,7 @@ const ProductsPage = () => {
     return `${Math.floor(soldCount / 10) * 10}+ sold`;
   };
 
+  // Render star ratings
   const renderRatingStars = (rating) => {
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
@@ -72,20 +74,16 @@ const ProductsPage = () => {
     return stars;
   };
 
+  // Fetch products by category
   useEffect(() => {
     const fetchProductsByCategory = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        // Updated to match the working endpoint from your Postman screenshot
+        // Using the confirmed working endpoint
         const response = await axios.get(
-          `https://pa-gebeya-backend.onrender.com/api/products`,
-          {
-            params: {
-              category: categoryId
-            }
-          }
+          `https://pa-gebeya-backend.onrender.com/api/products/category/${categoryId}`
         );
 
         if (response.status === 200) {
@@ -112,6 +110,7 @@ const ProductsPage = () => {
     }
   }, [categoryId, location.state]);
 
+  // Handle product click
   const handleProductClick = (product) => {
     const productWithStatus = {
       ...product,
@@ -125,6 +124,7 @@ const ProductsPage = () => {
     navigate("/product_detail", { state: { product: productWithStatus } });
   };
 
+  // Handle add to cart
   const handleAddToCart = async (product) => {
     const userId = localStorage.getItem("userId");
     const token = localStorage.getItem("token");
