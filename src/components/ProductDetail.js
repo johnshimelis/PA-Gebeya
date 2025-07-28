@@ -23,24 +23,46 @@ const ProductDetails = () => {
   const [loadingRelated, setLoadingRelated] = useState(false);
   const [selectedImage, setSelectedImage] = useState('');
 
-  const getFullImageUrl = (imagePath) => {
-    if (imagePath.startsWith('http')) return imagePath;
-    return `${S3_BASE_URL}${imagePath}`;
+  // Improved image URL handling
+  const getFullImageUrl = (image) => {
+    if (!image) return '/default-product-image.jpg';
+    
+    // Handle case where image is an object with url property
+    if (typeof image === 'object' && image.url) {
+      return image.url.startsWith('http') ? image.url : `${S3_BASE_URL}${image.url}`;
+    }
+    
+    // Handle case where image is a string path
+    if (typeof image === 'string') {
+      return image.startsWith('http') ? image : `${S3_BASE_URL}${image}`;
+    }
+    
+    return '/default-product-image.jpg';
   };
 
   useEffect(() => {
     const initializeProduct = (productData) => {
-      setProduct(productData);
-      setSelectedImage(getFullImageUrl(productData.images?.[0] || productData.photo));
-      localStorage.setItem('selectedProduct', JSON.stringify(productData));
-
-      if (productData.hasDiscount && productData.discount > 0) {
-        setHasDiscount(true);
-        setDiscountPercentage(productData.discount);
-      } else {
-        setHasDiscount(false);
-        setDiscountPercentage(0);
+      if (!productData) {
+        navigate('/products');
+        return;
       }
+
+      setProduct(productData);
+      
+      // Get first image safely
+      const firstImage = Array.isArray(productData.images) && productData.images.length > 0 
+        ? productData.images[0] 
+        : productData.photo;
+      
+      setSelectedImage(getFullImageUrl(firstImage));
+
+      // Set discount info
+      const hasDisc = productData.hasDiscount && productData.discount > 0;
+      setHasDiscount(hasDisc);
+      setDiscountPercentage(hasDisc ? productData.discount : 0);
+
+      // Store product in localStorage
+      localStorage.setItem('selectedProduct', JSON.stringify(productData));
     };
 
     if (location.state?.product) {
@@ -49,42 +71,29 @@ const ProductDetails = () => {
       const storedProduct = localStorage.getItem('selectedProduct');
       if (storedProduct) {
         initializeProduct(JSON.parse(storedProduct));
+      } else {
+        navigate('/products');
       }
     }
-  }, [location.state]);
+  }, [location.state, navigate]);
 
   useEffect(() => {
     const fetchRelatedProducts = async () => {
-      if (!product?.category?._id) {
-        console.error("No valid category ID available for the product.");
-        return;
-      }
+      if (!product?.category?._id) return;
     
       setLoadingRelated(true);
     
       try {
-        console.log("Fetching related products for category:", product.category._id);
         const response = await axios.get(
           `https://pa-gebeya-backend.onrender.com/api/products/category/${product.category._id}`
         );
-    
-        console.log("API Response:", response);
     
         if (response.status === 200) {
           const productsData = Array.isArray(response.data) 
             ? response.data 
             : response.data.products || [];
           
-          console.log("Products data:", productsData);
-    
-          const filteredProducts = productsData.filter(
-            (p) => p._id !== product._id
-          );
-          
-          console.log("Filtered products:", filteredProducts);
-          setRelatedProducts(filteredProducts);
-        } else {
-          throw new Error(`Unexpected status code: ${response.status}`);
+          setRelatedProducts(productsData.filter(p => p._id !== product._id));
         }
       } catch (error) {
         console.error("Error fetching related products:", error);
@@ -95,24 +104,31 @@ const ProductDetails = () => {
       }
     };
 
-    fetchRelatedProducts();
+    if (product) {
+      fetchRelatedProducts();
+    }
   }, [product]);
 
   const handleSmallImageClick = (image) => {
     setSelectedImage(getFullImageUrl(image));
   };
 
-  const handleTikTokClick = (url) => {
+  const handleTikTokClick = (url, e) => {
+    e?.stopPropagation();
     window.open(url, '_blank');
   };
 
   const handleRelatedProductClick = (relatedProduct) => {
-    setProduct(relatedProduct);
-    setSelectedImage(getFullImageUrl(relatedProduct.images?.[0] || relatedProduct.photo));
+    navigate("/product_detail", { 
+      state: { product: relatedProduct },
+      replace: true
+    });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleAddToCart = async (productToAdd) => {
+  const handleAddToCart = async (productToAdd, e) => {
+    e?.stopPropagation();
+    
     const userId = localStorage.getItem('userId');
     const token = localStorage.getItem('token');
 
@@ -129,22 +145,20 @@ const ProductDetails = () => {
 
     const productId = productToAdd._id;
     if (!productId) {
-      console.error('Error: Product ID is undefined');
       toast.error('Error adding item to cart: Product ID missing');
       return;
     }
 
-    const thumbnailImage = productToAdd.images?.[0] || productToAdd.photo;
-    const cartItem = {
-      userId,
-      productId,
-      productName: productToAdd.name,
-      price: productToAdd.price,
-      quantity: quantity,
-      img: getFullImageUrl(thumbnailImage),
-    };
-
     try {
+      const cartItem = {
+        userId,
+        productId,
+        productName: productToAdd.name,
+        price: productToAdd.price,
+        quantity: quantity,
+        img: getFullImageUrl(productToAdd.images?.[0] || productToAdd.photo),
+      };
+
       const response = await axios.post(
         'https://pa-gebeya-backend.onrender.com/api/cart',
         cartItem,
@@ -158,9 +172,10 @@ const ProductDetails = () => {
 
       if (response.status === 200) {
         toast.success(`${productToAdd.name} added to the cart!`);
-        const updatedCart = await axios.get('https://pa-gebeya-backend.onrender.com/api/cart', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const updatedCart = await axios.get(
+          'https://pa-gebeya-backend.onrender.com/api/cart', 
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
         setCartItems(updatedCart.data.items);
       }
     } catch (error) {
@@ -170,7 +185,7 @@ const ProductDetails = () => {
   };
 
   const handleQuantityChange = (delta) => {
-    setQuantity((prevQuantity) => Math.max(1, prevQuantity + delta));
+    setQuantity(prev => Math.max(1, prev + delta));
   };
 
   const formatSoldCount = (sold) => {
@@ -182,20 +197,20 @@ const ProductDetails = () => {
 
   const renderRatingStars = (rating) => {
     const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
+    const hasHalfStar = rating % 1 >= 0.5;
     const stars = [];
 
     for (let i = 0; i < fullStars; i++) {
-      stars.push(<span key={i} className="star filled">&#9733;</span>);
+      stars.push(<span key={i} className="star filled">★</span>);
     }
 
     if (hasHalfStar) {
-      stars.push(<span key="half" className="star half">&#9733;</span>);
+      stars.push(<span key="half" className="star half">★</span>);
     }
 
     const remainingStars = 5 - stars.length;
     for (let i = 0; i < remainingStars; i++) {
-      stars.push(<span key={`empty-${i}`} className="star">&#9733;</span>);
+      stars.push(<span key={`empty-${i}`} className="star">★</span>);
     }
 
     return stars;
@@ -217,7 +232,10 @@ const ProductDetails = () => {
       <div className="product-details">
         <div className="left-section">
           {product.videoLink && (
-            <div className="tiktok-icon" onClick={() => handleTikTokClick(product.videoLink)}>
+            <div 
+              className="tiktok-icon" 
+              onClick={(e) => handleTikTokClick(product.videoLink, e)}
+            >
               <img src={tiktokIcon} alt="TikTok" className="tiktok-img" />
             </div>
           )}
@@ -225,71 +243,62 @@ const ProductDetails = () => {
           <div className="main-image-container">
             <img
               src={selectedImage}
-              alt="Main Product"
+              alt={product.name}
               className="main-image"
               onError={(e) => {
                 e.target.onerror = null;
-                e.target.src = ''; // Fallback image or empty
+                e.target.src = '/default-product-image.jpg';
               }}
             />
           </div>
 
           <div className="small-images-container">
-            {product.images
-              ?.filter((img) => getFullImageUrl(img) !== selectedImage)
-              .map((image, index) => (
+            {product.images?.filter(img => img).map((image, index) => {
+              const imageUrl = getFullImageUrl(image);
+              return imageUrl !== selectedImage && (
                 <div
                   key={index}
                   className="small-image"
                   onClick={() => handleSmallImageClick(image)}
                 >
                   <img
-                    src={getFullImageUrl(image)}
-                    alt={`Product ${index}`}
+                    src={imageUrl}
+                    alt={`Product view ${index + 1}`}
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = ''; // Fallback image or empty
+                      e.target.src = '/default-product-image.jpg';
                     }}
                   />
                 </div>
-              ))}
+              );
+            })}
           </div>
         </div>
 
         <div className="right-section">
-          {/* Updated Tag Display */}
           <div className="product-tags">
             {showDiscount ? (
-              <span className="discount-tag">
-                {discountPercentage}% OFF
-              </span>
+              <span className="discount-tag">{discountPercentage}% OFF</span>
             ) : isRecommended ? (
-              <span className="recommended-tag">
-                Recommended
-              </span>
+              <span className="recommended-tag">Recommended</span>
             ) : (
-              <span className="best-seller-tag">
-                Best Seller
-              </span>
+              <span className="best-seller-tag">Best Seller</span>
             )}
           </div>
 
           <div className="product-header">
-            <h1 className="product-title" style={{ wordWrap: "break-word", whiteSpace: "normal" }}>
-              {product.name}
-            </h1>
+            <h1 className="product-title">{product.name}</h1>
           </div>
 
           <div className="rating-sold-container">
             <div className="stars">{renderRatingStars(product.rating || 0)}</div>
             <span className="rating-number">| {product.rating || 0}</span>
-            <span className="sold-count">| {formatSoldCount(product.sold || 0)} Sold</span>
+            <span className="sold-count">| {formatSoldCount(product.sold)} Sold</span>
           </div>
 
           <p className="short-description">{product.shortDescription}</p>
           <p className="full-description">{product.fullDescription}</p>
 
-          {/* Updated Price Display */}
           <div className="price-display">
             {showDiscount ? (
               <div className="discounted-price">
@@ -305,24 +314,21 @@ const ProductDetails = () => {
 
           <div className="price-counter-row">
             <div className="quantity-selector">
-              <button
-                onClick={() => handleQuantityChange(-1)}
-                className="quantity-button"
-              >
+              <button onClick={() => handleQuantityChange(-1)} className="quantity-button">
                 -
               </button>
               <span className="quantity-display">{quantity}</span>
-              <button
-                onClick={() => handleQuantityChange(1)}
-                className="quantity-button"
-              >
+              <button onClick={() => handleQuantityChange(1)} className="quantity-button">
                 +
               </button>
             </div>
           </div>
 
           <div className="button-row">
-            <button className="add-to-cart" onClick={() => handleAddToCart(product)}>
+            <button 
+              className="add-to-cart" 
+              onClick={() => handleAddToCart(product)}
+            >
               🛒 Add to Cart
             </button>
             <button className="favorite">❤️</button>
@@ -330,7 +336,6 @@ const ProductDetails = () => {
         </div>
       </div>
 
-      {/* Related Products Section */}
       <div className="related-products">
         <h3>Related Products</h3>
         {loadingRelated ? (
@@ -344,12 +349,9 @@ const ProductDetails = () => {
                 onClick={() => handleRelatedProductClick(relatedProduct)}
               >
                 {relatedProduct.videoLink && (
-                  <div
+                  <div 
                     className="tiktok-icon"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleTikTokClick(relatedProduct.videoLink);
-                    }}
+                    onClick={(e) => handleTikTokClick(relatedProduct.videoLink, e)}
                   >
                     <img src={tiktokIcon} alt="TikTok" className="tiktok-img" />
                   </div>
@@ -363,14 +365,14 @@ const ProductDetails = () => {
                   interval={3000}
                   stopOnHover={true}
                 >
-                  {relatedProduct.images?.map((image, index) => (
+                  {relatedProduct.images?.filter(img => img).map((image, index) => (
                     <div key={index}>
                       <img 
                         src={getFullImageUrl(image)} 
-                        alt={`Product ${index}`}
+                        alt={`${relatedProduct.name} view ${index + 1}`}
                         onError={(e) => {
                           e.target.onerror = null;
-                          e.target.src = ''; // Fallback image or empty
+                          e.target.src = '/default-product-image.jpg';
                         }}
                       />
                     </div>
@@ -380,17 +382,13 @@ const ProductDetails = () => {
                 <div className="card-content">
                   <div className="card-header">
                     <span className="best-seller-tags">
-                      {typeof relatedProduct.category === 'object' 
-                        ? relatedProduct.category.name 
-                        : relatedProduct.category} Product
+                      {relatedProduct.category?.name || 'Product'}
                     </span>
                     <span className="product-name">{relatedProduct.name}</span>
                   </div>
-                  {relatedProduct.shortDescription ? (
-                    <p className="short-description">{relatedProduct.shortDescription}</p>
-                  ) : (
-                    <p className="short-description">No description available.</p>
-                  )}
+                  <p className="short-description">
+                    {relatedProduct.shortDescription || 'No description available.'}
+                  </p>
                   <div className="card-rating">
                     <div className="stars">
                       {renderRatingStars(relatedProduct.rating || 0)}
@@ -401,10 +399,7 @@ const ProductDetails = () => {
                   <p className="card-price">ETB {relatedProduct.price.toFixed(2)}</p>
                   <button
                     className="add-to-cart"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAddToCart(relatedProduct);
-                    }}
+                    onClick={(e) => handleAddToCart(relatedProduct, e)}
                   >
                     Add to Cart
                   </button>
