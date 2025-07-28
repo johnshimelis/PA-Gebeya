@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useCart } from './CartContext';
-import { useAuth } from './AuthContext';
+import { useCart } from './CartContext'; // Assuming CartContext provides the cart items
+import { useAuth } from './AuthContext';  // Import useAuth to access logged-in user info
 import '../styles/checkout.css';
 import '../styles/deliveryInfo.css';
 import successImage from '../images/assets/checked.png';
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import jsQR from 'jsqr';
 
 const Checkout = () => {
   const { cartItems, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user } = useAuth();  // Access logged-in user from AuthContext
   const [image, setImage] = useState(null);
   const [cart, setCart] = useState([]);
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Initialize navigate
   const [imageName, setImageName] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [orderSubmitted, setOrderSubmitted] = useState(false);
@@ -23,6 +23,7 @@ const Checkout = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    // Load cart from localStorage
     const storedCart = localStorage.getItem("cart");
     if (storedCart) {
       setCart(JSON.parse(storedCart));
@@ -37,11 +38,11 @@ const Checkout = () => {
       console.log("✅ Keeping Existing Order Data:", orderData);
     } else {
       const orderDetails = cartItems.map((cartItem) => ({
-        productId: cartItem.productId,
+        productId: cartItem.productId,  // ✅ Store productId explicitly
         product: cartItem.title,
         quantity: cartItem.quantity,
         price: cartItem.price,
-        productImage: cartItem.image || null,
+        productImage: cartItem.image || "/placeholder.jpg",
         _id: cartItem.uniqueId,
       }));
 
@@ -49,10 +50,7 @@ const Checkout = () => {
         .reduce((acc, item) => acc + item.price * item.quantity, 0)
         .toFixed(2);
 
-      const newOrderData = { 
-        amount: balance, 
-        orderDetails 
-      };
+      const newOrderData = { amount: balance, orderDetails };
 
       localStorage.setItem("orderData", JSON.stringify(newOrderData));
       console.log("🛒 New Order Data Saved:", newOrderData);
@@ -67,7 +65,7 @@ const Checkout = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setImage(reader.result);
-        setImageName(file.name);
+        setImageName(file.name);  // Store the file name (e.g., payment.png)
         setError('');
         scanQRCode(reader.result);
       };
@@ -88,6 +86,8 @@ const Checkout = () => {
       const code = jsQR(imageData.data, img.width, img.height);
       if (code) {
         console.log('QR Code Data:', code.data);
+      } else {
+        console.log('No QR Code found');
       }
     };
   };
@@ -103,146 +103,251 @@ const Checkout = () => {
     }
 
     setIsLoading(true);
-    setError('');
 
     const storedUser = localStorage.getItem("user");
     const user = storedUser ? JSON.parse(storedUser) : null;
+    const fullName = user?.fullName || "Guest User";
     const userId = user?.userId;
 
     if (!userId) {
+      console.error("❌ User ID is missing! Cannot proceed.");
       setError("User authentication issue. Please log in again.");
       setIsLoading(false);
       return;
     }
 
-    // Prepare FormData for the order
+    console.log("✅ User ID:", userId);
+
+    const storedOrderData = localStorage.getItem("orderData");
+    const orderData = storedOrderData ? JSON.parse(storedOrderData) : {};
+
+    // Process product images before creating FormData
+    const processedOrderDetails = await Promise.all(
+      (orderData.orderDetails || []).map(async (item) => {
+        let productImageUrl = item.productImage;
+        
+        // Handle base64 images
+        if (item.productImage && item.productImage.startsWith('data:image')) {
+          try {
+            const response = await fetch(item.productImage);
+            const blob = await response.blob();
+            productImageUrl = URL.createObjectURL(blob);
+          } catch (error) {
+            console.error("Error processing base64 image:", error);
+            productImageUrl = "/placeholder-product.jpg";
+          }
+        }
+        
+        return {
+          productId: item.productId,
+          product: item.product,
+          quantity: item.quantity,
+          price: item.price,
+          productImage: productImageUrl,
+        };
+      })
+    );
+
+    const updatedOrderData = {
+      ...orderData,
+      status: "Pending",
+      name: fullName,
+      userId: userId,
+      phoneNumber,
+      deliveryAddress: address,
+      orderDetails: processedOrderDetails,
+    };
+
+    // Prepare form data
     const formData = new FormData();
-    
-    // Add basic order information
-    formData.append("userId", userId);
-    formData.append("name", user?.fullName || "Guest");
-    formData.append("phoneNumber", phoneNumber);
-    formData.append("deliveryAddress", address);
-    formData.append("status", "Pending");
+    formData.append("userId", updatedOrderData.userId);
+    formData.append("name", updatedOrderData.name);
+    formData.append("amount", updatedOrderData.amount || 0);
+    formData.append("status", updatedOrderData.status);
+    formData.append("phoneNumber", updatedOrderData.phoneNumber);
+    formData.append("deliveryAddress", updatedOrderData.deliveryAddress);
+    formData.append("orderDetails", JSON.stringify(updatedOrderData.orderDetails || []));
 
-    // Calculate total amount
-    const totalAmount = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    formData.append("amount", totalAmount.toString());
+    // Convert base64 data URL to File for payment image
+    try {
+      const paymentBlob = await fetch(image).then(res => res.blob());
+      const paymentFile = new File([paymentBlob], imageName || "payment.jpg", { type: paymentBlob.type });
+      formData.append("paymentImage", paymentFile);
+    } catch (error) {
+      console.error("Error processing payment image:", error);
+      setError("Failed to process payment image. Please try again.");
+      setIsLoading(false);
+      return;
+    }
 
-    // Add payment image
-    const paymentBlob = await fetch(image).then(res => res.blob());
-    const paymentFile = new File([paymentBlob], `payment-${Date.now()}.jpg`, { type: 'image/jpeg' });
-    formData.append("paymentImage", paymentFile);
-
-    // Process each cart item to include product images
-    const orderDetails = cartItems.map(item => {
-      return {
-        productId: item.productId,
-        product: item.title,
-        quantity: item.quantity,
-        price: item.price,
-        productImage: item.image || null
-      };
-    });
-    formData.append("orderDetails", JSON.stringify(orderDetails));
-
-    // Add product images if available
-    for (const item of cartItems) {
-      if (item.image && item.image.startsWith('http')) {
+    // Append product images to FormData
+    for (const item of updatedOrderData.orderDetails) {
+      if (item.productImage && !item.productImage.startsWith('http')) {
         try {
-          const response = await fetch(item.image);
+          const response = await fetch(item.productImage);
+          if (!response.ok) throw new Error("Failed to fetch image");
           const blob = await response.blob();
-          const file = new File(
+          const productFile = new File(
             [blob], 
-            `product-${item.productId || Date.now()}.jpg`, 
+            `product-${item.productId}-${Date.now()}.jpg`, 
             { type: blob.type }
           );
-          formData.append("productImages", file);
+          formData.append("productImages", productFile);
         } catch (error) {
-          console.error("Error processing product image:", error);
+          console.error(`Error processing product image for ${item.product}:`, error);
+          // Continue with a placeholder if image fails
+          const placeholderResponse = await fetch("/placeholder-product.jpg");
+          const placeholderBlob = await placeholderResponse.blob();
+          const placeholderFile = new File(
+            [placeholderBlob],
+            `placeholder-${item.productId}.jpg`,
+            { type: placeholderBlob.type }
+          );
+          formData.append("productImages", placeholderFile);
         }
       }
     }
 
+    // Log FormData before sending
+    for (const [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+
+    // Submit order
     try {
-      // Submit order to backend
+      console.log("🚀 Sending order data to backend...");
       const response = await fetch("https://pa-gebeya-backend.onrender.com/api/orders", {
         method: "POST",
         body: formData,
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to submit order");
+        throw new Error("Failed to submit order");
       }
 
-      const result = await response.json();
-      console.log("Order submission successful:", result);
+      const submittedOrder = await response.json();
+      console.log("✅ Order submitted successfully:", submittedOrder);
+      localStorage.setItem("submittedOrder", JSON.stringify(submittedOrder));
 
       // Send notification
+      console.log("🔔 Sending order notification to the user...");
       const token = localStorage.getItem("token");
-      if (token) {
-        await fetch("https://pa-gebeya-backend.onrender.com/api/users/notifications", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            userId: userId,
-            orderId: result.id,
-            message: `Hello ${user?.fullName}, your order #${result.id} is submitted successfully and pending.`,
-            date: new Date().toISOString(),
-          }),
-        });
+
+      if (!token) {
+        console.error("❌ No authentication token found. User may not be logged in.");
+        return;
       }
 
-      // Save to user orders
-      if (token) {
-        await fetch("https://pa-gebeya-backend.onrender.com/api/users/orders/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            orderId: result.id,
-            userId: userId,
-            date: new Date().toISOString(),
-            status: "Pending",
-            total: totalAmount,
-          }),
-        });
+      const orderId = submittedOrder?.id || "MissingOrderId";
+      const notificationResponse = await fetch("https://pa-gebeya-backend.onrender.com/api/users/notifications", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userId: submittedOrder.userId,
+          orderId: orderId,
+          message: `Hello ${submittedOrder.name}, your <a href="/view-detail" class="order-link">order</a> is submitted successfully and pending. Please wait for approval.`,
+          date: new Date().toISOString(),
+        }),
+      });
+
+      if (!notificationResponse.ok) {
+        throw new Error("Failed to send notification");
       }
 
-      // Clear cart and local storage
-      localStorage.removeItem("cart");
-      localStorage.removeItem("orderData");
-      if (clearCart) clearCart();
+      console.log("✅ Notification sent successfully!");
 
-      // Show success message
+      // Save order in UserOrders
+      console.log("📦 Sending order data to UserOrders...");
+      const userOrderData = {
+        orderId: orderId,
+        userId: submittedOrder.userId,
+        date: new Date().toISOString(),
+        status: "Pending",
+        total: submittedOrder.amount || 0,
+      };
+
+      const userOrderResponse = await fetch("https://pa-gebeya-backend.onrender.com/api/users/orders/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(userOrderData),
+      });
+
+      if (!userOrderResponse.ok) {
+        console.error("❌ Failed to save order in UserOrders. Proceeding without it.");
+      } else {
+        console.log("✅ Order successfully saved in UserOrders!");
+      }
+
+      // Show the success popup
       setOrderSubmitted(true);
-      setTimeout(() => navigate("/"), 2000);
+      setIsLoading(false);
+
+      // Wait for 2 seconds to display the popup before clearing the cart and navigating
+      setTimeout(() => {
+        console.log(`🛒 Clearing cart for user ID: ${userId}...`);
+        const deleteCartURL = `https://pa-gebeya-backend.onrender.com/api/cart/user/${userId}`;
+        const userToken = user?.token || localStorage.getItem("token");
+
+        if (!userToken) {
+          setError("Authentication token is missing. Please log in again.");
+          return;
+        }
+
+        // Delete cart from the backend
+        fetch(deleteCartURL, {
+          method: "DELETE",
+          headers: {
+            "Authorization": `Bearer ${userToken}`,
+          },
+        })
+          .then(cartDeleteResponse => {
+            if (!cartDeleteResponse.ok) {
+              throw new Error("Failed to clear cart");
+            }
+            console.log("✅ Cart cleared successfully!");
+
+            // Clear frontend cart
+            localStorage.removeItem("orderData");
+            localStorage.removeItem("cart");
+
+            if (setCart) setCart([]);
+
+            // Update global cart state in CartContext
+            if (clearCart) clearCart();
+
+            // Navigate to the home page after clearing the cart
+            setOrderSubmitted(false);
+            navigate("/");
+          })
+          .catch(error => {
+            console.error("❌ Error clearing cart:", error);
+            setError(error.message || "Failed to clear cart. Please try again.");
+          });
+      }, 2000);
+
     } catch (error) {
-      console.error("Order submission failed:", error);
+      console.error("❌ Error submitting order:", error);
       setError(error.message || "Failed to submit order. Please try again.");
-    } finally {
       setIsLoading(false);
     }
   };
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
   if (!cartItems || cartItems.length === 0) {
-    return (
-      <div className="empty-cart-message">
-        <p>Your cart is empty.</p>
-        <button onClick={() => navigate("/")} className="back-to-shop-btn">
-          Back to Shop
-        </button>
-      </div>
-    );
+    return <p>Your cart is empty.</p>;
   }
 
   return (
@@ -254,19 +359,12 @@ const Checkout = () => {
           <div className="checkout-items">
             {cartItems.map((item) => (
               <div key={item.uniqueId} className="checkout-item-card">
-                {item.image && (
-                  <img 
-                    src={item.image} 
-                    alt={item.title} 
-                    className="checkout-item-image"
-                  />
-                )}
                 <div className="checkout-item-details">
                   <h2>{item.title}</h2>
                   <p>
                     {item.quantity} x ETB {item.price}
                   </p>
-                  <p>Total: ETB {(item.price * item.quantity).toFixed(2)}</p>
+                  <p>Total: ETB  {( item.price * item.quantity).toFixed(2)}</p>
                 </div>
               </div>
             ))}
@@ -274,17 +372,15 @@ const Checkout = () => {
 
           <div className="total-cost">
             <h3>
-              Total: ETB {cartItems
+              Total: ETB
+                { cartItems
                 .reduce((acc, item) => acc + item.price * item.quantity, 0)
                 .toFixed(2)}
             </h3>
           </div>
 
           <div className="order-button">
-            <button 
-              onClick={handleProceedToDelivery} 
-              className="no-background-btn"
-            >
+            <button onClick={() => { handleProceedToDelivery(); setCurrentStep(2); }} className="no-background-btn">
               Proceed to Delivery Info
             </button>
           </div>
@@ -292,50 +388,58 @@ const Checkout = () => {
       )}
 
       {currentStep === 2 && (
-        <div className="delivery-info-container">
-          <h2>Delivery Information</h2>
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            setCurrentStep(3);
-          }}>
-            <div className="form-group">
-              <label htmlFor="phone">Phone Number</label>
-              <input
-                type="tel"
-                id="phone"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="Enter your phone number"
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="address">Delivery Address</label>
-              <textarea
-                id="address"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="Enter your delivery address"
-                required
-              />
-            </div>
-            <div className="form-buttons">
-              <button 
-                type="button" 
-                onClick={() => setCurrentStep(1)} 
-                className="no-background-btn"
-              >
-                Back to Cart
-              </button>
-              <button 
-                type="submit" 
-                className="no-background-btn"
-              >
-                Proceed to Payment
-              </button>
-            </div>
-          </form>
-        </div>
+        <>
+          <div className="delivery-info-container">
+            <h2>Delivery Information</h2>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+
+                const storedOrderData = localStorage.getItem("orderData");
+                const orderData = storedOrderData ? JSON.parse(storedOrderData) : {};
+
+                const updatedOrderData = {
+                  ...orderData,
+                  phoneNumber,
+                  address,
+                };
+
+                localStorage.setItem("orderData", JSON.stringify(updatedOrderData));
+                console.log("📦 Updated Order Data with Delivery Info:", updatedOrderData);
+
+                setCurrentStep(3);
+              }}
+            >
+              <div className="form-group">
+                <label htmlFor="phone">Phone Number</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="Enter your phone number"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="address">Delivery Address</label>
+                <textarea
+                  id="address"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="Enter your delivery address"
+                  required
+                />
+              </div>
+              <div className="form-buttons">
+                <button type="button" onClick={() => setCurrentStep(1)} className="no-background-btn">
+                  Back to Cart
+                </button>
+                <button type="submit" className="no-background-btn">Proceed to Payment</button>
+              </div>
+            </form>
+          </div>
+        </>
       )}
 
       {currentStep === 3 && (
@@ -358,27 +462,21 @@ const Checkout = () => {
             {error && <p className="error-message">{error}</p>}
           </div>
 
+          {isModalOpen && (
+            <div className="modal-overlay" onClick={closeModal}>
+              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <img src={image} alt="Payment Screenshot" className="modal-image" />
+                <button className="close-modal" onClick={closeModal}>
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="order-button">
-            <button 
-              onClick={handleOrderSubmit} 
-              className="no-background-btn"
-              disabled={isLoading}
-            >
-              {isLoading ? "Processing..." : "Complete Order"}
-            </button>
+            <button onClick={handleOrderSubmit} className="no-background-btn">Complete Order</button>
           </div>
         </>
-      )}
-
-      {isModalOpen && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <img src={image} alt="Payment Screenshot" className="modal-image" />
-            <button className="close-modal" onClick={closeModal}>
-              Close
-            </button>
-          </div>
-        </div>
       )}
 
       {orderSubmitted && (
@@ -386,7 +484,6 @@ const Checkout = () => {
           <div className="popup-content">
             <img src={successImage} alt="Success Icon" className="success-icon" />
             <h2>Your order has been submitted successfully!</h2>
-            <p>You will be redirected to the home page shortly...</p>
           </div>
         </div>
       )}
@@ -394,7 +491,6 @@ const Checkout = () => {
       {isLoading && (
         <div className="loading-modal">
           <div className="loading-spinner"></div>
-          <p>Processing your order...</p>
         </div>
       )}
     </div>
