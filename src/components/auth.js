@@ -31,6 +31,7 @@ const AuthPage = () => {
       otp: "",
     });
   };
+  
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -52,8 +53,8 @@ const AuthPage = () => {
   const validateForm = () => {
     const newErrors = {};
     if (isLogin) {
-      if (!formData.email) {
-        newErrors.email = "Email is required";
+      if (!formData.phoneNumber) {
+        newErrors.phoneNumber = "Phone number is required";
       }
     } else {
       if (!formData.fullName) newErrors.fullName = "Full name is required";
@@ -72,10 +73,14 @@ const AuthPage = () => {
     setLoading(true);
     try {
       const endpoint = isLogin ? "/login" : "/register";
+      const payload = isLogin 
+        ? { phoneNumber: formData.phoneNumber }
+        : formData;
+      
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
@@ -105,7 +110,10 @@ const AuthPage = () => {
       const response = await fetch(`${API_BASE_URL}/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: formData.email, otp: formData.otp }),
+        body: JSON.stringify({ 
+          phoneNumber: formData.phoneNumber, 
+          otp: formData.otp 
+        }),
       });
   
       const data = await response.json();
@@ -113,7 +121,7 @@ const AuthPage = () => {
   
       console.log("✅ OTP Verified:", data);
   
-      // Store userId separately
+      // Store user data
       localStorage.setItem("userId", data.user.userId);
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
@@ -147,13 +155,12 @@ const AuthPage = () => {
     }
     setLoading(false);
   };
-  
 
   return (
     <div style={styles.container} className="container">
       <div style={styles.formContainer} className="form-container">
         <img src={logoImage} alt="Logo" style={styles.logo} />
-        <h2 style={styles.title}>{isLogin ? (isOtpSent ? "Enter OTP Sent to Your Email" : "Login") : "Sign Up"}</h2>
+        <h2 style={styles.title}>{isLogin ? (isOtpSent ? "Enter OTP Sent to Your Phone" : "Login") : "Sign Up"}</h2>
 
         <form style={styles.form} onSubmit={handleSubmit}>
           {!isLogin && (
@@ -172,30 +179,32 @@ const AuthPage = () => {
 
           {!isOtpSent && (
             <>
+              <div style={styles.phoneContainer}>
+                <span style={styles.countryCode}>+251</span>
+                <input
+                  type="text"
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
+                  placeholder="Phone Number"
+                  style={styles.input}
+                  onChange={handleInputChange}
+                />
+                {errors.phoneNumber && <span style={styles.error}>{errors.phoneNumber}</span>}
+              </div>
+              
               {!isLogin && (
-                <div style={styles.phoneContainer}>
-                  <span style={styles.countryCode}>+251</span>
+                <>
                   <input
-                    type="text"
-                    name="phoneNumber"
-                    value={formData.phoneNumber}
-                    placeholder="Phone Number"
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    placeholder="Email"
                     style={styles.input}
                     onChange={handleInputChange}
                   />
-                  {errors.phoneNumber && <span style={styles.error}>{errors.phoneNumber}</span>}
-                </div>
+                  {errors.email && <span style={styles.error}>{errors.email}</span>}
+                </>
               )}
-              
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                placeholder="Email"
-                style={styles.input}
-                onChange={handleInputChange}
-              />
-              {errors.email && <span style={styles.error}>{errors.email}</span>}
             </>
           )}
 
@@ -252,6 +261,7 @@ const AuthPage = () => {
     </div>
   );
 };
+
 const styles = {
   container: {
     display: "flex",
