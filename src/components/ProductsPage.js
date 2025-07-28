@@ -78,15 +78,23 @@ const ProductsPage = () => {
       setError(null);
 
       try {
+        // Updated to match the working endpoint from your Postman screenshot
         const response = await axios.get(
-          `https://pa-gebeya-backend.onrender.com/api/products/category/${categoryId}`
+          `https://pa-gebeya-backend.onrender.com/api/products`,
+          {
+            params: {
+              category: categoryId
+            }
+          }
         );
 
         if (response.status === 200) {
-          setProducts(response.data.products || []);
-          // Only update category name if not already set from location state
-          if (!location.state?.categoryName && response.data.categoryName) {
-            setCategoryName(response.data.categoryName);
+          // The response appears to be an array of products directly
+          setProducts(response.data || []);
+          
+          // If we didn't get the category name from navigation state, try to get it from the first product
+          if (!location.state?.categoryName && response.data.length > 0 && response.data[0].category) {
+            setCategoryName(response.data[0].category.name);
           }
         } else {
           throw new Error("Failed to fetch products");
@@ -138,7 +146,7 @@ const ProductsPage = () => {
       productName: product.name,
       price: product.price,
       quantity: 1,
-      img: product.imageUrls?.[0] || product.photo || "/default-product-image.jpg",
+      img: product.images?.[0]?.url || "/default-product-image.jpg",
     };
 
     try {
@@ -198,11 +206,11 @@ const ProductsPage = () => {
                   interval={3000}
                   stopOnHover={true}
                 >
-                  {product.imageUrls?.length > 0 ? (
-                    product.imageUrls.map((imageUrl, index) => (
+                  {product.images?.length > 0 ? (
+                    product.images.map((image, index) => (
                       <div key={index} className="products-page-carousel-image-container">
                         <img
-                          src={imageUrl}
+                          src={image.url}
                           alt={`Product ${index}`}
                           className="products-page-carousel-image"
                           onError={(e) => {
