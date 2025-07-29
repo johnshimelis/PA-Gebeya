@@ -159,26 +159,6 @@ const Checkout = () => {
     const paymentFile = new File([paymentBlob], imageName || "payment.jpg", { type: paymentBlob.type });
     formData.append("paymentImage", paymentFile);
   
-    // ✅ Append product images from localStorage to FormData
-    if (updatedOrderData.orderDetails) {
-      for (const item of updatedOrderData.orderDetails) {
-        if (item.productImage && item.productImage !== "null") {
-          try {
-            const response = await fetch(item.productImage, { mode: 'cors' });
-            if (!response.ok) {
-              throw new Error(`Failed to fetch image: ${item.productImage}`);
-            }
-            const blob = await response.blob();
-            const productFile = new File([blob], `product-${item.productId}.jpg`, { type: blob.type });
-            formData.append("productImages", productFile);
-            console.log(`✅ Successfully appended product image for ${item.product}`);
-          } catch (error) {
-            console.error(`❌ Error fetching product image for ${item.product}:`, error);
-          }
-        }
-      }
-    }
-  
     // Log FormData before sending
     for (const [key, value] of formData.entries()) {
       console.log(key, value);
