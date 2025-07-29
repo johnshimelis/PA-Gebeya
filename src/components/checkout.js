@@ -41,7 +41,7 @@ const Checkout = () => {
         product: cartItem.title,
         quantity: cartItem.quantity,
         price: cartItem.price,
-        productImage: cartItem.image || "/placeholder.jpg",
+        productImage: cartItem.image || null,
         _id: cartItem.uniqueId,
       }));
 
@@ -118,12 +118,41 @@ const Checkout = () => {
     const storedOrderData = localStorage.getItem("orderData");
     const orderData = storedOrderData ? JSON.parse(storedOrderData) : {};
   
-    const updatedOrderDetails = (orderData.orderDetails || []).map(item => ({
+    // Process product images
+    const productImageFiles = [];
+    for (const item of cartItems) {
+      if (item.image) {
+        try {
+          let imageBlob;
+          if (item.image.startsWith('http')) {
+            const response = await fetch(item.image);
+            if (!response.ok) throw new Error('Failed to fetch product image');
+            imageBlob = await response.blob();
+          } else if (item.image.startsWith('data:')) {
+            const response = await fetch(item.image);
+            imageBlob = await response.blob();
+          }
+          
+          if (imageBlob) {
+            const file = new File(
+              [imageBlob], 
+              `product-${item.productId}.jpg`, 
+              { type: imageBlob.type }
+            );
+            productImageFiles.push(file);
+          }
+        } catch (error) {
+          console.error(`Error processing product image for ${item.title}:`, error);
+        }
+      }
+    }
+
+    const updatedOrderDetails = cartItems.map(item => ({
       productId: item.productId,
-      product: item.product,
+      product: item.title,
       quantity: item.quantity,
       price: item.price,
-      productImage: item.productImage,
+      productImage: item.image || null,
     }));
   
     const updatedOrderData = {
@@ -143,46 +172,18 @@ const Checkout = () => {
     formData.append("status", updatedOrderData.status);
     formData.append("phoneNumber", updatedOrderData.phoneNumber);
     formData.append("deliveryAddress", updatedOrderData.deliveryAddress);
-    formData.append("orderDetails", JSON.stringify(updatedOrderData.orderDetails || []));
+    formData.append("orderDetails", JSON.stringify(updatedOrderData.orderDetails));
   
-    // Convert base64 payment image to File
+    // Add payment image
     const base64Response = await fetch(image);
     const blob = await base64Response.blob();
     const paymentFile = new File([blob], imageName || "payment.jpg", { type: blob.type });
     formData.append("paymentImage", paymentFile);
   
-    // Handle product images
-    if (updatedOrderData.orderDetails) {
-      for (const item of updatedOrderData.orderDetails) {
-        if (item.productImage && item.productImage.startsWith('http')) {
-          try {
-            // For remote images
-            const response = await fetch(item.productImage);
-            if (!response.ok) throw new Error(`Failed to fetch image: ${item.productImage}`);
-            const productBlob = await response.blob();
-            const productFile = new File([productBlob], `product-${item.productId}.jpg`, { type: productBlob.type });
-            formData.append("productImages", productFile);
-          } catch (error) {
-            console.error(`❌ Error fetching product image for ${item.product}:`, error);
-            // Fallback to placeholder if image fetch fails
-            const placeholderResponse = await fetch('/placeholder.jpg');
-            const placeholderBlob = await placeholderResponse.blob();
-            const placeholderFile = new File([placeholderBlob], `placeholder-${item.productId}.jpg`, { type: placeholderBlob.type });
-            formData.append("productImages", placeholderFile);
-          }
-        } else if (item.productImage && item.productImage.startsWith('data:')) {
-          // For base64 encoded images
-          try {
-            const productResponse = await fetch(item.productImage);
-            const productBlob = await productResponse.blob();
-            const productFile = new File([productBlob], `product-${item.productId}.jpg`, { type: productBlob.type });
-            formData.append("productImages", productFile);
-          } catch (error) {
-            console.error(`❌ Error processing base64 image for ${item.product}:`, error);
-          }
-        }
-      }
-    }
+    // Add product images
+    productImageFiles.forEach((file) => {
+      formData.append("productImages", file);
+    });
   
     try {
       const response = await fetch("https://pa-gebeya-backend.onrender.com/api/orders", {
@@ -295,6 +296,13 @@ const Checkout = () => {
           <div className="checkout-items">
             {cartItems.map((item) => (
               <div key={item.uniqueId} className="checkout-item-card">
+                {item.image && (
+                  <img 
+                    src={item.image} 
+                    alt={item.title} 
+                    className="checkout-item-image"
+                  />
+                )}
                 <div className="checkout-item-details">
                   <h2>{item.title}</h2>
                   <p>
@@ -315,7 +323,10 @@ const Checkout = () => {
           </div>
 
           <div className="order-button">
-            <button onClick={() => { handleProceedToDelivery(); setCurrentStep(2); }} className="no-background-btn">
+            <button 
+              onClick={() => { handleProceedToDelivery(); setCurrentStep(2); }} 
+              className="no-background-btn"
+            >
               Proceed to Delivery Info
             </button>
           </div>
@@ -362,10 +373,16 @@ const Checkout = () => {
                 />
               </div>
               <div className="form-buttons">
-                <button type="button" onClick={() => setCurrentStep(1)} className="no-background-btn">
+                <button 
+                  type="button" 
+                  onClick={() => setCurrentStep(1)} 
+                  className="no-background-btn"
+                >
                   Back to Cart
                 </button>
-                <button type="submit" className="no-background-btn">Proceed to Payment</button>
+                <button type="submit" className="no-background-btn">
+                  Proceed to Payment
+                </button>
               </div>
             </form>
           </div>
@@ -404,7 +421,9 @@ const Checkout = () => {
           )}
 
           <div className="order-button">
-            <button onClick={handleOrderSubmit} className="no-background-btn">Complete Order</button>
+            <button onClick={handleOrderSubmit} className="no-background-btn">
+              Complete Order
+            </button>
           </div>
         </>
       )}
