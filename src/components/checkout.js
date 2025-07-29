@@ -11,7 +11,6 @@ const Checkout = () => {
   const { cartItems, clearCart } = useCart();
   const { user } = useAuth();
   const [image, setImage] = useState(null);
-  const [cart, setCart] = useState([]);
   const navigate = useNavigate();
   const [imageName, setImageName] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,37 +23,26 @@ const Checkout = () => {
 
   useEffect(() => {
     const storedCart = localStorage.getItem("cart");
-    if (storedCart) {
-      setCart(JSON.parse(storedCart));
+    if (!storedCart && cartItems.length === 0) {
+      navigate("/");
     }
-  }, []);
+  }, [cartItems, navigate]);
 
   const handleProceedToDelivery = () => {
-    const storedOrderData = localStorage.getItem("orderData");
-    const orderData = storedOrderData ? JSON.parse(storedOrderData) : null;
+    const orderDetails = cartItems.map((cartItem) => ({
+      productId: cartItem.productId,
+      product: cartItem.title,
+      quantity: cartItem.quantity,
+      price: cartItem.price,
+      productImage: cartItem.image || "/placeholder.jpg",
+    }));
 
-    if (orderData) {
-      console.log("✅ Keeping Existing Order Data:", orderData);
-    } else {
-      const orderDetails = cartItems.map((cartItem) => ({
-        productId: cartItem.productId,
-        product: cartItem.title,
-        quantity: cartItem.quantity,
-        price: cartItem.price,
-        productImage: cartItem.image || null,
-        _id: cartItem.uniqueId,
-      }));
+    const balance = cartItems
+      .reduce((acc, item) => acc + item.price * item.quantity, 0)
+      .toFixed(2);
 
-      const balance = cartItems
-        .reduce((acc, item) => acc + item.price * item.quantity, 0)
-        .toFixed(2);
-
-      const newOrderData = { amount: balance, orderDetails };
-
-      localStorage.setItem("orderData", JSON.stringify(newOrderData));
-      console.log("🛒 New Order Data Saved:", newOrderData);
-    }
-
+    const newOrderData = { amount: balance, orderDetails };
+    localStorage.setItem("orderData", JSON.stringify(newOrderData));
     setCurrentStep(2);
   };
 
@@ -85,15 +73,13 @@ const Checkout = () => {
       const code = jsQR(imageData.data, img.width, img.height);
       if (code) {
         console.log('QR Code Data:', code.data);
-      } else {
-        console.log('No QR Code found');
       }
     };
   };
 
   const handleOrderSubmit = async () => {
     if (!image) {
-      setError("Please upload a payment screenshot before completing the order.");
+      setError("Please upload a payment screenshot.");
       return;
     }
     if (!phoneNumber || !address) {
@@ -109,52 +95,28 @@ const Checkout = () => {
     const userId = user?.userId;
   
     if (!userId) {
-      console.error("❌ User ID is missing! Cannot proceed.");
       setError("User authentication issue. Please log in again.");
       setIsLoading(false);
       return;
     }
   
     const storedOrderData = localStorage.getItem("orderData");
-    const orderData = storedOrderData ? JSON.parse(storedOrderData) : {};
-  
-    // Process product images
-    const productImageFiles = [];
-    for (const item of cartItems) {
-      if (item.image) {
-        try {
-          let imageBlob;
-          if (item.image.startsWith('http')) {
-            const response = await fetch(item.image);
-            if (!response.ok) throw new Error('Failed to fetch product image');
-            imageBlob = await response.blob();
-          } else if (item.image.startsWith('data:')) {
-            const response = await fetch(item.image);
-            imageBlob = await response.blob();
-          }
-          
-          if (imageBlob) {
-            const file = new File(
-              [imageBlob], 
-              `product-${item.productId}.jpg`, 
-              { type: imageBlob.type }
-            );
-            productImageFiles.push(file);
-          }
-        } catch (error) {
-          console.error(`Error processing product image for ${item.title}:`, error);
-        }
-      }
+    if (!storedOrderData) {
+      setError("Order data missing. Please restart checkout process.");
+      setIsLoading(false);
+      return;
     }
-
-    const updatedOrderDetails = cartItems.map(item => ({
+    
+    const orderData = JSON.parse(storedOrderData);
+  
+    const updatedOrderDetails = orderData.orderDetails.map(item => ({
       productId: item.productId,
-      product: item.title,
+      product: item.product,
       quantity: item.quantity,
       price: item.price,
-      productImage: item.image || null,
+      productImage: item.productImage,
     }));
-  
+
     const updatedOrderData = {
       ...orderData,
       status: "Pending",
@@ -168,22 +130,21 @@ const Checkout = () => {
     const formData = new FormData();
     formData.append("userId", updatedOrderData.userId);
     formData.append("name", updatedOrderData.name);
-    formData.append("amount", updatedOrderData.amount || 0);
+    formData.append("amount", updatedOrderData.amount);
     formData.append("status", updatedOrderData.status);
     formData.append("phoneNumber", updatedOrderData.phoneNumber);
     formData.append("deliveryAddress", updatedOrderData.deliveryAddress);
     formData.append("orderDetails", JSON.stringify(updatedOrderData.orderDetails));
   
-    // Add payment image
-    const base64Response = await fetch(image);
-    const blob = await base64Response.blob();
-    const paymentFile = new File([blob], imageName || "payment.jpg", { type: blob.type });
-    formData.append("paymentImage", paymentFile);
-  
-    // Add product images
-    productImageFiles.forEach((file) => {
-      formData.append("productImages", file);
-    });
+    try {
+      const paymentBlob = await fetch(image).then(res => res.blob());
+      const paymentFile = new File([paymentBlob], imageName || "payment.jpg", { type: paymentBlob.type });
+      formData.append("paymentImage", paymentFile);
+    } catch (error) {
+      setError("Failed to process payment image");
+      setIsLoading(false);
+      return;
+    }
   
     try {
       const response = await fetch("https://pa-gebeya-backend.onrender.com/api/orders", {
@@ -192,99 +153,41 @@ const Checkout = () => {
       });
   
       if (!response.ok) {
-        throw new Error("Failed to submit order");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to submit order");
       }
-  
+      
       const submittedOrder = await response.json();
       localStorage.setItem("submittedOrder", JSON.stringify(submittedOrder));
-  
-      const token = localStorage.getItem("token");
-      if (!token) {
-        console.error("❌ No authentication token found.");
-        return;
-      }
-  
-      const orderId = submittedOrder?.id || "MissingOrderId";
-      await fetch("https://pa-gebeya-backend.onrender.com/api/users/notifications", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          userId: submittedOrder.userId,
-          orderId: orderId,
-          message: `Hello ${submittedOrder.name}, your <a href="/view-detail" class="order-link">order</a> is submitted successfully and pending. Please wait for approval.`,
-          date: new Date().toISOString(),
-        }),
-      });
-  
-      const userOrderData = {
-        orderId: orderId,
-        userId: submittedOrder.userId,
-        date: new Date().toISOString(),
-        status: "Pending",
-        total: submittedOrder.amount || 0,
-      };
-  
-      await fetch("https://pa-gebeya-backend.onrender.com/api/users/orders/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify(userOrderData),
-      });
-  
       setOrderSubmitted(true);
       setIsLoading(false);
-  
+      
+      // Clear cart after success
       setTimeout(() => {
-        const deleteCartURL = `https://pa-gebeya-backend.onrender.com/api/cart/user/${userId}`;
-        const userToken = user?.token || localStorage.getItem("token");
-  
-        if (!userToken) {
-          setError("Authentication token is missing.");
-          return;
-        }
-  
-        fetch(deleteCartURL, {
-          method: "DELETE",
-          headers: {
-            "Authorization": `Bearer ${userToken}`,
-          },
-        })
-          .then(() => {
-            localStorage.removeItem("orderData");
-            localStorage.removeItem("cart");
-            if (setCart) setCart([]);
-            if (clearCart) clearCart();
-            setOrderSubmitted(false);
-            navigate("/");
-          })
-          .catch(error => {
-            console.error("❌ Error clearing cart:", error);
-            setError(error.message || "Failed to clear cart.");
-          });
+        localStorage.removeItem("orderData");
+        localStorage.removeItem("cart");
+        clearCart();
+        navigate("/");
       }, 2000);
-  
     } catch (error) {
-      console.error("❌ Error submitting order:", error);
-      setError(error.message || "Failed to submit order.");
+      console.error("Order submission error:", error);
+      setError(error.message || "Failed to submit order. Please try again.");
       setIsLoading(false);
     }
   };
 
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   if (!cartItems || cartItems.length === 0) {
-    return <p>Your cart is empty.</p>;
+    return (
+      <div className="empty-cart-message">
+        <p>Your cart is empty.</p>
+        <button onClick={() => navigate("/")} className="no-background-btn">
+          Continue Shopping
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -306,7 +209,7 @@ const Checkout = () => {
                 <div className="checkout-item-details">
                   <h2>{item.title}</h2>
                   <p>
-                    {item.quantity} x ETB {item.price}
+                    {item.quantity} x ETB {item.price.toFixed(2)}
                   </p>
                   <p>Total: ETB {(item.price * item.quantity).toFixed(2)}</p>
                 </div>
@@ -323,10 +226,7 @@ const Checkout = () => {
           </div>
 
           <div className="order-button">
-            <button 
-              onClick={() => { handleProceedToDelivery(); setCurrentStep(2); }} 
-              className="no-background-btn"
-            >
+            <button onClick={handleProceedToDelivery} className="no-background-btn">
               Proceed to Delivery Info
             </button>
           </div>
@@ -334,59 +234,42 @@ const Checkout = () => {
       )}
 
       {currentStep === 2 && (
-        <>
-          <div className="delivery-info-container">
-            <h2>Delivery Information</h2>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const storedOrderData = localStorage.getItem("orderData");
-                const orderData = storedOrderData ? JSON.parse(storedOrderData) : {};
-                const updatedOrderData = {
-                  ...orderData,
-                  phoneNumber,
-                  address,
-                };
-                localStorage.setItem("orderData", JSON.stringify(updatedOrderData));
-                setCurrentStep(3);
-              }}
-            >
-              <div className="form-group">
-                <label htmlFor="phone">Phone Number</label>
-                <input
-                  type="tel"
-                  id="phone"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="Enter your phone number"
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="address">Delivery Address</label>
-                <textarea
-                  id="address"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  placeholder="Enter your delivery address"
-                  required
-                />
-              </div>
-              <div className="form-buttons">
-                <button 
-                  type="button" 
-                  onClick={() => setCurrentStep(1)} 
-                  className="no-background-btn"
-                >
-                  Back to Cart
-                </button>
-                <button type="submit" className="no-background-btn">
-                  Proceed to Payment
-                </button>
-              </div>
-            </form>
-          </div>
-        </>
+        <div className="delivery-info-container">
+          <h2>Delivery Information</h2>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            setCurrentStep(3);
+          }}>
+            <div className="form-group">
+              <label htmlFor="phone">Phone Number</label>
+              <input
+                type="tel"
+                id="phone"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="Enter your phone number"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="address">Delivery Address</label>
+              <textarea
+                id="address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Enter your delivery address"
+                required
+                rows={4}
+              />
+            </div>
+            <div className="form-buttons">
+              <button type="button" onClick={() => setCurrentStep(1)} className="no-background-btn">
+                Back to Cart
+              </button>
+              <button type="submit" className="no-background-btn">Proceed to Payment</button>
+            </div>
+          </form>
+        </div>
       )}
 
       {currentStep === 3 && (
@@ -407,6 +290,12 @@ const Checkout = () => {
               </div>
             )}
             {error && <p className="error-message">{error}</p>}
+          </div>
+
+          <div className="delivery-summary">
+            <h3>Delivery Information</h3>
+            <p><strong>Phone:</strong> {phoneNumber}</p>
+            <p><strong>Address:</strong> {address}</p>
           </div>
 
           {isModalOpen && (
@@ -433,6 +322,7 @@ const Checkout = () => {
           <div className="popup-content">
             <img src={successImage} alt="Success Icon" className="success-icon" />
             <h2>Your order has been submitted successfully!</h2>
+            <p>You will be redirected to the home page shortly.</p>
           </div>
         </div>
       )}
@@ -440,6 +330,7 @@ const Checkout = () => {
       {isLoading && (
         <div className="loading-modal">
           <div className="loading-spinner"></div>
+          <p>Processing your order...</p>
         </div>
       )}
     </div>
