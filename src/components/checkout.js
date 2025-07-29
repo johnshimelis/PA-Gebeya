@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useCart } from './CartContext';
-import { useAuth } from './AuthContext';
+import { useCart } from './CartContext'; // Assuming CartContext provides the cart items
+import { useAuth } from './AuthContext';  // Import useAuth to access logged-in user info
 import '../styles/checkout.css';
 import '../styles/deliveryInfo.css';
 import successImage from '../images/assets/checked.png';
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
+import jsQR from 'jsqr';
 
 const Checkout = () => {
   const { cartItems, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user } = useAuth();  // Access logged-in user from AuthContext
   const [image, setImage] = useState(null);
   const [cart, setCart] = useState([]);
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Initialize navigate
   const [imageName, setImageName] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [orderSubmitted, setOrderSubmitted] = useState(false);
@@ -22,6 +23,7 @@ const Checkout = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    // Load cart from localStorage
     const storedCart = localStorage.getItem("cart");
     if (storedCart) {
       setCart(JSON.parse(storedCart));
@@ -36,7 +38,7 @@ const Checkout = () => {
       console.log("✅ Keeping Existing Order Data:", orderData);
     } else {
       const orderDetails = cartItems.map((cartItem) => ({
-        productId: cartItem.productId,
+        productId: cartItem.productId,  // ✅ Store productId explicitly
         product: cartItem.title,
         quantity: cartItem.quantity,
         price: cartItem.price,
@@ -60,13 +62,38 @@ const Checkout = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setImage(URL.createObjectURL(file)); // Create preview URL
-      setImageName(file.name);
-      setError('');
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImage(reader.result);
+        setImageName(file.name);  // Store the file name (e.g., payment.png)
+        setError('');
+        scanQRCode(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
+  const scanQRCode = (imageData) => {
+    const img = new Image();
+    img.src = imageData;
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0, img.width, img.height);
+      const imageData = ctx.getImageData(0, 0, img.width, img.height);
+      const code = jsQR(imageData.data, img.width, img.height);
+      if (code) {
+        console.log('QR Code Data:', code.data);
+      } else {
+        console.log('No QR Code found');
+      }
+    };
+  };
+
   const handleOrderSubmit = async () => {
+    // ✅ Validation checks
     if (!image) {
       setError("Please upload a payment screenshot before completing the order.");
       return;
@@ -76,8 +103,9 @@ const Checkout = () => {
       return;
     }
   
-    setIsLoading(true);
+    setIsLoading(true); // Show loading modal
   
+    // ✅ Retrieve user information
     const storedUser = localStorage.getItem("user");
     const user = storedUser ? JSON.parse(storedUser) : null;
     const fullName = user?.fullName || "Guest User";
@@ -86,12 +114,13 @@ const Checkout = () => {
     if (!userId) {
       console.error("❌ User ID is missing! Cannot proceed.");
       setError("User authentication issue. Please log in again.");
-      setIsLoading(false);
+      setIsLoading(false); // Hide loading modal
       return;
     }
   
     console.log("✅ User ID:", userId);
   
+    // ✅ Retrieve and format order data
     const storedOrderData = localStorage.getItem("orderData");
     const orderData = storedOrderData ? JSON.parse(storedOrderData) : {};
   
@@ -100,7 +129,7 @@ const Checkout = () => {
       product: item.product,
       quantity: item.quantity,
       price: item.price,
-      productImage: item.productImage,
+      productImage: item.productImage, // Ensure productImage is included
     }));
   
     console.log("📦 Order Details (with productId):", updatedOrderDetails);
@@ -115,6 +144,7 @@ const Checkout = () => {
       orderDetails: updatedOrderDetails,
     };
   
+    // ✅ Prepare form data
     const formData = new FormData();
     formData.append("userId", updatedOrderData.userId);
     formData.append("name", updatedOrderData.name);
@@ -124,12 +154,17 @@ const Checkout = () => {
     formData.append("deliveryAddress", updatedOrderData.deliveryAddress);
     formData.append("orderDetails", JSON.stringify(updatedOrderData.orderDetails || []));
   
-    // Directly append the file from input
-    const paymentFileInput = document.getElementById('payment-screenshot');
-    if (paymentFileInput?.files[0]) {
-      formData.append("paymentImage", paymentFileInput.files[0]);
+    // ✅ Convert base64 data URL to File
+    const paymentBlob = await fetch(image).then(res => res.blob());
+    const paymentFile = new File([paymentBlob], imageName || "payment.jpg", { type: paymentBlob.type });
+    formData.append("paymentImage", paymentFile);
+  
+    // Log FormData before sending
+    for (const [key, value] of formData.entries()) {
+      console.log(key, value);
     }
   
+    // ✅ Submit order
     try {
       console.log("🚀 Sending order data to backend...");
       const response = await fetch("https://pa-gebeya-backend.onrender.com/api/orders", {
@@ -138,15 +173,14 @@ const Checkout = () => {
       });
   
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to submit order");
+        throw new Error("Failed to submit order");
       }
   
       const submittedOrder = await response.json();
       console.log("✅ Order submitted successfully:", submittedOrder);
       localStorage.setItem("submittedOrder", JSON.stringify(submittedOrder));
   
-      // Send notification
+      // ✅ Send notification
       console.log("🔔 Sending order notification to the user...");
       const token = localStorage.getItem("token");
   
@@ -176,7 +210,7 @@ const Checkout = () => {
   
       console.log("✅ Notification sent successfully!");
   
-      // Save order in UserOrders
+      // ✅ Save order in UserOrders
       console.log("📦 Sending order data to UserOrders...");
       const userOrderData = {
         orderId: orderId,
@@ -201,10 +235,13 @@ const Checkout = () => {
         console.log("✅ Order successfully saved in UserOrders!");
       }
   
+      // ✅ Show the success popup
       setOrderSubmitted(true);
-      setIsLoading(false);
+      setIsLoading(false); // Hide loading modal
   
+      // ✅ Wait for 2 seconds to display the popup before clearing the cart and navigating
       setTimeout(() => {
+        // ✅ Clear cart after success message
         console.log(`🛒 Clearing cart for user ID: ${userId}...`);
         const deleteCartURL = `https://pa-gebeya-backend.onrender.com/api/cart/user/${userId}`;
         const userToken = user?.token || localStorage.getItem("token");
@@ -214,6 +251,7 @@ const Checkout = () => {
           return;
         }
   
+        // Delete cart from the backend
         fetch(deleteCartURL, {
           method: "DELETE",
           headers: {
@@ -226,12 +264,16 @@ const Checkout = () => {
             }
             console.log("✅ Cart cleared successfully!");
   
+            // ✅ Clear frontend cart
             localStorage.removeItem("orderData");
             localStorage.removeItem("cart");
   
-            if (setCart) setCart([]);
-            if (clearCart) clearCart();
+            if (setCart) setCart([]);  // Clear local state in the component
   
+            // ✅ Update global cart state in CartContext
+            if (clearCart) clearCart();  // Call clearCart from context
+  
+            // ✅ Navigate to the home page after clearing the cart
             setOrderSubmitted(false);
             navigate("/");
           })
@@ -239,12 +281,12 @@ const Checkout = () => {
             console.error("❌ Error clearing cart:", error);
             setError(error.message || "Failed to clear cart. Please try again.");
           });
-      }, 2000);
+      }, 2000);  // Wait 2 seconds before clearing the cart and navigating
   
     } catch (error) {
       console.error("❌ Error submitting order:", error);
       setError(error.message || "Failed to submit order. Please try again.");
-      setIsLoading(false);
+      setIsLoading(false); // Hide loading modal
     }
   };
 
@@ -274,7 +316,7 @@ const Checkout = () => {
                   <p>
                     {item.quantity} x ETB {item.price}
                   </p>
-                  <p>Total: ETB  {(item.price * item.quantity).toFixed(2)}</p>
+                  <p>Total: ETB  {( item.price * item.quantity).toFixed(2)}</p>
                 </div>
               </div>
             ))}
@@ -283,20 +325,15 @@ const Checkout = () => {
           <div className="total-cost">
             <h3>
               Total: ETB
-                {cartItems
+
+                { cartItems
                 .reduce((acc, item) => acc + item.price * item.quantity, 0)
                 .toFixed(2)}
             </h3>
           </div>
 
           <div className="order-button">
-            <button 
-              onClick={() => { 
-                handleProceedToDelivery(); 
-                setCurrentStep(2); 
-              }} 
-              className="no-background-btn"
-            >
+            <button onClick={() => { handleProceedToDelivery(); setCurrentStep(2); }} className="no-background-btn">
               Proceed to Delivery Info
             </button>
           </div>
@@ -348,16 +385,10 @@ const Checkout = () => {
                 />
               </div>
               <div className="form-buttons">
-                <button 
-                  type="button" 
-                  onClick={() => setCurrentStep(1)} 
-                  className="no-background-btn"
-                >
+                <button type="button" onClick={() => setCurrentStep(1)} className="no-background-btn">
                   Back to Cart
                 </button>
-                <button type="submit" className="no-background-btn">
-                  Proceed to Payment
-                </button>
+                <button type="submit" className="no-background-btn">Proceed to Payment</button>
               </div>
             </form>
           </div>
@@ -396,9 +427,7 @@ const Checkout = () => {
           )}
 
           <div className="order-button">
-            <button onClick={handleOrderSubmit} className="no-background-btn">
-              Complete Order
-            </button>
+            <button onClick={handleOrderSubmit} className="no-background-btn">Complete Order</button>
           </div>
         </>
       )}
