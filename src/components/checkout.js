@@ -1,18 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { useCart } from './CartContext'; // Assuming CartContext provides the cart items
-import { useAuth } from './AuthContext';  // Import useAuth to access logged-in user info
+import { useCart } from './CartContext';
+import { useAuth } from './AuthContext';
 import '../styles/checkout.css';
 import '../styles/deliveryInfo.css';
 import successImage from '../images/assets/checked.png';
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
 import jsQR from 'jsqr';
+import AWS from 'aws-sdk';
+
+// Configure AWS (should be in a separate config file in production)
+AWS.config.update({
+  accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.REACT_APP_AWS_SECRET_ACCESS_KEY,
+  region: process.env.REACT_APP_AWS_REGION,
+});
+
+const s3 = new AWS.S3();
 
 const Checkout = () => {
   const { cartItems, clearCart } = useCart();
-  const { user } = useAuth();  // Access logged-in user from AuthContext
+  const { user } = useAuth();
   const [image, setImage] = useState(null);
   const [cart, setCart] = useState([]);
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate();
   const [imageName, setImageName] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [orderSubmitted, setOrderSubmitted] = useState(false);
@@ -23,7 +33,6 @@ const Checkout = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Load cart from localStorage
     const storedCart = localStorage.getItem("cart");
     if (storedCart) {
       setCart(JSON.parse(storedCart));
@@ -38,7 +47,7 @@ const Checkout = () => {
       console.log("✅ Keeping Existing Order Data:", orderData);
     } else {
       const orderDetails = cartItems.map((cartItem) => ({
-        productId: cartItem.productId,  // ✅ Store productId explicitly
+        productId: cartItem.productId,
         product: cartItem.title,
         quantity: cartItem.quantity,
         price: cartItem.price,
@@ -65,7 +74,7 @@ const Checkout = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setImage(reader.result);
-        setImageName(file.name);  // Store the file name (e.g., payment.png)
+        setImageName(file.name);
         setError('');
         scanQRCode(reader.result);
       };
@@ -92,8 +101,31 @@ const Checkout = () => {
     };
   };
 
+  const uploadToS3 = async (fileData, fileName) => {
+    const fileExtension = fileName.split('.').pop() || 'jpg';
+    const s3Key = `payments/${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExtension}`;
+    
+    const blob = await fetch(fileData).then(res => res.blob());
+    
+    const params = {
+      Bucket: process.env.REACT_APP_S3_BUCKET_NAME,
+      Key: s3Key,
+      Body: blob,
+      ContentType: blob.type,
+      ACL: 'public-read',
+    };
+
+    try {
+      const data = await s3.upload(params).promise();
+      console.log("✅ Payment image uploaded to S3:", data.Location);
+      return data.Location;
+    } catch (error) {
+      console.error("❌ S3 upload error:", error);
+      throw new Error("Failed to upload payment image to S3");
+    }
+  };
+
   const handleOrderSubmit = async () => {
-    // ✅ Validation checks
     if (!image) {
       setError("Please upload a payment screenshot before completing the order.");
       return;
@@ -103,9 +135,8 @@ const Checkout = () => {
       return;
     }
   
-    setIsLoading(true); // Show loading modal
+    setIsLoading(true);
   
-    // ✅ Retrieve user information
     const storedUser = localStorage.getItem("user");
     const user = storedUser ? JSON.parse(storedUser) : null;
     const fullName = user?.fullName || "Guest User";
@@ -114,13 +145,12 @@ const Checkout = () => {
     if (!userId) {
       console.error("❌ User ID is missing! Cannot proceed.");
       setError("User authentication issue. Please log in again.");
-      setIsLoading(false); // Hide loading modal
+      setIsLoading(false);
       return;
     }
   
     console.log("✅ User ID:", userId);
   
-    // ✅ Retrieve and format order data
     const storedOrderData = localStorage.getItem("orderData");
     const orderData = storedOrderData ? JSON.parse(storedOrderData) : {};
   
@@ -129,10 +159,20 @@ const Checkout = () => {
       product: item.product,
       quantity: item.quantity,
       price: item.price,
-      productImage: item.productImage, // Ensure productImage is included
+      productImage: item.productImage,
     }));
   
-    console.log("📦 Order Details (with productId):", updatedOrderDetails);
+    console.log("📦 Order Details:", updatedOrderDetails);
+  
+    // Upload payment image to S3
+    let s3ImageUrl;
+    try {
+      s3ImageUrl = await uploadToS3(image, imageName || "payment.jpg");
+    } catch (s3Error) {
+      setError(s3Error.message || "Failed to upload payment image");
+      setIsLoading(false);
+      return;
+    }
   
     const updatedOrderData = {
       ...orderData,
@@ -142,34 +182,17 @@ const Checkout = () => {
       phoneNumber,
       deliveryAddress: address,
       orderDetails: updatedOrderDetails,
+      paymentImage: s3ImageUrl, // S3 URL instead of local path
     };
   
-    // ✅ Prepare form data
-    const formData = new FormData();
-    formData.append("userId", updatedOrderData.userId);
-    formData.append("name", updatedOrderData.name);
-    formData.append("amount", updatedOrderData.amount || 0);
-    formData.append("status", updatedOrderData.status);
-    formData.append("phoneNumber", updatedOrderData.phoneNumber);
-    formData.append("deliveryAddress", updatedOrderData.deliveryAddress);
-    formData.append("orderDetails", JSON.stringify(updatedOrderData.orderDetails || []));
-  
-    // ✅ Convert base64 data URL to File
-    const paymentBlob = await fetch(image).then(res => res.blob());
-    const paymentFile = new File([paymentBlob], imageName || "payment.jpg", { type: paymentBlob.type });
-    formData.append("paymentImage", paymentFile);
-  
-    // Log FormData before sending
-    for (const [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
-  
-    // ✅ Submit order
     try {
       console.log("🚀 Sending order data to backend...");
       const response = await fetch("https://pa-gebeya-backend.onrender.com/api/orders", {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedOrderData),
       });
   
       if (!response.ok) {
@@ -180,12 +203,12 @@ const Checkout = () => {
       console.log("✅ Order submitted successfully:", submittedOrder);
       localStorage.setItem("submittedOrder", JSON.stringify(submittedOrder));
   
-      // ✅ Send notification
-      console.log("🔔 Sending order notification to the user...");
+      // Send notification
+      console.log("🔔 Sending order notification...");
       const token = localStorage.getItem("token");
   
       if (!token) {
-        console.error("❌ No authentication token found. User may not be logged in.");
+        console.error("❌ No authentication token found.");
         return;
       }
   
@@ -210,7 +233,7 @@ const Checkout = () => {
   
       console.log("✅ Notification sent successfully!");
   
-      // ✅ Save order in UserOrders
+      // Save order in UserOrders
       console.log("📦 Sending order data to UserOrders...");
       const userOrderData = {
         orderId: orderId,
@@ -235,13 +258,10 @@ const Checkout = () => {
         console.log("✅ Order successfully saved in UserOrders!");
       }
   
-      // ✅ Show the success popup
       setOrderSubmitted(true);
-      setIsLoading(false); // Hide loading modal
+      setIsLoading(false);
   
-      // ✅ Wait for 2 seconds to display the popup before clearing the cart and navigating
       setTimeout(() => {
-        // ✅ Clear cart after success message
         console.log(`🛒 Clearing cart for user ID: ${userId}...`);
         const deleteCartURL = `https://pa-gebeya-backend.onrender.com/api/cart/user/${userId}`;
         const userToken = user?.token || localStorage.getItem("token");
@@ -251,7 +271,6 @@ const Checkout = () => {
           return;
         }
   
-        // Delete cart from the backend
         fetch(deleteCartURL, {
           method: "DELETE",
           headers: {
@@ -264,16 +283,12 @@ const Checkout = () => {
             }
             console.log("✅ Cart cleared successfully!");
   
-            // ✅ Clear frontend cart
             localStorage.removeItem("orderData");
             localStorage.removeItem("cart");
   
-            if (setCart) setCart([]);  // Clear local state in the component
+            if (setCart) setCart([]);
+            if (clearCart) clearCart();
   
-            // ✅ Update global cart state in CartContext
-            if (clearCart) clearCart();  // Call clearCart from context
-  
-            // ✅ Navigate to the home page after clearing the cart
             setOrderSubmitted(false);
             navigate("/");
           })
@@ -281,12 +296,12 @@ const Checkout = () => {
             console.error("❌ Error clearing cart:", error);
             setError(error.message || "Failed to clear cart. Please try again.");
           });
-      }, 2000);  // Wait 2 seconds before clearing the cart and navigating
+      }, 2000);
   
     } catch (error) {
       console.error("❌ Error submitting order:", error);
       setError(error.message || "Failed to submit order. Please try again.");
-      setIsLoading(false); // Hide loading modal
+      setIsLoading(false);
     }
   };
 
@@ -325,7 +340,6 @@ const Checkout = () => {
           <div className="total-cost">
             <h3>
               Total: ETB
-
                 { cartItems
                 .reduce((acc, item) => acc + item.price * item.quantity, 0)
                 .toFixed(2)}
