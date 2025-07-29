@@ -5,17 +5,6 @@ import '../styles/checkout.css';
 import '../styles/deliveryInfo.css';
 import successImage from '../images/assets/checked.png';
 import { useNavigate } from "react-router-dom";
-import jsQR from 'jsqr';
-import AWS from 'aws-sdk';
-
-// Configure AWS (should be in a separate config file in production)
-AWS.config.update({
-  accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.REACT_APP_AWS_SECRET_ACCESS_KEY,
-  region: process.env.REACT_APP_AWS_REGION,
-});
-
-const s3 = new AWS.S3();
 
 const Checkout = () => {
   const { cartItems, clearCart } = useCart();
@@ -71,57 +60,9 @@ const Checkout = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result);
-        setImageName(file.name);
-        setError('');
-        scanQRCode(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const scanQRCode = (imageData) => {
-    const img = new Image();
-    img.src = imageData;
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img, 0, 0, img.width, img.height);
-      const imageData = ctx.getImageData(0, 0, img.width, img.height);
-      const code = jsQR(imageData.data, img.width, img.height);
-      if (code) {
-        console.log('QR Code Data:', code.data);
-      } else {
-        console.log('No QR Code found');
-      }
-    };
-  };
-
-  const uploadToS3 = async (fileData, fileName) => {
-    const fileExtension = fileName.split('.').pop() || 'jpg';
-    const s3Key = `payments/${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExtension}`;
-    
-    const blob = await fetch(fileData).then(res => res.blob());
-    
-    const params = {
-      Bucket: process.env.REACT_APP_S3_BUCKET_NAME,
-      Key: s3Key,
-      Body: blob,
-      ContentType: blob.type,
-      ACL: 'public-read',
-    };
-
-    try {
-      const data = await s3.upload(params).promise();
-      console.log("✅ Payment image uploaded to S3:", data.Location);
-      return data.Location;
-    } catch (error) {
-      console.error("❌ S3 upload error:", error);
-      throw new Error("Failed to upload payment image to S3");
+      setImage(URL.createObjectURL(file)); // Create preview URL
+      setImageName(file.name);
+      setError('');
     }
   };
 
@@ -162,17 +103,7 @@ const Checkout = () => {
       productImage: item.productImage,
     }));
   
-    console.log("📦 Order Details:", updatedOrderDetails);
-  
-    // Upload payment image to S3
-    let s3ImageUrl;
-    try {
-      s3ImageUrl = await uploadToS3(image, imageName || "payment.jpg");
-    } catch (s3Error) {
-      setError(s3Error.message || "Failed to upload payment image");
-      setIsLoading(false);
-      return;
-    }
+    console.log("📦 Order Details (with productId):", updatedOrderDetails);
   
     const updatedOrderData = {
       ...orderData,
@@ -182,21 +113,33 @@ const Checkout = () => {
       phoneNumber,
       deliveryAddress: address,
       orderDetails: updatedOrderDetails,
-      paymentImage: s3ImageUrl, // S3 URL instead of local path
     };
+  
+    const formData = new FormData();
+    formData.append("userId", updatedOrderData.userId);
+    formData.append("name", updatedOrderData.name);
+    formData.append("amount", updatedOrderData.amount || 0);
+    formData.append("status", updatedOrderData.status);
+    formData.append("phoneNumber", updatedOrderData.phoneNumber);
+    formData.append("deliveryAddress", updatedOrderData.deliveryAddress);
+    formData.append("orderDetails", JSON.stringify(updatedOrderData.orderDetails || []));
+  
+    // Directly append the file from input
+    const paymentFileInput = document.getElementById('payment-screenshot');
+    if (paymentFileInput?.files[0]) {
+      formData.append("paymentImage", paymentFileInput.files[0]);
+    }
   
     try {
       console.log("🚀 Sending order data to backend...");
       const response = await fetch("https://pa-gebeya-backend.onrender.com/api/orders", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedOrderData),
+        body: formData,
       });
   
       if (!response.ok) {
-        throw new Error("Failed to submit order");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to submit order");
       }
   
       const submittedOrder = await response.json();
@@ -204,11 +147,11 @@ const Checkout = () => {
       localStorage.setItem("submittedOrder", JSON.stringify(submittedOrder));
   
       // Send notification
-      console.log("🔔 Sending order notification...");
+      console.log("🔔 Sending order notification to the user...");
       const token = localStorage.getItem("token");
   
       if (!token) {
-        console.error("❌ No authentication token found.");
+        console.error("❌ No authentication token found. User may not be logged in.");
         return;
       }
   
@@ -331,7 +274,7 @@ const Checkout = () => {
                   <p>
                     {item.quantity} x ETB {item.price}
                   </p>
-                  <p>Total: ETB  {( item.price * item.quantity).toFixed(2)}</p>
+                  <p>Total: ETB  {(item.price * item.quantity).toFixed(2)}</p>
                 </div>
               </div>
             ))}
@@ -340,14 +283,20 @@ const Checkout = () => {
           <div className="total-cost">
             <h3>
               Total: ETB
-                { cartItems
+                {cartItems
                 .reduce((acc, item) => acc + item.price * item.quantity, 0)
                 .toFixed(2)}
             </h3>
           </div>
 
           <div className="order-button">
-            <button onClick={() => { handleProceedToDelivery(); setCurrentStep(2); }} className="no-background-btn">
+            <button 
+              onClick={() => { 
+                handleProceedToDelivery(); 
+                setCurrentStep(2); 
+              }} 
+              className="no-background-btn"
+            >
               Proceed to Delivery Info
             </button>
           </div>
@@ -399,10 +348,16 @@ const Checkout = () => {
                 />
               </div>
               <div className="form-buttons">
-                <button type="button" onClick={() => setCurrentStep(1)} className="no-background-btn">
+                <button 
+                  type="button" 
+                  onClick={() => setCurrentStep(1)} 
+                  className="no-background-btn"
+                >
                   Back to Cart
                 </button>
-                <button type="submit" className="no-background-btn">Proceed to Payment</button>
+                <button type="submit" className="no-background-btn">
+                  Proceed to Payment
+                </button>
               </div>
             </form>
           </div>
@@ -441,7 +396,9 @@ const Checkout = () => {
           )}
 
           <div className="order-button">
-            <button onClick={handleOrderSubmit} className="no-background-btn">Complete Order</button>
+            <button onClick={handleOrderSubmit} className="no-background-btn">
+              Complete Order
+            </button>
           </div>
         </>
       )}
