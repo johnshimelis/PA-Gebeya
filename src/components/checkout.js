@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { useCart } from './CartContext'; // Assuming CartContext provides the cart items
-import { useAuth } from './AuthContext';  // Import useAuth to access logged-in user info
+import { useCart } from './CartContext';
+import { useAuth } from './AuthContext';
 import '../styles/checkout.css';
 import '../styles/deliveryInfo.css';
 import successImage from '../images/assets/checked.png';
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import cashOnDeliveryImage from '../images/assets/cash.webp'; // Import cash on delivery image
+import { useNavigate } from "react-router-dom";
 import jsQR from 'jsqr';
 
 const Checkout = () => {
   const { cartItems, clearCart } = useCart();
-  const { user } = useAuth();  // Access logged-in user from AuthContext
+  const { user } = useAuth();
   const [image, setImage] = useState(null);
   const [cart, setCart] = useState([]);
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate();
   const [imageName, setImageName] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [orderSubmitted, setOrderSubmitted] = useState(false);
@@ -21,9 +22,10 @@ const Checkout = () => {
   const [address, setAddress] = useState('');
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState(''); // 'bank' or 'cash'
+  const [showPaymentOptions, setShowPaymentOptions] = useState(false);
 
   useEffect(() => {
-    // Load cart from localStorage
     const storedCart = localStorage.getItem("cart");
     if (storedCart) {
       setCart(JSON.parse(storedCart));
@@ -38,7 +40,7 @@ const Checkout = () => {
       console.log("✅ Keeping Existing Order Data:", orderData);
     } else {
       const orderDetails = cartItems.map((cartItem) => ({
-        productId: cartItem.productId,  // ✅ Store productId explicitly
+        productId: cartItem.productId,
         product: cartItem.title,
         quantity: cartItem.quantity,
         price: cartItem.price,
@@ -51,7 +53,6 @@ const Checkout = () => {
         .toFixed(2);
 
       const newOrderData = { amount: balance, orderDetails };
-
       localStorage.setItem("orderData", JSON.stringify(newOrderData));
       console.log("🛒 New Order Data Saved:", newOrderData);
     }
@@ -65,7 +66,7 @@ const Checkout = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setImage(reader.result);
-        setImageName(file.name);  // Store the file name (e.g., payment.png)
+        setImageName(file.name);
         setError('');
         scanQRCode(reader.result);
       };
@@ -93,47 +94,44 @@ const Checkout = () => {
   };
 
   const handleOrderSubmit = async () => {
-    // ✅ Validation checks
-    if (!image) {
-      setError("Please upload a payment screenshot before completing the order.");
-      return;
-    }
+    // Validation checks
     if (!phoneNumber || !address) {
       setError("Please provide both phone number and delivery address.");
       return;
     }
-  
-    setIsLoading(true); // Show loading modal
-  
-    // ✅ Retrieve user information
+    
+    if (paymentMethod === 'bank' && !image) {
+      setError("Please upload a payment screenshot for bank transfer.");
+      return;
+    }
+
+    setIsLoading(true);
+
     const storedUser = localStorage.getItem("user");
     const user = storedUser ? JSON.parse(storedUser) : null;
     const fullName = user?.fullName || "Guest User";
     const userId = user?.userId;
-  
+
     if (!userId) {
       console.error("❌ User ID is missing! Cannot proceed.");
       setError("User authentication issue. Please log in again.");
-      setIsLoading(false); // Hide loading modal
+      setIsLoading(false);
       return;
     }
-  
+
     console.log("✅ User ID:", userId);
-  
-    // ✅ Retrieve and format order data
+
     const storedOrderData = localStorage.getItem("orderData");
     const orderData = storedOrderData ? JSON.parse(storedOrderData) : {};
-  
+
     const updatedOrderDetails = (orderData.orderDetails || []).map(item => ({
       productId: item.productId,
       product: item.product,
       quantity: item.quantity,
       price: item.price,
-      productImage: item.productImage, // Ensure productImage is included
+      productImage: item.productImage,
     }));
-  
-    console.log("📦 Order Details (with productId):", updatedOrderDetails);
-  
+
     const updatedOrderData = {
       ...orderData,
       status: "Pending",
@@ -141,10 +139,10 @@ const Checkout = () => {
       userId: userId,
       phoneNumber,
       deliveryAddress: address,
+      paymentMethod: paymentMethod === 'bank' ? 'Bank Transfer' : 'Cash On Delivery',
       orderDetails: updatedOrderDetails,
     };
-  
-    // ✅ Prepare form data
+
     const formData = new FormData();
     formData.append("userId", updatedOrderData.userId);
     formData.append("name", updatedOrderData.name);
@@ -152,45 +150,42 @@ const Checkout = () => {
     formData.append("status", updatedOrderData.status);
     formData.append("phoneNumber", updatedOrderData.phoneNumber);
     formData.append("deliveryAddress", updatedOrderData.deliveryAddress);
+    formData.append("paymentMethod", updatedOrderData.paymentMethod);
     formData.append("orderDetails", JSON.stringify(updatedOrderData.orderDetails || []));
-  
-    // ✅ Convert base64 data URL to File
-    const paymentBlob = await fetch(image).then(res => res.blob());
-    const paymentFile = new File([paymentBlob], imageName || "payment.jpg", { type: paymentBlob.type });
-    formData.append("paymentImage", paymentFile);
-  
-    // Log FormData before sending
-    for (const [key, value] of formData.entries()) {
-      console.log(key, value);
+
+    // Only add payment image if method is bank transfer
+    if (paymentMethod === 'bank' && image) {
+      const paymentBlob = await fetch(image).then(res => res.blob());
+      const paymentFile = new File([paymentBlob], imageName || "payment.jpg", { type: paymentBlob.type });
+      formData.append("paymentImage", paymentFile);
+    } else {
+      formData.append("paymentImage", "Cash On Delivery");
     }
-  
-    // ✅ Submit order
+
     try {
       console.log("🚀 Sending order data to backend...");
       const response = await fetch("https://pa-gebeya-backend.onrender.com/api/orders", {
         method: "POST",
         body: formData,
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to submit order");
       }
-  
+
       const submittedOrder = await response.json();
       console.log("✅ Order submitted successfully:", submittedOrder);
       localStorage.setItem("submittedOrder", JSON.stringify(submittedOrder));
-  
-      // ✅ Send notification
-      console.log("🔔 Sending order notification to the user...");
+
+      // Send notification
       const token = localStorage.getItem("token");
-  
       if (!token) {
         console.error("❌ No authentication token found. User may not be logged in.");
         return;
       }
-  
+
       const orderId = submittedOrder?.id || "MissingOrderId";
-      const notificationResponse = await fetch("https://pa-gebeya-backend.onrender.com/api/users/notifications", {
+      await fetch("https://pa-gebeya-backend.onrender.com/api/users/notifications", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -203,77 +198,41 @@ const Checkout = () => {
           date: new Date().toISOString(),
         }),
       });
-  
-      if (!notificationResponse.ok) {
-        throw new Error("Failed to send notification");
-      }
-  
-      console.log("✅ Notification sent successfully!");
-  
-      // ✅ Save order in UserOrders
-      console.log("📦 Sending order data to UserOrders...");
-      const userOrderData = {
-        orderId: orderId,
-        userId: submittedOrder.userId,
-        date: new Date().toISOString(),
-        status: "Pending",
-        total: submittedOrder.amount || 0,
-      };
-  
-      const userOrderResponse = await fetch("https://pa-gebeya-backend.onrender.com/api/users/orders/", {
+
+      // Save order in UserOrders
+      await fetch("https://pa-gebeya-backend.onrender.com/api/users/orders/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify(userOrderData),
+        body: JSON.stringify({
+          orderId: orderId,
+          userId: submittedOrder.userId,
+          date: new Date().toISOString(),
+          status: "Pending",
+          total: submittedOrder.amount || 0,
+        }),
       });
-  
-      if (!userOrderResponse.ok) {
-        console.error("❌ Failed to save order in UserOrders. Proceeding without it.");
-      } else {
-        console.log("✅ Order successfully saved in UserOrders!");
-      }
-  
-      // ✅ Show the success popup
+
       setOrderSubmitted(true);
-      setIsLoading(false); // Hide loading modal
-  
-      // ✅ Wait for 2 seconds to display the popup before clearing the cart and navigating
+      setIsLoading(false);
+
       setTimeout(() => {
-        // ✅ Clear cart after success message
-        console.log(`🛒 Clearing cart for user ID: ${userId}...`);
         const deleteCartURL = `https://pa-gebeya-backend.onrender.com/api/cart/user/${userId}`;
         const userToken = user?.token || localStorage.getItem("token");
-  
-        if (!userToken) {
-          setError("Authentication token is missing. Please log in again.");
-          return;
-        }
-  
-        // Delete cart from the backend
+
         fetch(deleteCartURL, {
           method: "DELETE",
           headers: {
             "Authorization": `Bearer ${userToken}`,
           },
         })
-          .then(cartDeleteResponse => {
-            if (!cartDeleteResponse.ok) {
-              throw new Error("Failed to clear cart");
-            }
-            console.log("✅ Cart cleared successfully!");
-  
-            // ✅ Clear frontend cart
+          .then(() => {
             localStorage.removeItem("orderData");
             localStorage.removeItem("cart");
-  
-            if (setCart) setCart([]);  // Clear local state in the component
-  
-            // ✅ Update global cart state in CartContext
-            if (clearCart) clearCart();  // Call clearCart from context
-  
-            // ✅ Navigate to the home page after clearing the cart
+            if (setCart) setCart([]);
+            if (clearCart) clearCart();
             setOrderSubmitted(false);
             navigate("/");
           })
@@ -281,12 +240,11 @@ const Checkout = () => {
             console.error("❌ Error clearing cart:", error);
             setError(error.message || "Failed to clear cart. Please try again.");
           });
-      }, 2000);  // Wait 2 seconds before clearing the cart and navigating
-  
+      }, 2000);
     } catch (error) {
       console.error("❌ Error submitting order:", error);
       setError(error.message || "Failed to submit order. Please try again.");
-      setIsLoading(false); // Hide loading modal
+      setIsLoading(false);
     }
   };
 
@@ -296,6 +254,14 @@ const Checkout = () => {
 
   const closeModal = () => {
     setIsModalOpen(false);
+  };
+
+  const handlePaymentMethodSelect = (method) => {
+    setPaymentMethod(method);
+    setShowPaymentOptions(false);
+    if (method === 'cash') {
+      setImage(null); // Clear any uploaded image if switching to cash
+    }
   };
 
   if (!cartItems || cartItems.length === 0) {
@@ -316,7 +282,7 @@ const Checkout = () => {
                   <p>
                     {item.quantity} x ETB {item.price}
                   </p>
-                  <p>Total: ETB  {( item.price * item.quantity).toFixed(2)}</p>
+                  <p>Total: ETB {(item.price * item.quantity).toFixed(2)}</p>
                 </div>
               </div>
             ))}
@@ -325,8 +291,7 @@ const Checkout = () => {
           <div className="total-cost">
             <h3>
               Total: ETB
-
-                { cartItems
+              {cartItems
                 .reduce((acc, item) => acc + item.price * item.quantity, 0)
                 .toFixed(2)}
             </h3>
@@ -347,7 +312,6 @@ const Checkout = () => {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-
                 const storedOrderData = localStorage.getItem("orderData");
                 const orderData = storedOrderData ? JSON.parse(storedOrderData) : {};
 
@@ -358,8 +322,6 @@ const Checkout = () => {
                 };
 
                 localStorage.setItem("orderData", JSON.stringify(updatedOrderData));
-                console.log("📦 Updated Order Data with Delivery Info:", updatedOrderData);
-
                 setCurrentStep(3);
               }}
             >
@@ -397,39 +359,93 @@ const Checkout = () => {
 
       {currentStep === 3 && (
         <>
-          <div className="file-upload">
-            <label htmlFor="payment-screenshot">Upload Payment Screenshot</label>
-            <input
-              type="file"
-              id="payment-screenshot"
-              accept="image/*"
-              onChange={handleImageChange}
-              required
-            />
-            {image && (
-              <div className="image-preview" onClick={openModal}>
-                <img src={image} alt="Payment Screenshot" />
-                <span className="click-hint">Click to view image clearly</span>
+          <div className="payment-method-container">
+            <h2>Select Payment Method</h2>
+            
+            {!paymentMethod ? (
+              <div className="payment-options">
+                <div 
+                  className="payment-option-card"
+                  onClick={() => handlePaymentMethodSelect('bank')}
+                >
+                  <h3>Bank Transfer</h3>
+                  <p>Upload payment screenshot</p>
+                </div>
+                <div 
+                  className="payment-option-card"
+                  onClick={() => handlePaymentMethodSelect('cash')}
+                >
+                  <h3>Cash On Delivery</h3>
+                  <p>Pay when you receive your order</p>
+                  <img src={cashOnDeliveryImage} alt="Cash on delivery" className="cash-image" />
+                </div>
               </div>
-            )}
-            {error && <p className="error-message">{error}</p>}
-          </div>
-
-          {isModalOpen && (
-            <div className="modal-overlay" onClick={closeModal}>
-              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                <img src={image} alt="Payment Screenshot" className="modal-image" />
-                <button className="close-modal" onClick={closeModal}>
-                  Close
+            ) : (
+              <div className="selected-payment-method">
+                <h3>Selected Payment Method: 
+                  <span className="method-name">
+                    {paymentMethod === 'bank' ? 'Bank Transfer' : 'Cash On Delivery'}
+                  </span>
+                </h3>
+                <button 
+                  onClick={() => setPaymentMethod('')}
+                  className="change-method-btn"
+                >
+                  Change Method
                 </button>
               </div>
-            </div>
-          )}
+            )}
 
-          <div className="order-button">
-            <button onClick={handleOrderSubmit} className="no-background-btn">Complete Order</button>
+            {paymentMethod === 'bank' && (
+              <div className="file-upload">
+                <label htmlFor="payment-screenshot">Upload Payment Screenshot</label>
+                <input
+                  type="file"
+                  id="payment-screenshot"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  required={paymentMethod === 'bank'}
+                />
+                {image && (
+                  <div className="image-preview" onClick={openModal}>
+                    <img src={image} alt="Payment Screenshot" />
+                    <span className="click-hint">Click to view image clearly</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {paymentMethod === 'cash' && (
+              <div className="cash-method-info">
+                <img src={cashOnDeliveryImage} alt="Cash on delivery" className="cash-preview-image" />
+                <p>You will pay when you receive your order</p>
+              </div>
+            )}
+
+            {error && <p className="error-message">{error}</p>}
+
+            <div className="order-button">
+              <button 
+                onClick={handleOrderSubmit} 
+                className="no-background-btn"
+                disabled={!paymentMethod || (paymentMethod === 'bank' && !image)}
+              >
+                Complete Order
+              </button>
+            </div>
           </div>
         </>
+      )}
+
+      {isModalOpen && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <img src={image} alt="Payment Screenshot" className="modal-image" />
+            <button className="close-modal" onClick={closeModal}>
+              Close
+            </button>
+          </div>
+        </div>
       )}
 
       {orderSubmitted && (
