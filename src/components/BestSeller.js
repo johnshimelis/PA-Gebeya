@@ -85,80 +85,119 @@ const BestSeller = () => {
     window.open(videoLink, "_blank");
   };
 
-  if (loading) return <p>Loading best-selling products...</p>;
+  if (loading) {
+    return (
+      <section className="recommended-section">
+        <h4 className="recommended-title">Best Seller</h4>
+        <div className="recommended-container">
+          <div className="nav-deals-main">
+            {[...Array(6)].map((_, index) => (
+              <div key={index} className="nav-rec-cards">
+                <div className="card-img">
+                  <div className="skeleton-image"></div>
+                </div>
+                <div className="card-content">
+                  <div className="skeleton-text" style={{width: '40%'}}></div>
+                  <div className="skeleton-text"></div>
+                  <div className="skeleton-text short"></div>
+                  <div className="skeleton-price"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <section>
-      <h4 style={{ margin: "60px 20px", textAlign: "left", fontSize: "35px", fontWeight: 1000 }}>
-        Best Seller
-      </h4>
-      <div id="rec" className="nav-deals-main">
-        {deals.map((deal) => (
-          <div key={deal._id} className="nav-rec-cards" onClick={() => handleProductClick(deal)}>
-            <div className="card-img">
-              {deal.videoLink && (
-                <div
-                  className="tiktok-icon"
-                  onClick={(e) => handleTikTokClick(e, deal.videoLink)}
-                >
-                  <img src={tiktokIcon} alt="TikTok" className="tiktok-img" />
-                </div>
-              )}
-              
-              <Carousel
-                showThumbs={false}
-                showStatus={false}
-                infiniteLoop={true}
-                autoPlay={true}
-                interval={3000}
-                stopOnHover={true}
-              >
-                {deal.images?.length > 0 ? (
-                  deal.images.map((image, index) => (
-                    <div key={index} className="carousel-image-container">
-                      <img 
-                        src={image.url} 
-                        alt={`${deal.name} - ${index + 1}`} 
-                        className="carousel-image"
-                        onError={(e) => {
-                          e.target.src = '/default-product-image.jpg';
-                          e.target.onerror = null;
-                        }}
-                        loading="lazy"
-                      />
+    <section className="recommended-section">
+      <h4 className="recommended-title">Best Seller</h4>
+      <div className="recommended-container">
+        <div className="nav-deals-main">
+          {deals.map((deal) => (
+            <div key={deal._id} className="nav-rec-cards" onClick={() => handleProductClick(deal)}>
+              <div className="card-img">
+                <div className="image-overlay"></div>
+                
+                {deal.videoLink && (
+                  <div className="tiktok-icon-container">
+                    <div
+                      className="tiktok-icon"
+                      onClick={(e) => handleTikTokClick(e, deal.videoLink)}
+                    >
+                      <img src={tiktokIcon} alt="TikTok" className="tiktok-img" />
                     </div>
-                  ))
-                ) : (
-                  <div className="carousel-image-container">
-                    <img 
-                      src="/default-product-image.jpg" 
-                      alt={deal.name} 
-                      className="carousel-image" 
-                    />
                   </div>
                 )}
-              </Carousel>
-            </div>
-            <div className="card-content">
-              <div className="card-header">
-                <span className="best-seller-tags">Best Seller</span>
-                <span className="product-name">{deal.name}</span>
+                
+                <Carousel
+                  showThumbs={false}
+                  showStatus={false}
+                  infiniteLoop={true}
+                  autoPlay={true}
+                  interval={3000}
+                  stopOnHover={true}
+                  showArrows={false}
+                  dynamicHeight={false}
+                  emulateTouch={true}
+                  swipeable={true}
+                  transitionTime={500}
+                >
+                  {deal.images?.length > 0 ? (
+                    deal.images.map((image, index) => (
+                      <div key={index} className="carousel-image-container">
+                        <img 
+                          src={image.url} 
+                          alt={`${deal.name} - ${index + 1}`} 
+                          className="carousel-image"
+                          onError={(e) => {
+                            e.target.src = '/default-product-image.jpg';
+                            e.target.onerror = null;
+                          }}
+                          loading="lazy"
+                        />
+                      </div>
+                    ))
+                  ) : (
+                    <div className="carousel-image-container">
+                      <img 
+                        src="/default-product-image.jpg" 
+                        alt={deal.name} 
+                        className="carousel-image" 
+                      />
+                    </div>
+                  )}
+                </Carousel>
               </div>
-              <p className="short-description">
-                {deal.shortDescription || "No description available."}
-              </p>
-              <div className="card-rating">
-                <div className="stars">
-                  {renderRatingStars(deal.rating || 0)}
+              
+              <div className="card-content">
+                <div className="card-header">
+                  <span className="best-seller-tags">🔥 Best Seller</span>
                 </div>
-                <span className="rating-number">| {deal.rating || 0}</span>
-                <span className="sold-count">| {formatSoldCount(deal.sold)}</span>
+                <div className="deal-name-container">
+                  <span className="product-name">{deal.name}</span>
+                </div>
+                <p className="short-description">
+                  {deal.shortDescription || "Premium quality product with excellent features and customer satisfaction guarantee."}
+                </p>
+                <div className="card-rating">
+                  <div className="stars">
+                    {renderRatingStars(deal.rating || 0)}
+                  </div>
+                  <span className="rating-number">| {deal.rating?.toFixed(1) || 0}</span>
+                  <span className="sold-count">| {formatSoldCount(deal.sold || 0)}</span>
+                </div>
+                <div className="price-sold-container">
+                  <div className="card-price">ETB {deal.price?.toFixed(2)}</div>
+                  <div className="sold-info">{formatSoldCount(deal.sold || 0)}</div>
+                </div>
               </div>
-              <div className="card-price">ETB {deal.price.toFixed(2)}</div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );

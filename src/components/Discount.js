@@ -31,15 +31,16 @@ const Discount = () => {
       const response = await axios.get("https://pa-gebeya-backend.onrender.com/api/products/discounted");
       if (response.status !== 200) throw new Error("Failed to fetch products");
       
-      // Process the products to ensure images are properly formatted
       const filteredDeals = response.data
         .filter(product => product.hasDiscount && product.discount > 0)
         .map(product => ({
           ...product,
-          // Create imageUrls array from the images array if it exists
-          imageUrls: product.images?.map(img => img.url) || []
+          imageUrls: product.images?.map(img => img.url) || [],
+          // TEMPORARY: Add videoLink for testing if it doesn't exist
+          videoLink: product.videoLink || "https://tiktok.com" // Temporary test link
         }));
       
+      console.log("Fetched deals:", filteredDeals); // Debug log
       setDeals(filteredDeals);
       setShuffledDeals(shuffleArray(filteredDeals));
     } catch (err) {
@@ -52,12 +53,10 @@ const Discount = () => {
   useEffect(() => {
     fetchDiscountedProducts();
     
-    // Set up interval to shuffle every 10 minutes (600,000ms)
     const shuffleInterval = setInterval(() => {
       setShuffledDeals(prev => shuffleArray(prev));
     }, 600000);
     
-    // Set up interval to refresh data every hour (3,600,000ms)
     const refreshInterval = setInterval(() => {
       fetchDiscountedProducts();
     }, 3600000);
@@ -68,7 +67,6 @@ const Discount = () => {
     };
   }, [fetchDiscountedProducts, shuffleArray]);
 
-  // Shuffle on component mount and when deals change
   useEffect(() => {
     if (deals.length > 0) {
       setShuffledDeals(shuffleArray(deals));
@@ -124,103 +122,82 @@ const Discount = () => {
     navigate("/product_detail", { state: { product: deal } });
   };
 
-  const handleAddToCart = async (product, e) => {
-    e.stopPropagation();
-    const userId = localStorage.getItem("userId");
-    const token = localStorage.getItem("token");
-
-    if (!userId || !token) {
-      toast.error("Please log in to add items to the cart");
-      return;
-    }
-
-    let productId = product._id;
-    if (!productId) {
-      console.error("Error: Product ID is undefined");
-      toast.error("Error adding item to cart: Product ID missing");
-      return;
-    }
-
-    const cartItem = {
-      userId,
-      productId,
-      productName: product.name,
-      price: product.price,
-      quantity: 1,
-      img: product.images?.[0]?.url || "" // Use first image URL if available
-    };
-
-    try {
-      const response = await axios.post(
-        "https://pa-gebeya-backend.onrender.com/api/cart",
-        cartItem,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        toast.success(`${product.name} added to the cart!`);
-        const updatedCart = await axios.get("https://pa-gebeya-backend.onrender.com/api/cart", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setCartItems(updatedCart.data.items);
-      } else {
-        throw new Error("Failed to add item to cart");
-      }
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      toast.error(error.message);
-    }
-  };
-
   const handleTikTokClick = (videoLink, e) => {
     e.stopPropagation();
-    window.open(videoLink, "_blank");
+    if (videoLink) {
+      window.open(videoLink, "_blank");
+    } else {
+      toast.info("No TikTok video available for this product");
+    }
   };
 
-  if (loading) return <p>Loading discounted products...</p>;
+  if (loading) {
+    return (
+      <section className="discount-section">
+        <h4 className="discount-title">Discount Deals</h4>
+        <div className="discount-deals-main">
+          {[...Array(6)].map((_, index) => (
+            <div key={index} className="discount-card">
+              <div className="discount-card-img">
+                <div className="skeleton-image"></div>
+              </div>
+              <div className="discount-card-content">
+                <div className="skeleton-text" style={{width: '40%'}}></div>
+                <div className="skeleton-text"></div>
+                <div className="skeleton-text short"></div>
+                <div className="skeleton-price"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <section>
-      <h4 style={{ margin: "60px 20px", textAlign: "left", fontSize: "35px", fontWeight: 1000 }}>
-        Discount
-      </h4>
-      <div id="rec" className="nav-deals-main">
+    <section className="discount-section">
+      <h4 className="discount-title">Discount Deals</h4>
+      <div className="discount-deals-main">
         {shuffledDeals.map((deal) => {
           const calculatedPrice = (deal.price - (deal.price * deal.discount) / 100).toFixed(2);
           const originalPrice = deal.price.toFixed(2);
 
           return (
-            <div key={deal._id} className="nav-rec-cards" onClick={() => handleProductClick(deal)}>
-              <div className="card-img">
-                {deal.videoLink && (
-                  <div
-                    className="tiktok-icon"
-                    onClick={(e) => handleTikTokClick(deal.videoLink, e)}
-                  >
-                    <img src={tiktokIcon} alt="TikTok" className="tiktok-img" />
-                  </div>
-                )}
+            <div 
+              key={deal._id} 
+              className="discount-card"
+            >
+              <div className="discount-card-img" onClick={() => handleProductClick(deal)}>
+                {/* TikTok Icon - TEMPORARILY ALWAYS SHOW FOR TESTING */}
+                <div
+                  className="discount-tiktok-icon"
+                  onClick={(e) => handleTikTokClick(deal.videoLink, e)}
+                >
+                  <img src={tiktokIcon} alt="TikTok" className="discount-tiktok-img" />
+                </div>
+                
                 <Carousel
                   showThumbs={false}
                   showStatus={false}
                   infiniteLoop={true}
                   autoPlay={true}
-                  interval={3000}
+                  interval={4000}
                   stopOnHover={true}
+                  showArrows={false}
+                  dynamicHeight={false}
+                  emulateTouch={true}
+                  swipeable={true}
+                  transitionTime={500}
                 >
                   {deal.images?.length > 0 ? (
                     deal.images.map((image, index) => (
-                      <div key={index} className="carousel-image-container">
+                      <div key={index} className="discount-carousel-image-container">
                         <img 
                           src={image.url} 
                           alt={`${deal.name} - ${index + 1}`} 
-                          className="carousel-image"
+                          className="discount-carousel-image"
                           onError={(e) => {
                             e.target.src = '/default-product-image.jpg';
                             e.target.onerror = null;
@@ -230,35 +207,40 @@ const Discount = () => {
                       </div>
                     ))
                   ) : (
-                    <div className="carousel-image-container">
+                    <div className="discount-carousel-image-container">
                       <img 
                         src="/default-product-image.jpg" 
                         alt={deal.name} 
-                        className="carousel-image" 
+                        className="discount-carousel-image" 
                       />
                     </div>
                   )}
                 </Carousel>
               </div>
-              <div className="card-content">
-                <div className="card-header">
-                  <span className="discount-tag">Discount</span>
-                  <span className="product-name">{deal.name}</span>
+              
+              <div className="discount-card-content" onClick={() => handleProductClick(deal)}>
+                <div className="discount-card-header">
+                  <span className="discount-badge">🔥 {deal.discount}% OFF</span>
                 </div>
-                <p className="short-description">
-                  {deal.shortDescription || "No description available."}
+                <div className="discount-product-name-container">
+                  <span className="discount-product-name">{deal.name}</span>
+                </div>
+                <p className="discount-short-description">
+                  {deal.shortDescription || "Premium quality product with excellent features."}
                 </p>
-                <div className="card-rating">
-                  <div className="stars">
+                <div className="discount-card-rating">
+                  <div className="discount-stars">
                     {renderRatingStars(deal.rating || 0)}
                   </div>
-                  <span className="rating-number">| {deal.rating || 0}</span>
-                  <span className="sold-count">| {formatSoldCount(deal.sold)}</span>
+                  <span className="discount-rating-number">| {deal.rating?.toFixed(1) || 0}</span>
+                  <span className="discount-sold-count">| {formatSoldCount(deal.sold)}</span>
                 </div>
-                <div className="card-pricing">
-                  <span className="calculated-price">ETB {calculatedPrice}</span>
-                  <span className="original-price">ETB {originalPrice}</span>
-                  <span className="discount">{deal.discount}% OFF</span>
+                <div className="discount-price-container">
+                  <div className="discount-price-info">
+                    <span className="discount-calculated-price">ETB {calculatedPrice}</span>
+                    <span className="discount-original-price">ETB {originalPrice}</span>
+                  </div>
+                  <div className="discount-sold-info">{formatSoldCount(deal.sold)}</div>
                 </div>
               </div>
             </div>

@@ -13,6 +13,8 @@ const RecommendedDeals = () => {
   const navigate = useNavigate();
   const [deals, setDeals] = useState([]);
   const [shuffledDeals, setShuffledDeals] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [hoveredCard, setHoveredCard] = useState(null);
 
   // Fisher-Yates shuffle algorithm
   const shuffleArray = useCallback((array) => {
@@ -26,27 +28,29 @@ const RecommendedDeals = () => {
 
   const fetchProducts = useCallback(async () => {
     try {
+      setLoading(true);
       const response = await axios.get("https://pa-gebeya-backend.onrender.com/api/products");
       const nonDiscountedProducts = response.data.filter(product => !product.discount);
       setDeals(nonDiscountedProducts);
       setShuffledDeals(shuffleArray(nonDiscountedProducts));
     } catch (error) {
       console.error("Error fetching products:", error);
+      toast.error("Failed to load products");
+    } finally {
+      setLoading(false);
     }
   }, [shuffleArray]);
 
   useEffect(() => {
     fetchProducts();
     
-    // Set up interval to shuffle every 10 minutes (600,000ms)
     const shuffleInterval = setInterval(() => {
       setShuffledDeals(prev => shuffleArray(prev));
-    }, 600000); // 10 minutes
+    }, 600000);
     
-    // Set up interval to refresh data every hour (3,600,000ms)
     const refreshInterval = setInterval(() => {
       fetchProducts();
-    }, 3600000); // 1 hour
+    }, 3600000);
     
     return () => {
       clearInterval(shuffleInterval);
@@ -54,7 +58,6 @@ const RecommendedDeals = () => {
     };
   }, [fetchProducts, shuffleArray]);
 
-  // Shuffle on component mount and when deals change
   useEffect(() => {
     if (deals.length > 0) {
       setShuffledDeals(shuffleArray(deals));
@@ -108,122 +111,153 @@ const RecommendedDeals = () => {
     });
   };
 
-  const handleAddToCart = async (product, e) => {
-    e.stopPropagation();
-    
-    const userId = localStorage.getItem("userId");
-    const token = localStorage.getItem("token");
-
-    if (!userId || !token) {
-      toast.error("Please log in to add items to the cart");
-      return;
-    }
-
-    try {
-      const response = await axios.post(
-        "https://pa-gebeya-backend.onrender.com/api/cart",
-        {
-          userId,
-          productId: product._id,
-          productName: product.name,
-          price: product.price,
-          quantity: 1,
-          img: product.imageUrls?.[0] || ""
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        toast.success(`${product.name} added to the cart!`);
-        const updatedCart = await axios.get("https://pa-gebeya-backend.onrender.com/api/cart", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setCartItems(updatedCart.data.items);
-      }
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      toast.error(error.response?.data?.message || "Failed to add to cart");
-    }
-  };
-
   const handleTikTokClick = (videoLink, e) => {
     e.stopPropagation();
-    window.open(videoLink, "_blank");
+    if (videoLink) {
+      window.open(videoLink, "_blank");
+    } else {
+      toast.info("No TikTok video available for this product");
+    }
   };
 
+  const handleCardHover = (cardId) => {
+    setHoveredCard(cardId);
+  };
+
+  const handleCardLeave = () => {
+    setHoveredCard(null);
+  };
+
+  if (loading) {
+    return (
+      <section className="recommended-section">
+        <h4 style={{ 
+          margin: "50px 25px", 
+          textAlign: "left", 
+          fontSize: "32px", 
+          fontWeight: 800,
+          background: "linear-gradient(135deg, #667eea, #764ba2)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent"
+        }}>
+          Recommended for you
+        </h4>
+        <div className="recommended-container">
+          <div className="nav-deals-main">
+            {[...Array(6)].map((_, index) => (
+              <div key={index} className="nav-rec-cards">
+                <div className="card-img">
+                  <div className="skeleton-image"></div>
+                </div>
+                <div className="card-content">
+                  <div className="skeleton-text" style={{width: '40%'}}></div>
+                  <div className="skeleton-text"></div>
+                  <div className="skeleton-text short"></div>
+                  <div className="skeleton-price"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section>
-      <h4 style={{ margin: "60px 20px", textAlign: "left", fontSize: "35px", fontWeight: 1000 }}>
+    <section className="recommended-section">
+      <h4 style={{ 
+        margin: "50px 25px", 
+        textAlign: "left", 
+        fontSize: "32px", 
+        fontWeight: 800,
+        background: "linear-gradient(135deg, #667eea, #764ba2)",
+        WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent"
+      }}>
         Recommended for you
       </h4>
-      <div id="rec" className="nav-deals-main">
-        {shuffledDeals.map((deal) => (
-          <div key={deal._id} className="nav-rec-cards">
-            <div className="card-img" onClick={() => handleProductClick(deal)}>
-              {deal.videoLink && (
-                <div
-                  className="tiktok-icon"
-                  onClick={(e) => handleTikTokClick(deal.videoLink, e)}
+      <div className="recommended-container">
+        <div id="rec" className="nav-deals-main">
+          {shuffledDeals.map((deal) => (
+            <div 
+              key={deal._id} 
+              className="nav-rec-cards"
+              onMouseEnter={() => handleCardHover(deal._id)}
+              onMouseLeave={handleCardLeave}
+            >
+              <div className="card-img" onClick={() => handleProductClick(deal)}>
+                <div className="image-overlay"></div>
+                
+                <div className="tiktok-icon-container">
+                  <div
+                    className="tiktok-icon"
+                    onClick={(e) => handleTikTokClick(deal.videoLink, e)}
+                  >
+                    <img src={tiktokIcon} alt="TikTok" className="tiktok-img" />
+                  </div>
+                </div>
+                
+                <Carousel
+                  showThumbs={false}
+                  showStatus={false}
+                  infiniteLoop={true}
+                  autoPlay={true}
+                  interval={4000}
+                  stopOnHover={true}
+                  showArrows={false}
+                  dynamicHeight={false}
+                  emulateTouch={true}
+                  swipeable={true}
+                  transitionTime={500}
                 >
-                  <img src={tiktokIcon} alt="TikTok" className="tiktok-img" />
-                </div>
-              )}
+                  {deal.imageUrls?.map((imageUrl, index) => (
+                    <div key={index} className="carousel-image-container">
+                      <img 
+                        src={imageUrl} 
+                        alt={`${deal.name} ${index + 1}`} 
+                        className="carousel-image"
+                        onError={(e) => {
+                          e.target.src = '/default-product-image.jpg';
+                        }}
+                      />
+                    </div>
+                  )) || (
+                    <div className="carousel-image-container">
+                      <img 
+                        src="/default-product-image.jpg" 
+                        alt={deal.name} 
+                        className="carousel-image" 
+                      />
+                    </div>
+                  )}
+                </Carousel>
+              </div>
               
-              <Carousel
-                showThumbs={false}
-                showStatus={false}
-                infiniteLoop={true}
-                autoPlay={true}
-                interval={3000}
-                stopOnHover={true}
-              >
-                {deal.imageUrls?.map((imageUrl, index) => (
-                  <div key={index} className="carousel-image-container">
-                    <img 
-                      src={imageUrl} 
-                      alt={`${deal.name} ${index}`} 
-                      className="carousel-image"
-                      onError={(e) => {
-                        e.target.src = '/default-product-image.jpg';
-                      }}
-                    />
-                  </div>
-                )) || (
-                  <div className="carousel-image-container">
-                    <img 
-                      src="/default-product-image.jpg" 
-                      alt={deal.name} 
-                      className="carousel-image" 
-                    />
-                  </div>
-                )}
-              </Carousel>
-            </div>
-            
-            <div className="card-content" id="recommend" onClick={() => handleProductClick(deal)}>
-              <div className="card-header">
-                <span className="best-seller-tags">Recommended</span>
-                <span className="product-name">{deal.name}</span>
-              </div>
-              <p className="short-description">
-                {deal.shortDescription || "No description available."}
-              </p>
-              <div className="card-rating">
-                <div className="stars">
-                  {renderRatingStars(deal.rating || 0)}
+              <div className="card-content" onClick={() => handleProductClick(deal)}>
+                <div className="card-header">
+                  <span className="best-seller-tags">🔥 Recommended</span>
                 </div>
-                <span className="rating-number">| {deal.rating?.toFixed(1) || 0}</span>
-                <span className="sold-count">| {formatSoldCount(deal.sold || 0)}</span>
+                <div className="deal-name-container">
+                  <span className="product-name">{deal.name}</span>
+                </div>
+                <p className="short-description">
+                  {deal.shortDescription || "Premium quality product with excellent features and customer satisfaction guarantee."}
+                </p>
+                <div className="card-rating">
+                  <div className="stars">
+                    {renderRatingStars(deal.rating || 0)}
+                  </div>
+                  <span className="rating-number">| {deal.rating?.toFixed(1) || 0}</span>
+                  <span className="sold-count">| {formatSoldCount(deal.sold || 0)}</span>
+                </div>
+                <div className="price-sold-container">
+                  <div className="card-price">ETB {deal.price?.toFixed(2)}</div>
+                  <div className="sold-info">{formatSoldCount(deal.sold || 0)}</div>
+                </div>
               </div>
-              <div className="card-price">ETB {deal.price?.toFixed(2)}</div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );
