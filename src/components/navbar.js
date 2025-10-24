@@ -74,8 +74,47 @@ const Navbar = () => {
       container && container.removeEventListener("scroll", handleScroll);
   }, []);
 
-  if (loading) return <div>Loading categories...</div>;
-  if (error) return <div>Error: {error}</div>;
+  // Loading skeleton component
+  const LoadingSkeleton = () => {
+    return (
+      <section>
+        <div className="nav-second">
+          {/* Left Arrow Skeleton */}
+          <button className="scroll-btn left nav-skeleton-arrow" disabled>
+            <FaChevronLeft />
+          </button>
+
+          <div className="scrollable-wrapper">
+            <ul ref={scrollContainerRef}>
+              {[...Array(8)].map((_, index) => (
+                <li key={index} className="nav-skeleton-item">
+                  <div className="nav-skeleton-text"></div>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Right Arrow Skeleton */}
+          <button className="scroll-btn right nav-skeleton-arrow" disabled>
+            <FaChevronRight />
+          </button>
+
+          <div className="hamburger-menu">
+            <button className="nav-skeleton-hamburger" disabled>
+              <FaBars />
+            </button>
+          </div>
+
+          <div className="fixed-img">
+            <div className="nav-skeleton-image"></div>
+          </div>
+        </div>
+      </section>
+    );
+  };
+
+  if (loading) return <LoadingSkeleton />;
+  if (error) return <div className="nav-error">Error: {error}</div>;
 
   return (
     <section>

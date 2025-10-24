@@ -5,7 +5,7 @@
     position: relative;
     padding: 0 20px;
     overflow: hidden;
-    margin-bottom: 20px; /* Add spacing below navigation container */
+    margin-bottom: 20px;
 }
 
 .scrollable-wrapper {
@@ -15,7 +15,7 @@
     flex: 1;
     margin-right: 120px;
     position: relative;
-    margin-left: 50px; /* Add gap on the left side to prevent overlap with the left icon */
+    margin-left: 50px;
 }
 
 .scrollable-wrapper ul {
@@ -26,7 +26,7 @@
     scrollbar-width: none;
     margin: 0;
     padding: 0;
-    gap: 12px; /* Space between categories */
+    gap: 12px;
 }
 
 .scrollable-wrapper ul::-webkit-scrollbar {
@@ -43,6 +43,13 @@
     font-weight: bold;
     text-decoration: none;
     cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+}
+
+.scrollable-wrapper ul li:hover {
+    color: #455d79;
+    transform: translateY(-1px);
 }
 
 /* Scroll Buttons */
@@ -50,17 +57,23 @@
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: none; /* Remove circular background */
+    background: none;
     border: none;
     color: #000;
     cursor: pointer;
     font-size: 18px;
-    padding: 0; /* Remove padding */
+    padding: 0;
     z-index: 10;
+    transition: all 0.3s ease;
+}
+
+.scroll-btn:hover:not(:disabled) {
+    color: #455d79;
+    transform: translateY(-50%) scale(1.1);
 }
 
 .scroll-btn.left {
-    left: 20px; /* Increased margin to ensure it's separated from the categories */
+    left: 20px;
 }
 
 .scroll-btn.right {
@@ -89,4 +102,185 @@
 .scrollable-wrapper .active-category {
     color: red;
     text-decoration: underline;
+}
+
+/* Loading Skeleton Styles */
+.nav-skeleton-arrow {
+    color: #c0c0c0 !important;
+    cursor: not-allowed !important;
+}
+
+.nav-skeleton-arrow:hover {
+    transform: translateY(-50%) !important;
+    color: #c0c0c0 !important;
+}
+
+.nav-skeleton-item {
+    list-style: none;
+    margin: 30px 10px 8px !important;
+    border-radius: 5px;
+    cursor: default !important;
+}
+
+.nav-skeleton-text {
+    width: 80px;
+    height: 16px;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+    background-size: 200% 100%;
+    animation: nav-shimmer 2s infinite;
+}
+
+.nav-skeleton-hamburger {
+    background: none;
+    border: none;
+    color: #c0c0c0;
+    cursor: not-allowed;
+    font-size: 18px;
+}
+
+.nav-skeleton-image {
+    width: 100px;
+    height: 60px;
+    border-radius: 5px;
+    background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+    background-size: 200% 100%;
+    animation: nav-shimmer 2s infinite;
+}
+
+@keyframes nav-shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.nav-error {
+    text-align: center;
+    padding: 20px;
+    color: #e74c3c;
+    font-size: 14px;
+    font-weight: 600;
+    background: rgba(231, 76, 60, 0.1);
+    border-radius: 8px;
+    margin: 10px 20px;
+    border: 1px solid rgba(231, 76, 60, 0.2);
+}
+
+/* Hamburger Menu Styling */
+.hamburger-menu {
+    display: none;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .nav-second {
+        padding: 0 15px;
+    }
+
+    .scrollable-wrapper {
+        margin-left: 40px;
+        margin-right: 100px;
+    }
+
+    .scroll-btn.left {
+        left: 15px;
+    }
+
+    .scroll-btn.right {
+        right: 100px;
+    }
+
+    .scrollable-wrapper ul li {
+        font-size: 13px;
+        margin: 25px 8px 6px;
+    }
+
+    .nav-skeleton-text {
+        width: 70px;
+        height: 14px;
+    }
+
+    .nav-img-li {
+        width: 90px;
+        height: 55px;
+    }
+
+    .nav-skeleton-image {
+        width: 90px;
+        height: 55px;
+    }
+
+    .hamburger-menu {
+        display: block;
+        position: absolute;
+        right: 60px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 15;
+    }
+
+    .hamburger-menu button {
+        background: none;
+        border: none;
+        color: #000;
+        cursor: pointer;
+        font-size: 18px;
+        padding: 5px;
+        transition: all 0.3s ease;
+    }
+
+    .hamburger-menu button:hover {
+        color: #455d79;
+        transform: scale(1.1);
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .nav-second {
+        padding: 0 10px;
+    }
+
+    .scrollable-wrapper {
+        margin-left: 35px;
+        margin-right: 80px;
+    }
+
+    .scroll-btn.left {
+        left: 10px;
+    }
+
+    .scroll-btn.right {
+        right: 80px;
+    }
+
+    .scrollable-wrapper ul {
+        gap: 8px;
+    }
+
+    .scrollable-wrapper ul li {
+        font-size: 12px;
+        margin: 20px 6px 4px;
+    }
+
+    .nav-skeleton-text {
+        width: 60px;
+        height: 12px;
+    }
+
+    .nav-img-li {
+        width: 80px;
+        height: 50px;
+    }
+
+    .nav-skeleton-image {
+        width: 80px;
+        height: 50px;
+    }
+
+    .hamburger-menu {
+        right: 50px;
+    }
 }

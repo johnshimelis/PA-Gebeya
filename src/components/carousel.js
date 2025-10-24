@@ -8,6 +8,7 @@ import carouselSecond2 from "../images/assets/carousel-second1.png";
 
 const Carousel = () => {
   const [ads, setAds] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAds = async () => {
@@ -16,20 +17,59 @@ const Carousel = () => {
         setAds(response.data);
         
         // Initialize carousel after data loads
-        const carouselElement = document.getElementById('carouselExampleIndicators');
-        if (carouselElement) {
-          new window.bootstrap.Carousel(carouselElement, {
-            interval: 3000,
-            ride: 'carousel'
-          });
-        }
+        setTimeout(() => {
+          const carouselElement = document.getElementById('carouselExampleIndicators');
+          if (carouselElement) {
+            new window.bootstrap.Carousel(carouselElement, {
+              interval: 3000,
+              ride: 'carousel'
+            });
+          }
+        }, 100);
       } catch (error) {
         console.error("Error fetching ads:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchAds();
   }, []);
+
+  // Loading skeleton component
+  const LoadingSkeleton = () => {
+    return (
+      <div className="nav-carousel">
+        <div className="nav-carousel-1">
+          <div className="carousel-skeleton-container">
+            <div className="carousel-skeleton-main">
+              <div className="carousel-skeleton-image"></div>
+              <div className="carousel-skeleton-indicators">
+                {[...Array(3)].map((_, index) => (
+                  <div key={index} className="carousel-skeleton-indicator"></div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="nav-carousel-2">
+          <div className="nav-carousel-img position-relative">
+            <div className="carousel-skeleton-secondary"></div>
+            <div className="carousel-skeleton-btn carousel-skeleton-btn-left"></div>
+          </div>
+          <div className="nav-carousel-img position-relative">
+            <div className="carousel-skeleton-secondary"></div>
+            <div className="carousel-skeleton-btn carousel-skeleton-btn-right"></div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  if (loading) {
+    return <LoadingSkeleton />;
+  }
 
   return (
     <section>

@@ -1,5 +1,4 @@
-/* CAROUSEL STARTED  */
-
+/* CAROUSEL STARTED */
 .nav-carousel {
     display: flex;
     justify-content: center;
@@ -19,7 +18,6 @@
     align-items: center;
     width: 30%;
     height: auto;
-    /* border: 1px solid #000; */
 }
 
 .nav-carousel-img {
@@ -31,6 +29,164 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+/* Loading Skeleton Styles */
+.carousel-skeleton-container {
+    width: 100%;
+    height: 200px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+}
+
+.carousel-skeleton-main {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.carousel-skeleton-image {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+    background-size: 200% 100%;
+    animation: carousel-shimmer 2s infinite;
+}
+
+.carousel-skeleton-indicators {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 2;
+}
+
+.carousel-skeleton-indicator {
+    width: 30px;
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #c0c0c0 25%, #d0d0d0 50%, #c0c0c0 75%);
+    background-size: 200% 100%;
+    animation: carousel-shimmer 2s infinite;
+    opacity: 0.7;
+}
+
+.carousel-skeleton-secondary {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%);
+    background-size: 200% 100%;
+    animation: carousel-shimmer 2s infinite;
+    border-radius: 4px;
+}
+
+.carousel-skeleton-btn {
+    position: absolute;
+    bottom: 0%;
+    padding: 12px 24px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #a0a0a0 25%, #b0b0b0 50%, #a0a0a0 75%);
+    background-size: 200% 100%;
+    animation: carousel-shimmer 2s infinite;
+}
+
+.carousel-skeleton-btn-left {
+    border-top-right-radius: 10px;
+    left: 5%;
+    width: 80px;
+    height: 30px;
+}
+
+.carousel-skeleton-btn-right {
+    border-top-left-radius: 10px;
+    right: 0%;
+    width: 90px;
+    height: 30px;
+}
+
+@keyframes carousel-shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* Shop Buttons Styling */
+.shop-btn {
+    position: absolute;
+    bottom: 0%;
+    padding: 5px 15px;
+    font-size: 0.9rem;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #455d79;
+    color: white;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.shop-btn:hover {
+    background-color: #34495e;
+    transform: translateY(-2px);
+}
+
+.shop-btn-left {
+    border-top-right-radius: 10px;
+    left: 5%;
+}
+
+.shop-btn-right {
+    border-top-left-radius: 10px;
+    right: 0%;
+}
+
+/* Carousel Image Styling */
+.stretched-carousel-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* Bootstrap Carousel Customizations */
+.carousel-indicators [data-bs-target] {
+    width: 30px;
+    height: 4px;
+    border-radius: 2px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.carousel-indicators .active {
+    background-color: #455d79;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+    width: 5%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.carousel:hover .carousel-control-prev,
+.carousel:hover .carousel-control-next {
+    opacity: 1;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(69, 93, 121, 0.8);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    background-size: 20px 20px;
 }
 
 @media screen and (max-width: 768px) {
@@ -48,35 +204,46 @@
     .nav-carousel-2 {
         display: none;
     }
+
+    .carousel-skeleton-container {
+        height: 150px;
+    }
+
+    .carousel-skeleton-secondary {
+        height: 150px;
+    }
+
+    .stretched-carousel-image {
+        height: 150px;
+    }
+
+    /* Hide skeleton side banners on mobile */
+    .nav-carousel-2 .carousel-skeleton-secondary {
+        display: none;
+    }
+
+    .nav-carousel-2 .carousel-skeleton-btn {
+        display: none;
+    }
 }
 
-/* Shop Buttons Styling */
-/* Shop Buttons Styling */
-.shop-btn {
-    position: absolute;
-    bottom: 0%; /* Moved lower */
-    padding: 5px 15px; /* Reduced size */
-    font-size: 0.9rem; /* Reduced font size */
-    border-radius: 4px;
-    cursor: pointer;
-    background-color: #455d79;
-    color: white;
-    border: none;
+@media screen and (max-width: 480px) {
+    .carousel-skeleton-container {
+        height: 120px;
+    }
+
+    .carousel-skeleton-indicators {
+        bottom: 10px;
+    }
+
+    .carousel-skeleton-indicator {
+        width: 25px;
+        height: 3px;
+    }
+
+    .stretched-carousel-image {
+        height: 120px;
+    }
 }
 
-.shop-btn:hover {
-    background-color: #455d79;
-}
-
-
-.shop-btn-left {
-    border-top-right-radius: 10px; /* Rounded top-right corner */
-    left:5%; /* Moved to the left */
-}
-
-.shop-btn-right {
-    border-top-left-radius: 10px; /* Rounded top-left corner */
-    right: 0%; /* Moved to the right */
-}
-
-/* CAROUSEL ENDED   */
+/* CAROUSEL ENDED */

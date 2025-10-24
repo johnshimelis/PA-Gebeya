@@ -9,6 +9,7 @@ window.bootstrap = bootstrap;
 
 const Banner3 = () => {
   const [banners, setBanners] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchBanners = async () => {
@@ -40,11 +41,33 @@ const Banner3 = () => {
         return () => clearTimeout(timeoutId);
       } catch (error) {
         console.error("Error fetching banners:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchBanners();
   }, []);
+
+  // Loading skeleton component
+  const LoadingSkeleton = () => {
+    return (
+      <section className="full-width-carousel-container1">
+        <div className="carousel-skeleton-wrapper">
+          <div className="carousel-skeleton-image"></div>
+          <div className="carousel-skeleton-indicators">
+            {[...Array(3)].map((_, index) => (
+              <div key={index} className="carousel-skeleton-indicator"></div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  };
+
+  if (loading) {
+    return <LoadingSkeleton />;
+  }
 
   return (
     <section className="full-width-carousel-container1">
