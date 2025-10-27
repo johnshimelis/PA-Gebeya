@@ -19,6 +19,7 @@ const ProductsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [categoryName, setCategoryName] = useState("");
+  const [imageLoaded, setImageLoaded] = useState({});
 
   // Get category name from navigation state or fetch it
   useEffect(() => {
@@ -59,19 +60,27 @@ const ProductsPage = () => {
     const stars = [];
 
     for (let i = 0; i < fullStars; i++) {
-      stars.push(<span key={i} className="products-page-star filled">&#9733;</span>);
+      stars.push(<span key={i} className="products-page-star filled">★</span>);
     }
 
     if (hasHalfStar) {
-      stars.push(<span key="half" className="products-page-star half">&#9733;</span>);
+      stars.push(<span key="half" className="products-page-star half">★</span>);
     }
 
     const remainingStars = 5 - stars.length;
     for (let i = 0; i < remainingStars; i++) {
-      stars.push(<span key={`empty-${i}`} className="products-page-star">&#9733;</span>);
+      stars.push(<span key={`empty-${i}`} className="products-page-star">★</span>);
     }
 
     return stars;
+  };
+
+  // Handle image load
+  const handleImageLoad = (productId, imageIndex) => {
+    setImageLoaded(prev => ({
+      ...prev,
+      [`${productId}-${imageIndex}`]: true
+    }));
   };
 
   // Fetch products by category
@@ -81,16 +90,13 @@ const ProductsPage = () => {
       setError(null);
 
       try {
-        // Using the confirmed working endpoint
         const response = await axios.get(
           `https://pa-gebeya-backend.onrender.com/api/products/category/${categoryId}`
         );
 
         if (response.status === 200) {
-          // The response appears to be an array of products directly
           setProducts(response.data || []);
           
-          // If we didn't get the category name from navigation state, try to get it from the first product
           if (!location.state?.categoryName && response.data.length > 0 && response.data[0].category) {
             setCategoryName(response.data[0].category.name);
           }
@@ -174,7 +180,38 @@ const ProductsPage = () => {
     }
   };
 
-  if (loading) return <p>Loading products...</p>;
+  // Loading shimmer effect
+  if (loading) {
+    return (
+      <section>
+        <h4 style={{ margin: "60px 20px", textAlign: "left", fontSize: "35px", fontWeight: 1000 }}>
+          {categoryName || "Products"}
+        </h4>
+        <div className="products-page-product-grid">
+          {[...Array(10)].map((_, index) => (
+            <div key={index} className="products-page-product-card shimmer">
+              <div className="products-page-card-img shimmer-bg">
+                <div className="shimmer-content"></div>
+              </div>
+              <div className="products-page-card-content">
+                <div className="products-page-card-header">
+                  <span className="products-page-best-seller-tags shimmer-bg"></span>
+                  <span className="products-page-product-name shimmer-bg"></span>
+                </div>
+                <p className="products-page-short-description shimmer-bg"></p>
+                <div className="products-page-card-rating">
+                  <div className="products-page-stars shimmer-bg"></div>
+                </div>
+                <div className="products-page-card-price shimmer-bg"></div>
+                <button className="products-page-add-to-cart shimmer-bg"></button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
   if (error) return <p style={{ color: "red", textAlign: "center" }}>{error}</p>;
 
   return (
@@ -185,7 +222,11 @@ const ProductsPage = () => {
       <div className="products-page-product-grid">
         {products.length > 0 ? (
           products.map((product) => (
-            <div key={product._id} className="products-page-product-card" onClick={() => handleProductClick(product)}>
+            <div 
+              key={product._id} 
+              className="products-page-product-card interactive-card"
+              onClick={() => handleProductClick(product)}
+            >
               <div className="products-page-card-img">
                 {product.videoLink && (
                   <div
@@ -205,16 +246,25 @@ const ProductsPage = () => {
                   autoPlay={true}
                   interval={3000}
                   stopOnHover={true}
+                  transitionTime={500}
                 >
                   {product.images?.length > 0 ? (
                     product.images.map((image, index) => (
                       <div key={index} className="products-page-carousel-image-container">
+                        {!imageLoaded[`${product._id}-${index}`] && (
+                          <div className="image-shimmer"></div>
+                        )}
                         <img
                           src={image.url}
                           alt={`Product ${index}`}
                           className="products-page-carousel-image"
+                          onLoad={() => handleImageLoad(product._id, index)}
                           onError={(e) => {
                             e.target.src = "/default-product-image.jpg";
+                          }}
+                          style={{
+                            opacity: imageLoaded[`${product._id}-${index}`] ? 1 : 0,
+                            transition: 'opacity 0.3s ease-in-out'
                           }}
                         />
                       </div>
@@ -233,7 +283,7 @@ const ProductsPage = () => {
               <div className="products-page-card-content">
                 <div className="products-page-card-header">
                   <span className="products-page-best-seller-tags">{categoryName} Product</span>
-                  <span className="products-page-product-name">{product.name}</span>
+                  <h3 className="products-page-product-name">{product.name}</h3>
                 </div>
                 <p className="products-page-short-description">
                   {product.shortDescription || "No description available."}
@@ -247,7 +297,7 @@ const ProductsPage = () => {
                 </div>
                 <div className="products-page-card-price">ETB {product.price.toFixed(2)}</div>
                 <button
-                  className="products-page-add-to-cart"
+                  className="products-page-add-to-cart interactive-btn"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleAddToCart(product);

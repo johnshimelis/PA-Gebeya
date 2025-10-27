@@ -263,17 +263,24 @@ const Header = () => {
                 <span style={{ cursor: "pointer" }}>
                   Welcome, {user.fullName} <i className="fas fa-user"></i>
                 </span>
-                {createPortal(
-                  <div className="dropdown-menu" ref={dropdownRef}>
-                    <div onClick={() => navigate("/profile")}>Profile</div>
-                    <div onClick={() => navigate("/notifications")}>Notifications</div>
-                    <div onClick={() => navigate("/messages")}>Messages</div>
-                    <div onClick={() => navigate("/orders")}>Orders</div>
-                    <hr />
-                    <div className="logout" onClick={handleLogout}>Logout</div>
-                  </div>,
-                  document.body
-                )}
+              {createPortal(
+  <div className="dropdown-menu" ref={dropdownRef}>
+    <div onClick={() => navigate("/profile")}>Profile</div>
+    <div onClick={() => navigate("/notifications")}>Notifications</div>
+    <div onClick={() => navigate("/messages")}>Messages</div>
+    <div onClick={() => navigate("/orders")}>Orders</div>
+    <hr />
+    <div 
+      className="delete-account" 
+      onClick={() => navigate("/delete-account")}
+    >
+      Delete Account
+    </div>
+    <div className="logout" onClick={handleLogout}>Logout</div>
+  </div>,
+  document.body
+)}
+
               </div>
             ) : (
               <span

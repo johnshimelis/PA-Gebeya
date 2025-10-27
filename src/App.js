@@ -4,6 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import './App.css';
 import Header from './components/header';
+import DeleteAccount from './components/deleteAccount';
 import Navbar from './components/navbar';
 import Carousel from './components/carousel';
 import RoundSlider from './components/slider';
@@ -53,6 +54,7 @@ function App() {
               <Route path="/profile" element={<Profile />} />
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/orders" element={<Orders />} />
+              <Route path="/delete-account" element={<DeleteAccount />} />
               <Route path="/messages" element={<Messages />} />
               
               {/* Home Route */}

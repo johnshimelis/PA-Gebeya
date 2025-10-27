@@ -1,152 +1,276 @@
 .products-page-product-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(250px, 1fr)); /* Ensure each card has a minimum width of 250px */
-  gap: 20px; /* Space between products */
+  grid-template-columns: repeat(5, minmax(280px, 1fr));
+  gap: 25px;
   padding: 20px;
 }
 
 .products-page-product-card {
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 15px; /* Slightly more padding */
+  border: 1px solid #e0e0e0;
+  border-radius: 15px;
+  padding: 18px;
   text-align: center;
   background-color: #fff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
-  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effect */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Distribute space evenly */
-  height: 380px; /* Increase card height to accommodate larger image */
-  width: 100%; /* Ensure the card takes up the full width of its grid cell */
-  max-width: 300px; /* Set a maximum width for consistency */
-  margin: 0 auto; /* Center the card within its grid cell */
+  justify-content: space-between;
+  height: auto; /* CHANGED: From fixed height to auto */
+  min-height: 460px; /* ADDED: Minimum height instead of fixed */
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
 }
 
-.products-page-product-card:hover {
-  transform: translateY(-5px); /* Lift the card on hover */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Enhance shadow on hover */
+.products-page-product-card.interactive-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  border-color: #007bff;
 }
 
 .products-page-card-img {
-  width: 100%; /* Full width of the container */
-  height: 250px; /* Fixed height for the image container */
-  overflow: hidden; /* Ensure the image doesn't overflow */
-  border-radius: 10px;
+  width: 100%;
+  height: 380px;
+  overflow: hidden;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f5f5f5; /* Optional: Add a background color for consistency */
-  position: relative; /* For positioning the TikTok icon */
+  background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
+  position: relative;
 }
 
 .products-page-carousel-image-container {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  background: transparent !important;
 }
 
 .products-page-carousel-image {
-  width: auto; /* Allow the image to scale proportionally */
-  height: 100%; /* Ensure the image takes the full height of the container */
-  max-width: 100%; /* Prevent the image from overflowing */
-  object-fit: contain; /* Ensure the image is fully visible without cropping */
-  border-radius: 10px;
-  transition: transform 0.3s ease; /* Smooth zoom effect */
+  width: auto !important;
+  height: auto !important;
+  max-width: 115% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+  border-radius: 12px;
+  transition: all 0.4s ease;
+  position: relative !important;
+  display: block !important;
+  margin: 0 auto !important;
+}
+
+/* CAROUSEL STYLES */
+.carousel .slider-wrapper {
+  overflow: hidden !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.carousel .slider {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.carousel .slide {
+  background: transparent !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.carousel .slide img {
+  width: auto !important;
+  height: auto !important;
+  max-width: 115% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+  display: block !important;
+  margin: 0 auto !important;
+}
+
+.carousel .carousel-slider {
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
 }
 
 .products-page-product-card:hover .products-page-carousel-image {
-  transform: scale(1.05); /* Slight zoom effect on hover */
+  transform: scale(1.03);
+}
+
+/* Shimmer Loading Effects */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-bg {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+.image-shimmer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 12px;
+}
+
+.shimmer-content {
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 /* TikTok Icon */
 .products-page-tiktok-icon {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 10;
-  width: 50px; /* Adjust size */
-  height: 50px; /* Adjust size */
-  background-color: #fff; /* Circular background */
-  border-radius: 50%; /* Make it circular */
+  top: 12px;
+  right: 12px;
+  z-index: 20;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #ff0050, #00f2ea);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: spin 2s linear infinite; /* Add rotation animation */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Add a subtle shadow */
+  animation: pulse 2s infinite, float 3s ease-in-out infinite;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
+.products-page-tiktok-icon:hover {
+  transform: scale(1.1) rotate(15deg);
+  animation: none;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
   }
-  100% {
-    transform: rotate(360deg);
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
   }
 }
 
 .products-page-tiktok-img {
-  width: 30px; /* Adjust icon size */
-  height: 30px; /* Adjust icon size */
-  cursor: pointer;
+  width: 26px;
+  height: 26px;
+  filter: brightness(0) invert(1);
 }
 
 .products-page-card-content {
-  padding: 10px 0;
-  flex-grow: 1; /* Allow content to grow and fill space */
+  padding: 15px 0 0 0;
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* Align content to the top */
+  justify-content: space-between;
+  gap: 8px; /* ADDED: Consistent spacing between elements */
 }
 
 .products-page-card-header {
-  margin-top: 30px; /* Add space between image and name/tag */
+  margin-top: 0;
   display: flex;
-  align-items: center; /* Align tag and product name vertically */
-  gap: 4px; /* Reduce gap between tag and product name to one space */
+  align-items: flex-start;
+  gap: 8px;
+  flex-direction: column;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
 }
 
 .products-page-best-seller-tags {
-  background-color: #ffcc00; /* Tag background color */
-  color: #333; /* Tag text color */
-  padding: 4px 8px;
-  margin-top: -30px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: bold;
-  white-space: nowrap; /* Prevent tag text from wrapping */
+  background: linear-gradient(135deg, #ffcc00, #ffaa00);
+  color: #333;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(255, 204, 0, 0.3);
+  align-self: flex-start;
+  flex-shrink: 0;
+  margin-bottom: 28px; /* REDUCED: From 35px to 8px */
 }
 
 .products-page-product-name {
   font-size: 16px;
-  margin-top: -30px;
-  font-weight: bold;
-  color: #333;
-  text-align: left; /* Align product name to the left */
-  white-space: nowrap; /* Prevent wrapping */
-  overflow: hidden; /* Hide overflow */
-  text-overflow: ellipsis; /* Add ellipsis for long text */
-  flex-grow: 1; /* Allow product name to take remaining space */
+  font-weight: 700;
+
+  color: #2c3e50;
+  text-align: left;
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.3;
+  width: 100%;
+
+
 }
 
 .products-page-card-content .products-page-short-description {
-  font-size: 14px;
+  font-size: 13px;
   color: #666;
-  margin: 4px 0;
+
   text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 2; /* Show 2 lines */
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  line-height: 1.4;
+  flex-shrink: 0;
 }
 
 .products-page-card-rating {
-  display: flex;
+    display: flex;
   align-items: center;
-  gap: 8px;
-  margin: 8px 0;
+  gap: px;
+  margin: 6px 0;
+  flex-wrap: wrap;
+  flex-shrink: 0;
 }
 
 .products-page-stars {
@@ -155,16 +279,18 @@
 }
 
 .products-page-star {
-  font-size: 16px;
-  color: #ccc; /* Default star color */
+  font-size: 15px;
+  color: #ddd;
 }
 
 .products-page-star.filled {
-  color: #ffcc00; /* Filled star color */
+  color: #ffcc00;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .products-page-star.half {
   position: relative;
+  color: #ddd;
 }
 
 .products-page-star.half::before {
@@ -172,58 +298,141 @@
   position: absolute;
   width: 50%;
   overflow: hidden;
-  color: #ffcc00; /* Half star color */
+  color: #ffcc00;
 }
 
 .products-page-rating-number,
 .products-page-sold-count {
-  font-size: 14px;
+  font-size: 13px;
   color: #666;
+  font-weight: 500;
 }
 
 .products-page-card-content .products-page-card-price {
-  color: green; /* Change price color to green */
+  color: #27ae60;
   text-align: left;
-  font-size: 18px;
-  margin: 4px 0;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 8px 0 12px 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
 }
 
 .products-page-add-to-cart {
-  padding: 10px 20px;
+  padding: 12px 24px;
   border: none;
-  background-color: #007bff;
+  background: linear-gradient(135deg, #007bff, #0056b3);
   color: white;
   cursor: pointer;
-  border-radius: 5px;
-  font-size: 16px;
-  transition: background-color 0.3s ease;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  margin-top: auto; /* CHANGED: From 10px to auto - pushes to bottom */
+  flex-shrink: 0;
 }
 
-.products-page-add-to-cart:hover {
-  background-color: #0056b3; /* Darker blue on hover */
+.products-page-add-to-cart.interactive-btn:hover {
+  background: linear-gradient(135deg, #0056b3, #004494);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 123, 255, 0.4);
+}
+
+.products-page-add-to-cart.interactive-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+}
+
+.products-page-add-to-cart.interactive-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.products-page-add-to-cart.interactive-btn:active::after {
+  width: 100px;
+  height: 100px;
 }
 
 /* Responsive Design */
+@media (max-width: 1400px) {
+  .products-page-product-grid {
+    grid-template-columns: repeat(4, minmax(280px, 1fr));
+  }
+}
+
 @media (max-width: 1200px) {
   .products-page-product-grid {
-    grid-template-columns: repeat(4, minmax(250px, 1fr)); /* Keep 4 products per row on smaller screens */
+    grid-template-columns: repeat(3, minmax(260px, 1fr));
   }
 }
 
 @media (max-width: 992px) {
   .products-page-product-grid {
-    grid-template-columns: repeat(3, minmax(250px, 1fr)); /* 3 products per row on tablets */
+    grid-template-columns: repeat(2, minmax(250px, 1fr));
   }
 }
 
 @media (max-width: 768px) {
   .products-page-product-grid {
-    grid-template-columns: repeat(2, minmax(250px, 1fr)); /* 2 products per row on mobile */
+    grid-template-columns: repeat(2, minmax(240px, 1fr));
+    gap: 20px;
+    padding: 15px;
+  }
+  
+  .products-page-product-card {
+    min-height: 700px; /* Adjusted for tablet */
+    padding: 15px;
+  }
+  
+  .products-page-card-img {
+    height: 360px;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 576px) {
   .products-page-product-grid {
-    grid-template-columns: repeat(1, minmax(250px, 1fr)); /* 1 product per row on small mobile */
+    grid-template-columns: repeat(1, minmax(280px, 1fr));
+    gap: 15px;
+    padding: 10px;
   }
+  
+  .products-page-product-card {
+    min-height: 680px; /* Adjusted for mobile */
+    max-width: 100%;
+  }
+  
+  .products-page-card-img {
+    height: 340px;
+  }
+  
+  .products-page-card-header {
+    flex-direction: column;
+  }
+  
+  .products-page-product-name {
+    margin-top: 4px;
+  }
+}
+
+/* Enhanced focus states for accessibility */
+.products-page-product-card:focus-within {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+.products-page-add-to-cart:focus {
+  outline: 2px solid #0056b3;
+  outline-offset: 2px;
 }

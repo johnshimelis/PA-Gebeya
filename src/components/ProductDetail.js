@@ -22,10 +22,15 @@ const ProductDetails = () => {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loadingRelated, setLoadingRelated] = useState(false);
   const [selectedImage, setSelectedImage] = useState('');
+  const [imageLoading, setImageLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
 
-  // Improved image URL handling
+  // Improved image URL handling with better error management
   const getFullImageUrl = (image) => {
-    if (!image) return '/default-product-image.jpg';
+    if (!image) {
+      setImageError(true);
+      return '/default-product-image.jpg';
+    }
     
     // Handle case where image is an object with url property
     if (typeof image === 'object' && image.url) {
@@ -37,6 +42,7 @@ const ProductDetails = () => {
       return image.startsWith('http') ? image : `${S3_BASE_URL}${image}`;
     }
     
+    setImageError(true);
     return '/default-product-image.jpg';
   };
 
@@ -48,6 +54,8 @@ const ProductDetails = () => {
       }
 
       setProduct(productData);
+      setImageLoading(true);
+      setImageError(false);
       
       // Get first image safely
       const firstImage = Array.isArray(productData.images) && productData.images.length > 0 
@@ -110,7 +118,18 @@ const ProductDetails = () => {
   }, [product]);
 
   const handleSmallImageClick = (image) => {
+    setImageLoading(true);
+    setImageError(false);
     setSelectedImage(getFullImageUrl(image));
+  };
+
+  const handleImageLoad = () => {
+    setImageLoading(false);
+  };
+
+  const handleImageError = () => {
+    setImageLoading(false);
+    setImageError(true);
   };
 
   const handleTikTokClick = (url, e) => {
@@ -241,24 +260,32 @@ const ProductDetails = () => {
           )}
 
           <div className="main-image-container">
+            {imageLoading && (
+              <div className="image-loading">Loading image...</div>
+            )}
             <img
               src={selectedImage}
               alt={product.name}
-              className="main-image"
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src = '/default-product-image.jpg';
-              }}
+              className={`main-image ${imageError ? 'image-error' : ''}`}
+              onLoad={handleImageLoad}
+              onError={handleImageError}
             />
+            {imageError && (
+              <div className="image-fallback">
+                <span>Image not available</span>
+              </div>
+            )}
           </div>
 
           <div className="small-images-container">
             {product.images?.filter(img => img).map((image, index) => {
               const imageUrl = getFullImageUrl(image);
-              return imageUrl !== selectedImage && (
+              const isActive = imageUrl === selectedImage;
+              
+              return (
                 <div
                   key={index}
-                  className="small-image"
+                  className={`small-image ${isActive ? 'active' : ''}`}
                   onClick={() => handleSmallImageClick(image)}
                 >
                   <img
@@ -314,11 +341,19 @@ const ProductDetails = () => {
 
           <div className="price-counter-row">
             <div className="quantity-selector">
-              <button onClick={() => handleQuantityChange(-1)} className="quantity-button">
+              <button 
+                onClick={() => handleQuantityChange(-1)} 
+                className="quantity-button"
+                aria-label="Decrease quantity"
+              >
                 -
               </button>
               <span className="quantity-display">{quantity}</span>
-              <button onClick={() => handleQuantityChange(1)} className="quantity-button">
+              <button 
+                onClick={() => handleQuantityChange(1)} 
+                className="quantity-button"
+                aria-label="Increase quantity"
+              >
                 +
               </button>
             </div>
@@ -327,7 +362,7 @@ const ProductDetails = () => {
           <div className="button-row">
             <button 
               className="add-to-cart" 
-              onClick={() => handleAddToCart(product)}
+              onClick={(e) => handleAddToCart(product, e)}
             >
               🛒 Add to Cart
             </button>
@@ -339,7 +374,7 @@ const ProductDetails = () => {
       <div className="related-products">
         <h3>Related Products</h3>
         {loadingRelated ? (
-          <p>Loading related products...</p>
+          <div className="loading-related">Loading related products...</div>
         ) : relatedProducts.length > 0 ? (
           <div className="related-products-grid">
             {relatedProducts.map((relatedProduct) => (
@@ -364,9 +399,10 @@ const ProductDetails = () => {
                   autoPlay={true}
                   interval={3000}
                   stopOnHover={true}
+                  showArrows={false}
                 >
                   {relatedProduct.images?.filter(img => img).map((image, index) => (
-                    <div key={index}>
+                    <div key={index} className="carousel-slide">
                       <img 
                         src={getFullImageUrl(image)} 
                         alt={`${relatedProduct.name} view ${index + 1}`}
@@ -408,7 +444,7 @@ const ProductDetails = () => {
             ))}
           </div>
         ) : (
-          <p>No related products found.</p>
+          <p className="no-related-products">No related products found.</p>
         )}
       </div>
     </div>
