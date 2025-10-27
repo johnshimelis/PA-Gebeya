@@ -3,15 +3,16 @@
   margin: 50px auto;
   padding: 30px;
   border: 1px solid #ddd;
-  border-radius: 8px;
+  border-radius: 10px;
   font-family: Arial, sans-serif;
   background-color: #fff;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  text-align: center;
 }
 
 .delete-account-page h2 {
   color: #d9534f;
   margin-bottom: 20px;
-  text-align: center;
 }
 
 .delete-account-page h3 {
@@ -20,14 +21,16 @@
 
 .delete-account-page input[type="email"] {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   margin: 15px 0;
-  border-radius: 4px;
+  border-radius: 6px;
   border: 1px solid #ccc;
+  font-size: 16px;
 }
 
 .section {
   margin-bottom: 30px;
+  transition: all 0.3s ease;
 }
 
 .confirm-checkbox {
@@ -35,26 +38,53 @@
   text-align: left;
 }
 
-.delete-account-page button {
-  padding: 10px 20px;
-  margin: 10px 5px 0 0;
+.delete-btn {
+  padding: 10px 25px;
+  margin-top: 10px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   background-color: #d9534f;
   color: #fff;
+  font-size: 16px;
+  transition: transform 0.2s, opacity 0.2s;
 }
 
-.delete-account-page button:hover {
+.delete-btn:hover {
+  transform: scale(1.05);
   opacity: 0.9;
 }
 
-.delete-account-page .message {
-  margin-top: 15px;
+.delete-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.message {
+  margin-top: 20px;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.message.error {
+  color: red;
+}
+
+.message.success {
   color: green;
 }
 
-.delete-account-page .back-button {
+.back-button {
+  margin-top: 20px;
   background-color: #ccc;
   color: #000;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.back-button:hover {
+  background-color: #bbb;
 }

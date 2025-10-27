@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/deleteAccount.css"; // optional, for styling
+import "../styles/deleteAccount.css";
 
 const DeleteAccount = () => {
   const navigate = useNavigate();
@@ -8,61 +8,82 @@ const DeleteAccount = () => {
   const [confirmedFullDelete, setConfirmedFullDelete] = useState(false);
   const [confirmedPartialDelete, setConfirmedPartialDelete] = useState(false);
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [messageType, setMessageType] = useState(""); // 'error' or 'success'
 
-  // Function to handle full account deletion
+  // Simulated API delay
+  const simulateRequest = () =>
+    new Promise((resolve) => setTimeout(resolve, 5000));
+
   const handleFullDelete = async () => {
+    setMessage("");
     if (!email) {
+      setMessageType("error");
       setMessage("Please enter your registered email.");
       return;
     }
     if (!confirmedFullDelete) {
+      setMessageType("error");
       setMessage("Please confirm that you want to delete your account.");
       return;
     }
 
+    setLoading(true);
     try {
-      // Backend API call example:
-      // await fetch("https://your-backend.com/api/delete-account", {...});
+      await simulateRequest(); // simulate backend request
 
-      // If no backend, fallback to email
+      // If backend exists, call API here
+      // await fetch("/api/delete-account", {...})
+
+      // Fallback to email link
       window.location.href = `mailto:support@yourapp.com?subject=Delete%20My%20Account&body=Please delete my account with email: ${email}`;
 
+      setMessageType("success");
       setMessage("Full account deletion request sent! Check your email client.");
     } catch (error) {
-      console.error(error);
+      setMessageType("error");
       setMessage("An error occurred. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Function to handle partial data deletion
   const handlePartialDelete = async () => {
+    setMessage("");
     if (!email) {
+      setMessageType("error");
       setMessage("Please enter your registered email.");
       return;
     }
     if (!confirmedPartialDelete) {
+      setMessageType("error");
       setMessage("Please confirm that you want to request partial data deletion.");
       return;
     }
 
+    setLoading(true);
     try {
-      // Backend API call example:
-      // await fetch("https://your-backend.com/api/delete-user-data", {...});
+      await simulateRequest(); // simulate backend request
 
-      // If no backend, fallback to email
+      // If backend exists, call API here
+      // await fetch("/api/delete-user-data", {...})
+
+      // Fallback to email link
       window.location.href = `mailto:support@yourapp.com?subject=Request%20Partial%20Data%20Deletion&body=Please delete some or all of my data associated with email: ${email}`;
 
+      setMessageType("success");
       setMessage("Partial data deletion request sent! Check your email client.");
     } catch (error) {
-      console.error(error);
+      setMessageType("error");
       setMessage("An error occurred. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="delete-account-page">
       <h2>Delete Account or Request Data Deletion</h2>
-
       <p>
         You can delete your account permanently, or request that some or all of your data be deleted without deleting your account.
       </p>
@@ -74,7 +95,7 @@ const DeleteAccount = () => {
         onChange={(e) => setEmail(e.target.value)}
       />
 
-      {/* Full account deletion section */}
+      {/* Full account deletion */}
       <div className="section">
         <h3>Full Account Deletion</h3>
         <p>This will permanently remove all your data, orders, messages, and cannot be undone.</p>
@@ -87,17 +108,18 @@ const DeleteAccount = () => {
           />
           <label htmlFor="confirmFullDelete">I understand and want to delete my account</label>
         </div>
-        <button onClick={handleFullDelete}>Delete Account</button>
+        <button className="delete-btn" onClick={handleFullDelete} disabled={loading}>
+          {loading ? "Processing..." : "Delete Account"}
+        </button>
       </div>
 
       <hr />
 
-      {/* Partial data deletion section */}
+      {/* Partial data deletion */}
       <div className="section">
         <h3>Request Partial Data Deletion</h3>
         <p>
-          You can request some or all of your personal data to be deleted without removing your account. 
-          This gives you more control over your data.
+          You can request some or all of your personal data to be deleted without removing your account. This gives you more control over your data.
         </p>
         <div className="confirm-checkbox">
           <input
@@ -108,10 +130,16 @@ const DeleteAccount = () => {
           />
           <label htmlFor="confirmPartialDelete">I want to request deletion of some or all of my data</label>
         </div>
-        <button onClick={handlePartialDelete}>Request Data Deletion</button>
+        <button className="delete-btn" onClick={handlePartialDelete} disabled={loading}>
+          {loading ? "Processing..." : "Request Data Deletion"}
+        </button>
       </div>
 
-      {message && <p className="message">{message}</p>}
+      {message && (
+        <p className={`message ${messageType === "error" ? "error" : "success"}`}>
+          {message}
+        </p>
+      )}
 
       <button className="back-button" onClick={() => navigate("/")}>
         Cancel
