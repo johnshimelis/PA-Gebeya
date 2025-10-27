@@ -1,16 +1,21 @@
 .delete-account-page {
-  max-width: 500px;
+  max-width: 600px;
   margin: 50px auto;
   padding: 30px;
   border: 1px solid #ddd;
   border-radius: 8px;
-  text-align: center;
   font-family: Arial, sans-serif;
   background-color: #fff;
 }
 
 .delete-account-page h2 {
   color: #d9534f;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.delete-account-page h3 {
+  color: #c9302c;
 }
 
 .delete-account-page input[type="email"] {
@@ -21,17 +26,23 @@
   border: 1px solid #ccc;
 }
 
+.section {
+  margin-bottom: 30px;
+}
+
 .confirm-checkbox {
-  margin: 15px 0;
+  margin: 10px 0;
   text-align: left;
 }
 
 .delete-account-page button {
   padding: 10px 20px;
-  margin: 10px;
+  margin: 10px 5px 0 0;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  background-color: #d9534f;
+  color: #fff;
 }
 
 .delete-account-page button:hover {
