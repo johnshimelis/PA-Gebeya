@@ -2,8 +2,9 @@
   width: 100%;
   overflow: hidden;
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  padding: 20px 0;
+  padding: 15px 0 20px; /* Reduced top padding from 20px to 15px, kept bottom 20px */
   font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  margin-top: -10px; /* Added negative margin to move entire section up */
 }
 
 .recommended-container {
@@ -21,7 +22,7 @@
   white-space: nowrap;
   width: max-content;
   scroll-snap-type: x mandatory;
-  padding: 20px 40px 20px 0;
+  padding: 15px 40px 20px 0; /* Reduced top padding from 20px to 15px */
   margin: 0;
 }
 
@@ -85,6 +86,16 @@
   transition: all 0.1s ease;
 }
 
+/* Mobile touch interactions */
+@media (max-width: 768px) {
+  .nav-rec-cards:active {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 
+      0 15px 30px rgba(0, 0, 0, 0.12),
+      0 10px 20px rgba(102, 126, 234, 0.15);
+  }
+}
+
 /* Hide Scrollbar */
 .recommended-container::-webkit-scrollbar {
   height: 10px;
@@ -106,10 +117,10 @@
   background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
 }
 
-/* Card Image */
+/* Card Image - INCREASED HEIGHT */
 .card-img {
   width: 100%;
-  height: 200px;
+  height: 220px; /* Increased from 200px for better image visibility */
   overflow: hidden;
   position: relative;
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
@@ -149,13 +160,15 @@
 .carousel-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain; /* Changed from cover to contain to show full image */
   transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   filter: brightness(0.95) saturate(0.9);
+  padding: 8px; /* Added padding to ensure image doesn't touch edges */
+  box-sizing: border-box;
 }
 
 .nav-rec-cards:hover .carousel-image {
-  transform: scale(1.08);
+  transform: scale(1.05); /* Reduced scale to prevent cropping */
   filter: brightness(1.05) saturate(1.1);
 }
 
@@ -301,7 +314,7 @@
   color: white;
   font-size: 10px;
   font-weight: 800;
- padding-left: 10px;
+  padding-left: 10px;
   border-radius: 20px;
   align-self: flex-start;
   text-transform: uppercase;
@@ -521,13 +534,13 @@
 }
 
 .recommended-title {
-  font-size: 32px;
+  font-size: 28px; /* Reduced from 32px to 28px */
   font-weight: 800;
   color: #1a202c;
   font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   position: relative;
   padding-left: 12px;
-  margin: 50px 25px;
+  margin: 30px 25px 20px; /* Reduced top margin from 50px to 30px, added bottom margin */
   text-align: left;
   background: linear-gradient(135deg, #667eea, #764ba2);
   -webkit-background-clip: text;
@@ -646,21 +659,30 @@
   100% { background-position: 200% 0; }
 }
 
-/* Responsive Design */
+/* Responsive Design - MAJOR UPDATES FOR MOBILE */
 @media (max-width: 1200px) {
   .nav-rec-cards {
     width: 260px; /* Adjusted for responsive */
-    height: 340px;
+    height: 360px; /* Maintain same height */
+  }
+  
+  .card-img {
+    height: 220px; /* Maintain same image height */
   }
 }
 
 @media (max-width: 768px) {
+  .recommended-section {
+    padding: 10px 0 15px; /* Reduced top padding further for mobile */
+    margin-top: -15px; /* Increased negative margin for mobile */
+  }
+  
   .recommended-container {
-    padding-left: 30px;
+    padding-left: 25px;
   }
 
   .recommended-header {
-    padding: 0 30px;
+    padding: 0 25px;
   }
 
   .nav-deals-main {
@@ -668,12 +690,18 @@
   }
 
   .nav-rec-cards {
-    width: 240px; /* Adjusted for responsive */
-    height: 320px;
+    width: 250px; /* Slightly wider for mobile */
+    height: 380px; /* Increased height for mobile to accommodate larger image */
   }
 
   .card-img {
-    height: 180px;
+    height: 240px; /* Increased image height for mobile */
+    background: #ffffff; /* White background for better image visibility */
+  }
+
+  .carousel-image {
+    object-fit: contain; /* Show full image without cropping */
+    padding: 12px; /* More padding for mobile */
   }
 
   .product-name {
@@ -682,6 +710,7 @@
 
   .short-description {
     font-size: 11px;
+    padding-left: 12px; /* Adjusted padding for mobile */
   }
 
   .card-price {
@@ -689,18 +718,35 @@
   }
 
   .tiktok-icon {
-    width: 24px;
-    height: 24px;
-    padding: 3px;
+    width: 28px; /* Slightly larger for mobile touch */
+    height: 28px;
+    padding: 4px;
   }
 
   .tiktok-img {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
+  }
+  
+  .card-content {
+    padding: 16px 18px 14px; /* Adjusted padding for mobile */
+  }
+  
+  .card-rating {
+    padding-left: 12px; /* Adjusted for mobile */
+  }
+  
+  .price-sold-container {
+    padding: 16px 4px 0; /* Adjusted for mobile */
   }
 }
 
 @media (max-width: 480px) {
+  .recommended-section {
+    padding: 8px 0 12px; /* Further reduced top padding for small mobile */
+    margin-top: -20px; /* Increased negative margin for small mobile */
+  }
+  
   .recommended-container {
     padding-left: 20px;
   }
@@ -710,42 +756,83 @@
   }
 
   .nav-deals-main {
-    gap: 15px;
+    gap: 16px;
   }
 
   .nav-rec-cards {
-    width: 220px; /* Adjusted for responsive */
-    height: 300px;
+    width: 240px; /* Adjusted for small mobile */
+    height: 370px; /* Maintain increased height */
   }
 
   .card-img {
-    height: 160px;
+    height: 230px; /* Maintain increased image height */
+    background: #ffffff;
+  }
+
+  .carousel-image {
+    object-fit: contain;
+    padding: 10px;
   }
 
   .card-content {
-    padding: 15px 16px 12px; /* Adjusted right padding for mobile */
+    padding: 14px 16px 12px; /* Adjusted right padding for mobile */
   }
 
   .product-name {
     font-size: 13px;
+    padding-left: 8px;
   }
 
   .short-description {
     font-size: 10px;
+    padding-left: 8px;
   }
 
   .card-price {
     font-size: 15px;
+    padding-left: 8px;
   }
 
   .tiktok-icon {
-    width: 22px;
-    height: 22px;
-    padding: 3px;
+    width: 26px;
+    height: 26px;
+    padding: 4px;
   }
 
   .tiktok-img {
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
+  }
+  
+  .card-header {
+    padding-left: 8px;
+  }
+  
+  .card-header .best-seller-tags {
+    padding-left: 8px;
+  }
+  
+  .deal-name-container {
+    padding: 0 2px;
+  }
+  
+  .card-rating {
+    padding-left: 8px;
+  }
+  
+  .price-sold-container {
+    padding: 14px 2px 0;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 360px) {
+  .nav-rec-cards {
+    width: 220px;
+    height: 360px;
+  }
+  
+  .card-img {
+    height: 220px;
   }
 }

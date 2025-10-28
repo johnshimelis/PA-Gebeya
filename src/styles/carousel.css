@@ -1,9 +1,10 @@
 /* CAROUSEL STYLING */
 .full-width-carousel-container1 {
     width: 100%;
-    height: 300px;
+    height: 280px; /* Reduced from 300px */
     margin: 0 auto;
     overflow: hidden;
+    position: relative;
 }
 
 .carousel {
@@ -17,15 +18,16 @@
 }
 
 .carousel-item {
-    height: 50px; /* Adjust this value to your preferred height */
+    height: 100%;
     width: 100%;
 }
 
 .stretched-carousel-image {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* This will cover the area while maintaining aspect ratio */
-    object-position: center; /* Centers the image */
+    object-fit: contain; /* Keep contain to show full image */
+    object-position: center;
+    display: block;
 }
 
 /* Carousel controls styling */
@@ -43,6 +45,10 @@
 }
 
 /* Carousel indicators */
+.carousel-indicators {
+    bottom: 15px; /* Position indicators properly */
+}
+
 .carousel-indicators button {
     width: 12px;
     height: 12px;
@@ -51,21 +57,27 @@
 }
 
 /* Responsive adjustments */
+@media screen and (max-width: 1200px) {
+    .full-width-carousel-container1 {
+        height: 250px; /* Reduced from previous */
+    }
+}
+
 @media screen and (max-width: 992px) {
-    .carousel-item {
-        height: 400px;
+    .full-width-carousel-container1 {
+        height: 220px; /* Reduced from 250px */
     }
 }
 
 @media screen and (max-width: 768px) {
-    .carousel-item {
-        height: 300px;
+    .full-width-carousel-container1 {
+        height: 180px; /* Reduced from 200px */
     }
 }
 
 @media screen and (max-width: 576px) {
-    .carousel-item {
-        height: 250px;
+    .full-width-carousel-container1 {
+        height: 150px; /* Reduced from 180px */
     }
     
     .carousel-control-prev-icon,
@@ -73,12 +85,28 @@
         width: 1.5rem;
         height: 1.5rem;
     }
+
+    .carousel-indicators {
+        bottom: 10px; /* Adjust indicator position for mobile */
+    }
+
+    .carousel-indicators button {
+        width: 8px;
+        height: 8px;
+        margin: 0 3px;
+    }
 }
 
-/* Loading Skeleton Styles - Added to existing CSS */
+@media screen and (max-width: 400px) {
+    .full-width-carousel-container1 {
+        height: 130px; /* Even smaller for very small devices */
+    }
+}
+
+/* Loading Skeleton Styles */
 .carousel-skeleton-wrapper {
     width: 100%;
-    height: 300px;
+    height: 280px; /* Match reduced container height */
     position: relative;
     overflow: hidden;
     background-color: #f5f5f5;
@@ -122,25 +150,37 @@
 }
 
 /* Responsive Skeleton Heights */
+@media screen and (max-width: 1200px) {
+    .carousel-skeleton-wrapper {
+        height: 250px;
+    }
+}
+
 @media screen and (max-width: 992px) {
     .carousel-skeleton-wrapper {
-        height: 400px;
+        height: 220px;
     }
 }
 
 @media screen and (max-width: 768px) {
     .carousel-skeleton-wrapper {
-        height: 300px;
+        height: 180px;
     }
 }
 
 @media screen and (max-width: 576px) {
     .carousel-skeleton-wrapper {
-        height: 250px;
+        height: 150px;
     }
     
     .carousel-skeleton-indicator {
-        width: 10px;
-        height: 10px;
+        width: 8px;
+        height: 8px;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .carousel-skeleton-wrapper {
+        height: 130px;
     }
 }

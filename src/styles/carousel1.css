@@ -28,7 +28,7 @@
 .nav-carousel-2 img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain; /* Changed from cover to contain */
 }
 
 /* Loading Skeleton Styles */
@@ -146,12 +146,20 @@
     right: 0%;
 }
 
-/* Carousel Image Styling */
+/* Carousel Image Styling - UPDATED FOR FULL VISIBILITY */
 .stretched-carousel-image {
     width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 8px;
+    height: 100%;
+    object-fit: contain; /* Changed from cover to contain */
+    object-position: center;
+    display: block;
+}
+
+.carousel-item {
+    background-color: #f8f9fa; /* Added background for better visual */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Bootstrap Carousel Customizations */
@@ -192,13 +200,20 @@
 @media screen and (max-width: 768px) {
     .nav-carousel-1 {
         width: 100%;
-        height: auto;
+        height: auto; /* Changed to auto for mobile */
+        min-height: 180px; /* Minimum height */
+    }
+
+    .carousel-item {
+        height: auto; /* Allow height to adjust to content */
+        min-height: 180px;
     }
 
     .carousel-item img {
         width: 100%;
-        height: 150px;
-        object-fit: cover;
+        height: auto; /* Let height adjust naturally */
+        max-height: none; /* Remove height restrictions */
+        object-fit: contain; /* Ensure full image visibility */
     }
 
     .nav-carousel-2 {
@@ -206,15 +221,18 @@
     }
 
     .carousel-skeleton-container {
-        height: 150px;
+        height: 180px; /* Match adjusted height */
     }
 
     .carousel-skeleton-secondary {
-        height: 150px;
+        height: 180px;
     }
 
     .stretched-carousel-image {
-        height: 150px;
+        width: 100%;
+        height: auto; /* Let height adjust to maintain aspect ratio */
+        max-height: none; /* Remove max-height restriction */
+        object-fit: contain; /* Ensure full image visibility on mobile */
     }
 
     /* Hide skeleton side banners on mobile */
@@ -228,8 +246,16 @@
 }
 
 @media screen and (max-width: 480px) {
+    .nav-carousel-1 {
+        min-height: 160px; /* Slightly smaller for very small screens */
+    }
+
+    .carousel-item {
+        min-height: 160px;
+    }
+
     .carousel-skeleton-container {
-        height: 120px;
+        height: 160px;
     }
 
     .carousel-skeleton-indicators {
@@ -242,7 +268,9 @@
     }
 
     .stretched-carousel-image {
-        height: 120px;
+        width: 100%;
+        height: auto; /* Let height adjust naturally */
+        object-fit: contain; /* Ensure full image visibility */
     }
 }
 

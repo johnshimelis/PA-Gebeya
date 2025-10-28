@@ -15,6 +15,21 @@ const RecommendedDeals = () => {
   const [shuffledDeals, setShuffledDeals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [hoveredCard, setHoveredCard] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if mobile on component mount and resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
 
   // Fisher-Yates shuffle algorithm
   const shuffleArray = useCallback((array) => {
@@ -121,20 +136,36 @@ const RecommendedDeals = () => {
   };
 
   const handleCardHover = (cardId) => {
-    setHoveredCard(cardId);
+    if (!isMobile) {
+      setHoveredCard(cardId);
+    }
   };
 
   const handleCardLeave = () => {
-    setHoveredCard(null);
+    if (!isMobile) {
+      setHoveredCard(null);
+    }
+  };
+
+  const handleTouchStart = (cardId) => {
+    if (isMobile) {
+      setHoveredCard(cardId);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (isMobile) {
+      setTimeout(() => setHoveredCard(null), 300);
+    }
   };
 
   if (loading) {
     return (
       <section className="recommended-section">
         <h4 style={{ 
-          margin: "50px 25px", 
+          margin: "30px 25px 20px", /* Reduced top margin from 50px to 30px, added bottom margin */
           textAlign: "left", 
-          fontSize: "32px", 
+          fontSize: "28px", /* Reduced from 32px to 28px */
           fontWeight: 800,
           background: "linear-gradient(135deg, #667eea, #764ba2)",
           WebkitBackgroundClip: "text",
@@ -166,9 +197,9 @@ const RecommendedDeals = () => {
   return (
     <section className="recommended-section">
       <h4 style={{ 
-        margin: "50px 25px", 
+        margin: "30px 25px 20px", /* Reduced top margin from 50px to 30px, added bottom margin */
         textAlign: "left", 
-        fontSize: "32px", 
+        fontSize: "28px", /* Reduced from 32px to 28px */
         fontWeight: 800,
         background: "linear-gradient(135deg, #667eea, #764ba2)",
         WebkitBackgroundClip: "text",
@@ -184,6 +215,8 @@ const RecommendedDeals = () => {
               className="nav-rec-cards"
               onMouseEnter={() => handleCardHover(deal._id)}
               onMouseLeave={handleCardLeave}
+              onTouchStart={() => handleTouchStart(deal._id)}
+              onTouchEnd={handleTouchEnd}
             >
               <div className="card-img" onClick={() => handleProductClick(deal)}>
                 <div className="image-overlay"></div>
