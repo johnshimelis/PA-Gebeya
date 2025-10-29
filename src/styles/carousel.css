@@ -1,7 +1,7 @@
 /* CAROUSEL STYLING */
 .full-width-carousel-container1 {
     width: 100%;
-    height: 280px; /* Reduced from 300px */
+    height: auto; /* Changed from fixed height to auto */
     margin: 0 auto;
     overflow: hidden;
     position: relative;
@@ -9,39 +9,58 @@
 
 .carousel {
     width: 100%;
-    height: 100%;
+    height: auto; /* Changed to auto */
 }
 
 .carousel-inner {
     width: 100%;
-    height: 100%;
+    height: auto !important; /* Changed to auto */
 }
 
 .carousel-item {
-    height: 100%;
+    height: auto !important; /* Changed to auto */
     width: 100%;
 }
 
 .stretched-carousel-image {
     width: 100%;
-    height: 100%;
+    height: auto; /* Changed to auto to maintain aspect ratio */
     object-fit: contain; /* Keep contain to show full image */
     object-position: center;
     display: block;
 }
 
-/* Carousel controls styling */
-.carousel-control-prev,
-.carousel-control-next {
-    width: 5%;
+/* Center carousel control buttons */
+.centered-carousel-control {
+    top: 50% !important;
+    transform: translateY(-50%);
+    bottom: auto !important;
+    width: 40px !important;
+    height: 40px !important;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.centered-carousel-control:hover {
+    opacity: 1;
+}
+
+.carousel-control-prev.centered-carousel-control {
+    left: 10px !important;
+}
+
+.carousel-control-next.centered-carousel-control {
+    right: 10px !important;
 }
 
 .carousel-control-prev-icon,
 .carousel-control-next-icon {
-    width: 2.5rem;
-    height: 2.5rem;
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgba(69, 93, 121, 0.9);
     border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    background-size: 20px 20px;
+    background-position: center;
 }
 
 /* Carousel indicators */
@@ -56,34 +75,83 @@
     margin: 0 5px;
 }
 
-/* Responsive adjustments */
+/* Responsive adjustments - COMPLETELY REVISED FOR NO CROPPING */
+@media screen and (max-width: 1400px) {
+    .full-width-carousel-container1 {
+        height: auto;
+    }
+    
+    .stretched-carousel-image {
+        object-fit: contain;
+        height: auto;
+    }
+}
+
 @media screen and (max-width: 1200px) {
     .full-width-carousel-container1 {
-        height: 250px; /* Reduced from previous */
+        height: auto;
+    }
+    
+    .stretched-carousel-image {
+        object-fit: contain;
+        height: auto;
     }
 }
 
 @media screen and (max-width: 992px) {
     .full-width-carousel-container1 {
-        height: 220px; /* Reduced from 250px */
+        height: auto;
+    }
+    
+    .stretched-carousel-image {
+        object-fit: contain;
+        height: auto;
     }
 }
 
 @media screen and (max-width: 768px) {
     .full-width-carousel-container1 {
-        height: 180px; /* Reduced from 200px */
+        height: auto;
+    }
+    
+    .stretched-carousel-image {
+        object-fit: contain;
+        height: auto;
+    }
+    
+    .centered-carousel-control {
+        width: 35px !important;
+        height: 35px !important;
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        width: 35px;
+        height: 35px;
+        background-size: 18px 18px;
     }
 }
 
 @media screen and (max-width: 576px) {
     .full-width-carousel-container1 {
-        height: 150px; /* Reduced from 180px */
+        height: auto;
     }
     
+    .stretched-carousel-image {
+        object-fit: contain;
+        height: auto;
+    }
+    
+    .centered-carousel-control {
+        width: 30px !important;
+        height: 30px !important;
+    }
+
     .carousel-control-prev-icon,
     .carousel-control-next-icon {
-        width: 1.5rem;
-        height: 1.5rem;
+        width: 30px;
+        height: 30px;
+        background-size: 15px 15px;
     }
 
     .carousel-indicators {
@@ -99,14 +167,19 @@
 
 @media screen and (max-width: 400px) {
     .full-width-carousel-container1 {
-        height: 130px; /* Even smaller for very small devices */
+        height: auto;
+    }
+    
+    .stretched-carousel-image {
+        object-fit: contain;
+        height: auto;
     }
 }
 
-/* Loading Skeleton Styles */
+/* Loading Skeleton Styles - UPDATED FOR FLEXIBLE HEIGHT */
 .carousel-skeleton-wrapper {
     width: 100%;
-    height: 280px; /* Match reduced container height */
+    height: 280px; /* Keep initial height but will be responsive */
     position: relative;
     overflow: hidden;
     background-color: #f5f5f5;
@@ -149,7 +222,7 @@
     }
 }
 
-/* Responsive Skeleton Heights */
+/* Responsive Skeleton Heights - UPDATED */
 @media screen and (max-width: 1200px) {
     .carousel-skeleton-wrapper {
         height: 250px;

@@ -104,9 +104,9 @@ const Carousel2 = () => {
           ))}
         </div>
 
-        {/* Controls */}
+        {/* Controls - UPDATED WITH CENTERED CLASS */}
         <button
-          className="carousel-control-prev"
+          className="carousel-control-prev centered-carousel-control"
           type="button"
           data-bs-target="#carouselExampleIndicators2"
           data-bs-slide="prev"
@@ -115,7 +115,7 @@ const Carousel2 = () => {
           <span className="visually-hidden">Previous</span>
         </button>
         <button
-          className="carousel-control-next"
+          className="carousel-control-next centered-carousel-control"
           type="button"
           data-bs-target="#carouselExampleIndicators2"
           data-bs-slide="next"

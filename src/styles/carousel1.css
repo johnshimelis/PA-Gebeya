@@ -9,7 +9,8 @@
 
 .nav-carousel-1 {
     width: 70%;
-    height: 200px;
+    height: auto; /* Changed to auto for flexible height */
+    position: relative;
 }
 
 .nav-carousel-2 {
@@ -28,7 +29,7 @@
 .nav-carousel-2 img {
     width: 100%;
     height: 100%;
-    object-fit: contain; /* Changed from cover to contain */
+    object-fit: contain;
 }
 
 /* Loading Skeleton Styles */
@@ -146,20 +147,69 @@
     right: 0%;
 }
 
-/* Carousel Image Styling - UPDATED FOR FULL VISIBILITY */
+/* Carousel Image Styling - UPDATED TO SHOW ENTIRE IMAGE */
 .stretched-carousel-image {
     width: 100%;
-    height: 100%;
-    object-fit: contain; /* Changed from cover to contain */
+    height: auto; /* Changed to auto to maintain aspect ratio */
+    object-fit: contain; /* Ensure entire image is visible */
     object-position: center;
     display: block;
 }
 
 .carousel-item {
-    background-color: #f8f9fa; /* Added background for better visual */
+    background-color: #f8f9fa;
     display: flex;
     align-items: center;
     justify-content: center;
+    height: auto !important; /* Changed to auto */
+}
+
+/* Remove any default Bootstrap margins/padding that might cause empty space */
+.carousel {
+    margin: 0;
+    padding: 0;
+    height: auto; /* Changed to auto */
+}
+
+.carousel-inner {
+    margin: 0;
+    padding: 0;
+    height: auto !important; /* Changed to auto */
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Center carousel control buttons */
+.centered-carousel-control {
+    top: 50% !important;
+    transform: translateY(-50%);
+    bottom: auto !important;
+    width: 40px !important;
+    height: 40px !important;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.centered-carousel-control:hover {
+    opacity: 1;
+}
+
+.carousel-control-prev.centered-carousel-control {
+    left: 10px !important;
+}
+
+.carousel-control-next.centered-carousel-control {
+    right: 10px !important;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(69, 93, 121, 0.9);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    background-size: 20px 20px;
+    background-position: center;
 }
 
 /* Bootstrap Carousel Customizations */
@@ -176,44 +226,83 @@
     background-color: #455d79;
 }
 
-.carousel-control-prev,
-.carousel-control-next {
-    width: 5%;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+/* FIX FOR ALL SCREEN SIZES - ENSURE NO IMAGE CROPPING */
+@media screen and (max-width: 1400px) {
+    .nav-carousel-1 {
+        width: 65%;
+    }
+    
+    .nav-carousel-2 {
+        width: 35%;
+    }
+    
+    .stretched-carousel-image {
+        object-fit: contain;
+        height: auto;
+        max-height: none;
+    }
+    
+    .carousel-item img {
+        object-fit: contain;
+        height: auto;
+    }
 }
 
-.carousel:hover .carousel-control-prev,
-.carousel:hover .carousel-control-next {
-    opacity: 1;
+@media screen and (max-width: 1200px) {
+    .nav-carousel-1 {
+        width: 65%;
+    }
+    
+    .nav-carousel-2 {
+        width: 35%;
+    }
+    
+    .stretched-carousel-image {
+        object-fit: contain;
+        height: auto;
+    }
+    
+    .carousel-item img {
+        object-fit: contain;
+        height: auto;
+    }
 }
 
-.carousel-control-prev-icon,
-.carousel-control-next-icon {
-    background-color: rgba(69, 93, 121, 0.8);
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    background-size: 20px 20px;
+@media screen and (max-width: 992px) {
+    .nav-carousel-1 {
+        width: 60%;
+    }
+    
+    .nav-carousel-2 {
+        width: 40%;
+    }
+    
+    .stretched-carousel-image {
+        object-fit: contain;
+        height: auto;
+    }
+    
+    .carousel-item img {
+        object-fit: contain;
+        height: auto;
+    }
 }
 
+/* Mobile responsiveness - COMPLETELY REVISED TO PREVENT CROPPING */
 @media screen and (max-width: 768px) {
     .nav-carousel-1 {
         width: 100%;
-        height: auto; /* Changed to auto for mobile */
-        min-height: 180px; /* Minimum height */
+        height: auto; /* Let height adjust to content */
     }
 
     .carousel-item {
-        height: auto; /* Allow height to adjust to content */
-        min-height: 180px;
+        height: auto !important; /* Let height adjust naturally */
     }
 
     .carousel-item img {
-        width: 100%;
-        height: auto; /* Let height adjust naturally */
-        max-height: none; /* Remove height restrictions */
+        height: auto !important; /* Let height adjust to maintain aspect ratio */
         object-fit: contain; /* Ensure full image visibility */
+        max-height: none; /* Remove any height restrictions */
     }
 
     .nav-carousel-2 {
@@ -221,18 +310,31 @@
     }
 
     .carousel-skeleton-container {
-        height: 180px; /* Match adjusted height */
+        height: auto; /* Adjust skeleton to match */
+        min-height: 180px;
     }
 
     .carousel-skeleton-secondary {
-        height: 180px;
+        height: auto;
+        min-height: 180px;
     }
 
     .stretched-carousel-image {
-        width: 100%;
-        height: auto; /* Let height adjust to maintain aspect ratio */
-        max-height: none; /* Remove max-height restriction */
-        object-fit: contain; /* Ensure full image visibility on mobile */
+        height: auto !important; /* Let height adjust naturally */
+        object-fit: contain; /* Ensure full image visibility */
+        max-height: none; /* Remove height restrictions */
+    }
+
+    .centered-carousel-control {
+        width: 35px !important;
+        height: 35px !important;
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        width: 35px;
+        height: 35px;
+        background-size: 18px 18px;
     }
 
     /* Hide skeleton side banners on mobile */
@@ -245,17 +347,54 @@
     }
 }
 
-@media screen and (max-width: 480px) {
+/* FIX FOR TABLET AND MOBILE - ENSURE NO CROPPING */
+@media screen and (max-width: 550px) {
     .nav-carousel-1 {
-        min-height: 160px; /* Slightly smaller for very small screens */
+        height: auto;
     }
 
     .carousel-item {
-        min-height: 160px;
+        height: auto !important;
+    }
+
+    .carousel-item img {
+        height: auto !important;
+        object-fit: contain; /* Ensure no cropping */
     }
 
     .carousel-skeleton-container {
-        height: 160px;
+        height: auto;
+        min-height: 150px;
+    }
+
+    .carousel-skeleton-secondary {
+        height: auto;
+        min-height: 150px;
+    }
+
+    .stretched-carousel-image {
+        height: auto !important;
+        object-fit: contain; /* Ensure no cropping */
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .nav-carousel-1 {
+        height: auto;
+    }
+
+    .carousel-item {
+        height: auto !important;
+    }
+
+    .carousel-item img {
+        height: auto !important;
+        object-fit: contain; /* Ensure no cropping */
+    }
+
+    .carousel-skeleton-container {
+        height: auto;
+        min-height: 140px;
     }
 
     .carousel-skeleton-indicators {
@@ -268,9 +407,8 @@
     }
 
     .stretched-carousel-image {
-        width: 100%;
-        height: auto; /* Let height adjust naturally */
-        object-fit: contain; /* Ensure full image visibility */
+        height: auto !important;
+        object-fit: contain; /* Ensure no cropping */
     }
 }
 

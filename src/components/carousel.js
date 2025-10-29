@@ -109,7 +109,7 @@ const Carousel = () => {
             </div>
             
             <button
-              className="carousel-control-prev"
+              className="carousel-control-prev centered-carousel-control"
               type="button"
               data-bs-target="#carouselExampleIndicators"
               data-bs-slide="prev"
@@ -118,7 +118,7 @@ const Carousel = () => {
               <span className="visually-hidden">Previous</span>
             </button>
             <button
-              className="carousel-control-next"
+              className="carousel-control-next centered-carousel-control"
               type="button"
               data-bs-target="#carouselExampleIndicators"
               data-bs-slide="next"
@@ -148,4 +148,4 @@ const Carousel = () => {
   );
 };
 
-export default Carousel;
+export default Carousel;  
