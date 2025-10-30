@@ -99,7 +99,6 @@ const BestSeller = () => {
                 <div className="card-content">
                   <div className="skeleton-text" style={{width: '40%'}}></div>
                   <div className="skeleton-text"></div>
-                  <div className="skeleton-text short"></div>
                   <div className="skeleton-price"></div>
                 </div>
               </div>
@@ -180,9 +179,7 @@ const BestSeller = () => {
                 <div className="deal-name-container">
                   <span className="product-name">{deal.name}</span>
                 </div>
-                <p className="short-description">
-                  {deal.shortDescription || "Premium quality product with excellent features and customer satisfaction guarantee."}
-                </p>
+                {/* DESCRIPTION REMOVED */}
                 <div className="card-rating">
                   <div className="stars">
                     {renderRatingStars(deal.rating || 0)}

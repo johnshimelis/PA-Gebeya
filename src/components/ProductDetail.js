@@ -422,9 +422,7 @@ const ProductDetails = () => {
                     </span>
                     <span className="product-name">{relatedProduct.name}</span>
                   </div>
-                  <p className="short-description">
-                    {relatedProduct.shortDescription || 'No description available.'}
-                  </p>
+                  {/* DESCRIPTION REMOVED */}
                   <div className="card-rating">
                     <div className="stars">
                       {renderRatingStars(relatedProduct.rating || 0)}

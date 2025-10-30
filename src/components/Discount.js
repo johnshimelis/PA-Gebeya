@@ -144,7 +144,6 @@ const Discount = () => {
               <div className="discount-card-content">
                 <div className="skeleton-text" style={{width: '40%'}}></div>
                 <div className="skeleton-text"></div>
-                <div className="skeleton-text short"></div>
                 <div className="skeleton-price"></div>
               </div>
             </div>
@@ -225,9 +224,7 @@ const Discount = () => {
                 <div className="discount-product-name-container">
                   <span className="discount-product-name">{deal.name}</span>
                 </div>
-                <p className="discount-short-description">
-                  {deal.shortDescription || "Premium quality product with excellent features."}
-                </p>
+                {/* REMOVED DESCRIPTION SECTION */}
                 <div className="discount-card-rating">
                   <div className="discount-stars">
                     {renderRatingStars(deal.rating || 0)}

@@ -163,9 +163,9 @@ const RecommendedDeals = () => {
     return (
       <section className="recommended-section">
         <h4 style={{ 
-          margin: "30px 25px 20px", /* Reduced top margin from 50px to 30px, added bottom margin */
+          margin: "30px 25px 20px",
           textAlign: "left", 
-          fontSize: "28px", /* Reduced from 32px to 28px */
+          fontSize: "28px",
           fontWeight: 800,
           background: "linear-gradient(135deg, #667eea, #764ba2)",
           WebkitBackgroundClip: "text",
@@ -183,7 +183,6 @@ const RecommendedDeals = () => {
                 <div className="card-content">
                   <div className="skeleton-text" style={{width: '40%'}}></div>
                   <div className="skeleton-text"></div>
-                  <div className="skeleton-text short"></div>
                   <div className="skeleton-price"></div>
                 </div>
               </div>
@@ -197,9 +196,9 @@ const RecommendedDeals = () => {
   return (
     <section className="recommended-section">
       <h4 style={{ 
-        margin: "30px 25px 20px", /* Reduced top margin from 50px to 30px, added bottom margin */
+        margin: "30px 25px 20px",
         textAlign: "left", 
-        fontSize: "28px", /* Reduced from 32px to 28px */
+        fontSize: "28px",
         fontWeight: 800,
         background: "linear-gradient(135deg, #667eea, #764ba2)",
         WebkitBackgroundClip: "text",
@@ -242,6 +241,19 @@ const RecommendedDeals = () => {
                   emulateTouch={true}
                   swipeable={true}
                   transitionTime={500}
+                  renderIndicator={(onClickHandler, isSelected, index, label) => (
+                    <li
+                      className={`dot ${isSelected ? "selected" : ""}`}
+                      onClick={onClickHandler}
+                      onKeyDown={onClickHandler}
+                      value={index}
+                      key={index}
+                      role="button"
+                      tabIndex={0}
+                      title={`${label} ${index + 1}`}
+                      aria-label={`${label} ${index + 1}`}
+                    />
+                  )}
                 >
                   {deal.imageUrls?.map((imageUrl, index) => (
                     <div key={index} className="carousel-image-container">
@@ -273,9 +285,6 @@ const RecommendedDeals = () => {
                 <div className="deal-name-container">
                   <span className="product-name">{deal.name}</span>
                 </div>
-                <p className="short-description">
-                  {deal.shortDescription || "Premium quality product with excellent features and customer satisfaction guarantee."}
-                </p>
                 <div className="card-rating">
                   <div className="stars">
                     {renderRatingStars(deal.rating || 0)}

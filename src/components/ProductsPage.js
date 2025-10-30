@@ -198,7 +198,7 @@ const ProductsPage = () => {
                   <span className="products-page-best-seller-tags shimmer-bg"></span>
                   <span className="products-page-product-name shimmer-bg"></span>
                 </div>
-                <p className="products-page-short-description shimmer-bg"></p>
+                {/* REMOVED DESCRIPTION */}
                 <div className="products-page-card-rating">
                   <div className="products-page-stars shimmer-bg"></div>
                 </div>
@@ -285,9 +285,7 @@ const ProductsPage = () => {
                   <span className="products-page-best-seller-tags">{categoryName} Product</span>
                   <h3 className="products-page-product-name">{product.name}</h3>
                 </div>
-                <p className="products-page-short-description">
-                  {product.shortDescription || "No description available."}
-                </p>
+                {/* DESCRIPTION REMOVED */}
                 <div className="products-page-card-rating">
                   <div className="products-page-stars">
                     {renderRatingStars(product.rating || 0)}
