@@ -52,7 +52,7 @@
   align-items: stretch;
 }
 
-/* INCREASED CARD HEIGHT TO ACCOMMODATE LARGER IMAGE CONTAINER */
+/* DESKTOP CARD SIZE */
 .nav-rec-cards {
   flex: 0 0 auto;
   width: 290px;
@@ -70,7 +70,7 @@
   border: 1px solid rgba(255, 255, 255, 0.3);
   display: flex;
   flex-direction: column;
-  height: 440px; /* Increased from 420px to accommodate larger image container */
+  height: 440px;
   font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
 }
 
@@ -98,16 +98,6 @@
   transition: all 0.1s ease;
 }
 
-/* Mobile touch interactions */
-@media (max-width: 768px) {
-  .nav-rec-cards:active {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 
-      0 15px 30px rgba(0, 0, 0, 0.12),
-      0 10px 20px rgba(102, 126, 234, 0.15);
-  }
-}
-
 /* Hide Scrollbar */
 .recommended-container::-webkit-scrollbar {
   height: 10px;
@@ -129,10 +119,10 @@
   background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
 }
 
-/* Card Image - SIGNIFICANTLY INCREASED HEIGHT TO SHOW EVERY EDGE WITHOUT CROPPING */
+/* Card Image */
 .card-img {
   width: 100%;
-  height: 300px; /* Increased from 280px to show full image without any cutting */
+  height: 300px;
   overflow: hidden;
   position: relative;
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
@@ -199,7 +189,8 @@
   justify-content: center;
   position: relative;
   margin: 0;
-  padding: 0;
+  padding: 15px; /* Added padding to image container */
+  box-sizing: border-box;
 }
 
 /* IMAGE - SHOW FULL IMAGE WITHOUT ANY CROPPING */
@@ -337,9 +328,9 @@
   transform: scale(1.1);
 }
 
-/* CARD CONTENT - REMOVED DESCRIPTION SPACE */
+/* NEW CARD CONTENT STRUCTURE WITH IMPROVED PADDING */
 .card-content {
-  padding: 16px 20px 16px;
+  padding: 20px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -347,27 +338,41 @@
   position: relative;
   font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   justify-content: space-between;
+  height: 140px; /* Fixed height for consistent layout */
 }
 
-/* Card Header - UPDATED TO ALIGN TAG WITH PRODUCT NAME */
+.card-top-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Increased gap for better spacing */
+}
+
+.card-bottom-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: auto;
+  padding-top: 15px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Card Header */
 .card-header {
   display: flex;
-  align-items: flex-start; /* Align items to the top */
-  gap: 8px;
-  margin-bottom: 8px; /* Reduced margin */
+  margin-bottom: 0;
   text-align: left;
   width: 100%;
-  padding-left: 0;
+  padding: 0 5px; /* Added side padding */
 }
 
-/* MOVED BEST SELLER TAG TO LEFT CORNER */
 .best-seller-tags {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   font-size: 10px;
   font-weight: 800;
-  padding: 4px 8px; /* Slightly smaller padding */
-  border-radius: 12px; /* Slightly smaller radius */
+  padding: 6px 12px; /* Increased padding */
+  border-radius: 12px;
   text-transform: uppercase;
   letter-spacing: 0.8px;
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
@@ -378,8 +383,6 @@
   font-weight: 700;
   line-height: 1;
   white-space: nowrap;
-  flex-shrink: 0; /* Prevent tag from shrinking */
-  margin: 0; /* Remove any margin */
 }
 
 .best-seller-tags::before {
@@ -402,17 +405,16 @@
   50% { transform: scale(1.02); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
 }
 
-/* Deal Name Container - UPDATED TO ALIGN WITH TAG */
-.deal-name-container {
-  margin-bottom: 12px;
+/* Product Name */
+.product-name-container {
+  margin-bottom: 0;
   text-align: left;
   width: 100%;
-  padding: 0;
-  flex: 1; /* Take remaining space */
+  padding: 0 5px; /* Added side padding */
 }
 
 .product-name {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: #1a202c;
   line-height: 1.3;
@@ -423,134 +425,106 @@
   transition: all 0.3s ease;
   position: relative;
   width: 100%;
-  padding-left: 0;
   margin: 0;
   font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   font-weight: 600;
   display: block;
+  padding: 2px 0; /* Added vertical padding */
 }
 
-.nav-rec-cards:hover .product-name {
-  color: #667eea;
-  transform: translateX(2px);
-}
-
-/* Product Rating */
-.card-rating {
+/* Rating Section - Under product name */
+.rating-section {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 15px;
+  margin-top: 4px;
   flex-wrap: wrap;
-  text-align: left;
-  padding-left: 0;
+  padding: 0 5px; /* Added side padding */
 }
 
 .stars {
   display: flex;
-  gap: 1px;
+  gap: 2px;
 }
 
 .star {
-  font-size: 12px;
+  font-size: 14px;
   color: #e2e8f0;
   transition: all 0.3s ease;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  padding: 1px 0; /* Added vertical padding */
 }
 
 .star.filled {
   color: #ffc107;
   text-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);
-  animation: starTwinkle 2s infinite;
-}
-
-@keyframes starTwinkle {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.1); }
-}
-
-.star.half {
-  position: relative;
-  color: #e2e8f0;
-}
-
-.star.half::before {
-  content: "★";
-  position: absolute;
-  width: 50%;
-  overflow: hidden;
-  color: #ffc107;
 }
 
 .rating-number,
-.sold-count {
-  font-size: 11px;
+.rating-sold {
+  font-size: 12px;
   color: #718096;
   font-weight: 600;
   transition: color 0.3s ease;
   font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  padding: 1px 0; /* Added vertical padding */
 }
 
-.nav-rec-cards:hover .rating-number,
-.nav-rec-cards:hover .sold-count {
-  color: #4a5568;
+.separator {
+  color: #cbd5e0;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 1px 0; /* Added vertical padding */
 }
 
-/* Price and Sold Info */
-.price-sold-container {
+/* Price Section - Bottom Left */
+.price-section {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-top: auto;
-  padding-top: 12px;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-  position: relative;
-  padding: 12px 0 0;
-}
-
-.price-sold-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: linear-gradient(90deg, #667eea, #764ba2);
-  transition: width 0.4s ease;
-}
-
-.nav-rec-cards:hover .price-sold-container::before {
-  width: 100%;
+  padding: 0 5px; /* Added side padding */
 }
 
 .card-price {
-  font-size: 17px;
+  font-size: 20px; /* Larger font size */
   font-weight: 800;
-  padding-left: 0;
   color: #2d3748;
   text-align: left;
   transition: all 0.3s ease;
   font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   font-weight: 700;
+  padding: 4px 0; /* Added padding */
 }
 
-.nav-rec-cards:hover .card-price {
-  color: #667eea;
-  transform: translateX(2px);
+/* Sold Section - Bottom Right */
+.sold-section {
+  display: flex;
+  align-items: center;
+  padding: 0 5px; /* Added side padding */
 }
 
-.sold-info {
-  font-size: 11px;
+.sold-count {
+  font-size: 12px;
   color: #718096;
   font-weight: 600;
   transition: all 0.3s ease;
   font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  padding: 4px 0; /* Added padding */
 }
 
-.nav-rec-cards:hover .sold-info {
+/* Hover effects */
+.nav-rec-cards:hover .product-name {
+  color: #667eea;
+}
+
+.nav-rec-cards:hover .card-price {
+  color: #667eea;
+}
+
+.nav-rec-cards:hover .rating-number,
+.nav-rec-cards:hover .rating-sold,
+.nav-rec-cards:hover .sold-count {
   color: #4a5568;
-  transform: translateX(-1px);
 }
 
 /* Carousel customizations */
@@ -625,15 +599,15 @@
   100% { background-position: 200% 0; }
 }
 
-/* Responsive Design - UPDATED FOR LARGER IMAGE CONTAINER */
+/* MOBILE RESPONSIVE DESIGN - SMALLER CARDS */
 @media (max-width: 1200px) {
   .nav-rec-cards {
     width: 270px;
-    height: 420px; /* Adjusted */
+    height: 420px;
   }
   
   .card-img {
-    height: 280px; /* Adjusted */
+    height: 280px;
   }
 }
 
@@ -649,33 +623,66 @@
   }
   
   .recommended-container {
-    padding-left: 25px;
+    padding-left: 20px; /* Reduced padding for mobile */
   }
 
   .nav-deals-main {
-    gap: 20px;
+    gap: 15px; /* Reduced gap for mobile */
   }
 
+  /* SMALLER MOBILE CARDS */
   .nav-rec-cards {
-    width: 260px;
-    height: 420px; /* Adjusted */
+    width: 220px; /* Smaller width for mobile */
+    height: 380px; /* Reduced height for mobile */
   }
 
   .card-img {
-    height: 280px; /* Adjusted */
+    height: 220px; /* Reduced image height for mobile */
     background: #ffffff;
+  }
+
+  .card-img .carousel-image-container {
+    padding: 12px; /* Adjusted padding for mobile */
   }
 
   .carousel-image {
     object-fit: contain;
   }
 
+  .card-content {
+    padding: 16px; /* Adjusted padding for mobile */
+    height: 130px; /* Adjusted height for mobile */
+  }
+  
   .product-name {
-    font-size: 14px;
+    font-size: 14px; /* Slightly smaller font for mobile */
+  }
+  
+  .card-price {
+    font-size: 18px; /* Slightly smaller price for mobile */
+  }
+  
+  .rating-section {
+    gap: 4px;
+  }
+  
+  .star {
+    font-size: 12px; /* Smaller stars for mobile */
+  }
+  
+  .rating-number,
+  .rating-sold,
+  .separator {
+    font-size: 11px; /* Smaller text for mobile */
+  }
+  
+  .sold-count {
+    font-size: 11px; /* Smaller sold count for mobile */
   }
 
-  .card-price {
-    font-size: 16px;
+  .best-seller-tags {
+    font-size: 9px; /* Smaller tag for mobile */
+    padding: 4px 8px; /* Adjusted padding for mobile */
   }
 
   .tiktok-icon {
@@ -688,28 +695,13 @@
     width: 14px;
     height: 14px;
   }
-  
-  .card-content {
-    padding: 14px 18px 14px;
-  }
-  
-  .card-rating {
-    padding-left: 0;
-  }
-  
-  .price-sold-container {
-    padding: 10px 0 0;
-  }
 
-  /* Mobile adjustments for tag alignment */
-  .card-header {
-    gap: 6px;
-    margin-bottom: 6px;
-  }
-
-  .best-seller-tags {
-    font-size: 9px;
-    padding: 3px 6px;
+  /* Mobile touch interactions */
+  .nav-rec-cards:active {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 
+      0 15px 30px rgba(0, 0, 0, 0.12),
+      0 10px 20px rgba(102, 126, 234, 0.15);
   }
 }
 
@@ -725,21 +717,26 @@
   }
   
   .recommended-container {
-    padding-left: 20px;
+    padding-left: 15px; /* Further reduced padding for small mobile */
   }
 
   .nav-deals-main {
-    gap: 16px;
+    gap: 12px; /* Further reduced gap for small mobile */
   }
 
+  /* EVEN SMALLER CARDS FOR SMALL MOBILE */
   .nav-rec-cards {
-    width: 240px;
-    height: 410px; /* Adjusted */
+    width: 200px; /* Even smaller width for small mobile */
+    height: 360px; /* Further reduced height */
   }
 
   .card-img {
-    height: 270px; /* Adjusted */
+    height: 200px; /* Further reduced image height */
     background: #ffffff;
+  }
+
+  .card-img .carousel-image-container {
+    padding: 10px; /* Further reduced padding */
   }
 
   .carousel-image {
@@ -747,65 +744,88 @@
   }
 
   .card-content {
-    padding: 12px 16px 12px;
+    padding: 14px; /* Further reduced padding */
+    height: 120px; /* Further reduced height */
   }
-
+  
   .product-name {
-    font-size: 13px;
+    font-size: 13px; /* Even smaller font */
   }
-
+  
   .card-price {
-    font-size: 15px;
+    font-size: 16px; /* Even smaller price */
+  }
+  
+  .best-seller-tags {
+    font-size: 8px; /* Even smaller tag */
+    padding: 3px 6px; /* Further adjusted padding */
+  }
+  
+  .rating-section {
+    gap: 3px;
+  }
+  
+  .star {
+    font-size: 11px; /* Even smaller stars */
+  }
+  
+  .rating-number,
+  .rating-sold,
+  .separator {
+    font-size: 10px; /* Even smaller text */
+  }
+  
+  .sold-count {
+    font-size: 10px; /* Even smaller sold count */
   }
 
   .tiktok-icon {
-    width: 26px;
-    height: 26px;
-    padding: 4px;
+    width: 24px;
+    height: 24px;
+    padding: 3px;
   }
 
   .tiktok-img {
     width: 12px;
     height: 12px;
   }
-  
-  .card-header {
-    padding-left: 0;
-    gap: 4px;
-    margin-bottom: 4px;
-  }
-  
-  .best-seller-tags {
-    font-size: 8px;
-    padding: 2px 5px;
-  }
-  
-  .deal-name-container {
-    padding: 0;
-  }
-  
-  .card-rating {
-    padding-left: 0;
-  }
-  
-  .price-sold-container {
-    padding: 8px 0 0;
+
+  /* Adjust padding for all content sections on small mobile */
+  .card-header,
+  .product-name-container,
+  .rating-section,
+  .price-section,
+  .sold-section {
+    padding: 0 3px; /* Reduced side padding for small mobile */
   }
 }
 
 /* Extra small devices */
 @media (max-width: 360px) {
   .nav-rec-cards {
-    width: 220px;
-    height: 390px; /* Adjusted */
+    width: 180px; /* Smallest width for extra small devices */
+    height: 340px; /* Smallest height */
   }
   
   .card-img {
-    height: 250px; /* Adjusted */
+    height: 180px; /* Smallest image height */
   }
 
   .best-seller-tags {
-    font-size: 7px;
-    padding: 2px 4px;
+    font-size: 7px; /* Smallest tag */
+    padding: 2px 4px; /* Smallest padding */
+  }
+
+  .card-content {
+    padding: 12px; /* Smallest padding */
+    height: 110px; /* Smallest height */
+  }
+
+  .product-name {
+    font-size: 12px; /* Smallest font */
+  }
+
+  .card-price {
+    font-size: 15px; /* Smallest price */
   }
 }

@@ -162,15 +162,7 @@ const RecommendedDeals = () => {
   if (loading) {
     return (
       <section className="recommended-section">
-        <h4 style={{ 
-          margin: "30px 25px 20px",
-          textAlign: "left", 
-          fontSize: "28px",
-          fontWeight: 800,
-          background: "linear-gradient(135deg, #667eea, #764ba2)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent"
-        }}>
+        <h4 className="recommended-title">
           Recommended for you
         </h4>
         <div className="recommended-container">
@@ -195,15 +187,7 @@ const RecommendedDeals = () => {
 
   return (
     <section className="recommended-section">
-      <h4 style={{ 
-        margin: "30px 25px 20px",
-        textAlign: "left", 
-        fontSize: "28px",
-        fontWeight: 800,
-        background: "linear-gradient(135deg, #667eea, #764ba2)",
-        WebkitBackgroundClip: "text",
-        WebkitTextFillColor: "transparent"
-      }}>
+      <h4 className="recommended-title">
         Recommended for you
       </h4>
       <div className="recommended-container">
@@ -279,22 +263,32 @@ const RecommendedDeals = () => {
               </div>
               
               <div className="card-content" onClick={() => handleProductClick(deal)}>
-                <div className="card-header">
-                  <span className="best-seller-tags">🔥 Recommended</span>
-                </div>
-                <div className="deal-name-container">
-                  <span className="product-name">{deal.name}</span>
-                </div>
-                <div className="card-rating">
-                  <div className="stars">
-                    {renderRatingStars(deal.rating || 0)}
+                <div className="card-top-section">
+                  <div className="card-header">
+                    <span className="best-seller-tags">🔥 Recommended</span>
                   </div>
-                  <span className="rating-number">| {deal.rating?.toFixed(1) || 0}</span>
-                  <span className="sold-count">| {formatSoldCount(deal.sold || 0)}</span>
+                  
+                  <div className="product-name-container">
+                    <span className="product-name">{deal.name}</span>
+                  </div>
+                  
+                  <div className="rating-section">
+                    <div className="stars">
+                      {renderRatingStars(deal.rating || 0)}
+                    </div>
+                    <span className="rating-number">{deal.rating?.toFixed(1) || 0}</span>
+                    <span className="separator">|</span>
+                    <span className="rating-sold">0 sold</span>
+                  </div>
                 </div>
-                <div className="price-sold-container">
-                  <div className="card-price">ETB {deal.price?.toFixed(2)}</div>
-                  <div className="sold-info">{formatSoldCount(deal.sold || 0)}</div>
+                
+                <div className="card-bottom-section">
+                  <div className="price-section">
+                    <div className="card-price">ETB {deal.price?.toFixed(2)}</div>
+                  </div>
+                  <div className="sold-section">
+                    <span className="sold-count">{formatSoldCount(deal.sold || 0)}</span>
+                  </div>
                 </div>
               </div>
             </div>

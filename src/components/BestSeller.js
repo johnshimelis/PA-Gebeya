@@ -144,6 +144,19 @@ const BestSeller = () => {
                   emulateTouch={true}
                   swipeable={true}
                   transitionTime={500}
+                  renderIndicator={(onClickHandler, isSelected, index, label) => (
+                    <li
+                      className={`dot ${isSelected ? "selected" : ""}`}
+                      onClick={onClickHandler}
+                      onKeyDown={onClickHandler}
+                      value={index}
+                      key={index}
+                      role="button"
+                      tabIndex={0}
+                      title={`${label} ${index + 1}`}
+                      aria-label={`${label} ${index + 1}`}
+                    />
+                  )}
                 >
                   {deal.images?.length > 0 ? (
                     deal.images.map((image, index) => (
@@ -173,23 +186,32 @@ const BestSeller = () => {
               </div>
               
               <div className="card-content">
-                <div className="card-header">
-                  <span className="best-seller-tags">🔥 Best Seller</span>
-                </div>
-                <div className="deal-name-container">
-                  <span className="product-name">{deal.name}</span>
-                </div>
-                {/* DESCRIPTION REMOVED */}
-                <div className="card-rating">
-                  <div className="stars">
-                    {renderRatingStars(deal.rating || 0)}
+                <div className="card-top-section">
+                  <div className="card-header">
+                    <span className="best-seller-tags">🔥 Best Seller</span>
                   </div>
-                  <span className="rating-number">| {deal.rating?.toFixed(1) || 0}</span>
-                  <span className="sold-count">| {formatSoldCount(deal.sold || 0)}</span>
+                  
+                  <div className="product-name-container">
+                    <span className="product-name">{deal.name}</span>
+                  </div>
+                  
+                  <div className="rating-section">
+                    <div className="stars">
+                      {renderRatingStars(deal.rating || 0)}
+                    </div>
+                    <span className="rating-number">{deal.rating?.toFixed(1) || 0}</span>
+                    <span className="separator">|</span>
+                    <span className="rating-sold">0 sold</span>
+                  </div>
                 </div>
-                <div className="price-sold-container">
-                  <div className="card-price">ETB {deal.price?.toFixed(2)}</div>
-                  <div className="sold-info">{formatSoldCount(deal.sold || 0)}</div>
+                
+                <div className="card-bottom-section">
+                  <div className="price-section">
+                    <div className="card-price">ETB {deal.price?.toFixed(2)}</div>
+                  </div>
+                  <div className="sold-section">
+                    <span className="sold-count">{formatSoldCount(deal.sold || 0)}</span>
+                  </div>
                 </div>
               </div>
             </div>
