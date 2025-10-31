@@ -4,7 +4,7 @@ import { useAuth } from './AuthContext';
 import '../styles/checkout.css';
 import '../styles/deliveryInfo.css';
 import successImage from '../images/assets/checked.png';
-import cashOnDeliveryImage from '../images/assets/cash.webp'; // Import cash on delivery image
+import cashOnDeliveryImage from '../images/assets/cash.webp';
 import { useNavigate } from "react-router-dom";
 import jsQR from 'jsqr';
 
@@ -22,7 +22,7 @@ const Checkout = () => {
   const [address, setAddress] = useState('');
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState(''); // 'bank' or 'cash'
+  const [paymentMethod, setPaymentMethod] = useState('');
   const [showPaymentOptions, setShowPaymentOptions] = useState(false);
 
   useEffect(() => {
@@ -31,6 +31,9 @@ const Checkout = () => {
       setCart(JSON.parse(storedCart));
     }
   }, []);
+
+  // Calculate total
+  const totalAmount = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0).toFixed(2);
 
   const handleProceedToDelivery = () => {
     const storedOrderData = localStorage.getItem("orderData");
@@ -48,11 +51,7 @@ const Checkout = () => {
         _id: cartItem.uniqueId,
       }));
 
-      const balance = cartItems
-        .reduce((acc, item) => acc + item.price * item.quantity, 0)
-        .toFixed(2);
-
-      const newOrderData = { amount: balance, orderDetails };
+      const newOrderData = { amount: totalAmount, orderDetails };
       localStorage.setItem("orderData", JSON.stringify(newOrderData));
       console.log("🛒 New Order Data Saved:", newOrderData);
     }
@@ -260,73 +259,127 @@ const Checkout = () => {
     setPaymentMethod(method);
     setShowPaymentOptions(false);
     if (method === 'cash') {
-      setImage(null); // Clear any uploaded image if switching to cash
+      setImage(null);
     }
   };
 
+  const goToStep = (step) => {
+    setCurrentStep(step);
+  };
+
   if (!cartItems || cartItems.length === 0) {
-    return <p>Your cart is empty.</p>;
+    return (
+      <div className="checkout-container">
+        <div className="empty-cart-message">
+          <h2>Your cart is empty</h2>
+          <p>Add some items to your cart to proceed with checkout</p>
+          <button onClick={() => navigate('/')} className="no-background-btn">
+            Continue Shopping
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="checkout-container">
+      {/* Progress Steps */}
+      <div className="checkout-progress">
+        <div className={`progress-step ${currentStep >= 1 ? 'active' : ''}`}>
+          <div className="step-number">1</div>
+          <span className="step-label">Order Review</span>
+        </div>
+        <div className={`progress-step ${currentStep >= 2 ? 'active' : ''}`}>
+          <div className="step-number">2</div>
+          <span className="step-label">Delivery Info</span>
+        </div>
+        <div className={`progress-step ${currentStep >= 3 ? 'active' : ''}`}>
+          <div className="step-number">3</div>
+          <span className="step-label">Payment</span>
+        </div>
+      </div>
+
       <h1 className="checkout-header">Checkout</h1>
 
+      {/* Step 1: Order Review */}
       {currentStep === 1 && (
-        <>
-          <div className="checkout-items">
-            {cartItems.map((item) => (
-              <div key={item.uniqueId} className="checkout-item-card">
-                <div className="checkout-item-details">
-                  <h2>{item.title}</h2>
-                  <p>
-                    {item.quantity} x ETB {item.price}
-                  </p>
-                  <p>Total: ETB {(item.price * item.quantity).toFixed(2)}</p>
+        <div className="checkout-step">
+          <div className="step-content">
+            <h2>Order Summary</h2>
+            
+            <div className="checkout-items">
+              {cartItems.map((item) => (
+                <div key={item.uniqueId} className="checkout-item-card">
+                  <div className="item-image">
+                    <img 
+                      src={item.image || '/placeholder.jpg'} 
+                      alt={item.title}
+                      onError={(e) => {
+                        e.target.src = '/placeholder.jpg';
+                      }}
+                    />
+                  </div>
+                  <div className="checkout-item-details">
+                    <h3>{item.title}</h3>
+                    <div className="item-meta">
+                      <span className="item-quantity">Qty: {item.quantity}</span>
+                      <span className="item-price">ETB {item.price}</span>
+                    </div>
+                    <p className="item-total">Total: ETB {(item.price * item.quantity).toFixed(2)}</p>
+                  </div>
                 </div>
+              ))}
+            </div>
+
+            <div className="order-summary">
+              <div className="summary-row">
+                <span>Subtotal:</span>
+                <span>ETB {totalAmount}</span>
               </div>
-            ))}
-          </div>
+              <div className="summary-row">
+                <span>Shipping:</span>
+                <span>FREE</span>
+              </div>
+              <div className="summary-row total">
+                <span>Total:</span>
+                <span>ETB {totalAmount}</span>
+              </div>
+            </div>
 
-          <div className="total-cost">
-            <h3>
-              Total: ETB
-              {cartItems
-                .reduce((acc, item) => acc + item.price * item.quantity, 0)
-                .toFixed(2)}
-            </h3>
+            <div className="step-actions">
+              <button 
+                onClick={handleProceedToDelivery} 
+                className="btn-primary"
+              >
+                Proceed to Delivery
+              </button>
+            </div>
           </div>
-
-          <div className="order-button">
-            <button onClick={() => { handleProceedToDelivery(); setCurrentStep(2); }} className="no-background-btn">
-              Proceed to Delivery Info
-            </button>
-          </div>
-        </>
+        </div>
       )}
 
+      {/* Step 2: Delivery Information */}
       {currentStep === 2 && (
-        <>
-          <div className="delivery-info-container">
+        <div className="checkout-step">
+          <div className="step-content">
             <h2>Delivery Information</h2>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const storedOrderData = localStorage.getItem("orderData");
-                const orderData = storedOrderData ? JSON.parse(storedOrderData) : {};
+            
+            <form className="delivery-form" onSubmit={(e) => {
+              e.preventDefault();
+              const storedOrderData = localStorage.getItem("orderData");
+              const orderData = storedOrderData ? JSON.parse(storedOrderData) : {};
 
-                const updatedOrderData = {
-                  ...orderData,
-                  phoneNumber,
-                  address,
-                };
+              const updatedOrderData = {
+                ...orderData,
+                phoneNumber,
+                address,
+              };
 
-                localStorage.setItem("orderData", JSON.stringify(updatedOrderData));
-                setCurrentStep(3);
-              }}
-            >
+              localStorage.setItem("orderData", JSON.stringify(updatedOrderData));
+              setCurrentStep(3);
+            }}>
               <div className="form-group">
-                <label htmlFor="phone">Phone Number</label>
+                <label htmlFor="phone">Phone Number *</label>
                 <input
                   type="tel"
                   id="phone"
@@ -334,82 +387,115 @@ const Checkout = () => {
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   placeholder="Enter your phone number"
                   required
+                  className="form-input"
                 />
               </div>
+              
               <div className="form-group">
-                <label htmlFor="address">Delivery Address</label>
+                <label htmlFor="address">Delivery Address *</label>
                 <textarea
                   id="address"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  placeholder="Enter your delivery address"
+                  placeholder="Enter your complete delivery address"
                   required
+                  className="form-textarea"
+                  rows="4"
                 />
               </div>
-              <div className="form-buttons">
-                <button type="button" onClick={() => setCurrentStep(1)} className="no-background-btn">
+
+              <div className="step-actions">
+                <button 
+                  type="button" 
+                  onClick={() => goToStep(1)}
+                  className="btn-secondary"
+                >
                   Back to Cart
                 </button>
-                <button type="submit" className="no-background-btn">Proceed to Payment</button>
+                <button 
+                  type="submit" 
+                  className="btn-primary"
+                  disabled={!phoneNumber || !address}
+                >
+                  Proceed to Payment
+                </button>
               </div>
             </form>
           </div>
-        </>
+        </div>
       )}
 
+      {/* Step 3: Payment */}
       {currentStep === 3 && (
-        <>
-          <div className="payment-method-container">
-            <h2>Select Payment Method</h2>
+        <div className="checkout-step">
+          <div className="step-content">
+            <h2>Payment Method</h2>
             
             {!paymentMethod ? (
-              <div className="payment-options">
+              <div className="payment-options-grid">
                 <div 
-                  className="payment-option-card"
+                  className={`payment-option ${paymentMethod === 'bank' ? 'selected' : ''}`}
                   onClick={() => handlePaymentMethodSelect('bank')}
                 >
-                  <h3>Bank Transfer</h3>
-                  <p>Upload payment screenshot</p>
+                  <div className="payment-icon">🏦</div>
+                  <div className="payment-info">
+                    <h3>Bank Transfer</h3>
+                    <p>Upload payment screenshot after transfer</p>
+                  </div>
                 </div>
+                
                 <div 
-                  className="payment-option-card"
+                  className={`payment-option ${paymentMethod === 'cash' ? 'selected' : ''}`}
                   onClick={() => handlePaymentMethodSelect('cash')}
                 >
-                  <h3>Cash On Delivery</h3>
-                  <p>Pay when you receive your order</p>
+                  <div className="payment-icon">💵</div>
+                  <div className="payment-info">
+                    <h3>Cash On Delivery</h3>
+                    <p>Pay when you receive your order</p>
+                  </div>
                   <img src={cashOnDeliveryImage} alt="Cash on delivery" className="cash-image" />
                 </div>
               </div>
             ) : (
               <div className="selected-payment-method">
-                <h3>Selected Payment Method: 
+                <div className="selected-method-header">
+                  <h3>Selected Payment Method</h3>
+                  <button 
+                    onClick={() => setPaymentMethod('')}
+                    className="change-method-btn"
+                  >
+                    Change
+                  </button>
+                </div>
+                <div className="method-details">
                   <span className="method-name">
-                    {paymentMethod === 'bank' ? 'Bank Transfer' : 'Cash On Delivery'}
+                    {paymentMethod === 'bank' ? '🏦 Bank Transfer' : '💵 Cash On Delivery'}
                   </span>
-                </h3>
-                <button 
-                  onClick={() => setPaymentMethod('')}
-                  className="change-method-btn"
-                >
-                  Change Method
-                </button>
+                </div>
               </div>
             )}
 
             {paymentMethod === 'bank' && (
-              <div className="file-upload">
-                <label htmlFor="payment-screenshot">Upload Payment Screenshot</label>
-                <input
-                  type="file"
-                  id="payment-screenshot"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  required={paymentMethod === 'bank'}
-                />
+              <div className="file-upload-section">
+                <h4>Upload Payment Screenshot</h4>
+                <div className="file-upload-area">
+                  <input
+                    type="file"
+                    id="payment-screenshot"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="file-input"
+                  />
+                  <label htmlFor="payment-screenshot" className="file-upload-label">
+                    <div className="upload-icon">📁</div>
+                    <span>Choose File</span>
+                    {imageName && <span className="file-name">{imageName}</span>}
+                  </label>
+                </div>
                 {image && (
                   <div className="image-preview" onClick={openModal}>
                     <img src={image} alt="Payment Screenshot" />
-                    <span className="click-hint">Click to view image clearly</span>
+                    <span className="click-hint">Click to view full image</span>
                   </div>
                 )}
               </div>
@@ -417,49 +503,94 @@ const Checkout = () => {
 
             {paymentMethod === 'cash' && (
               <div className="cash-method-info">
-                <img src={cashOnDeliveryImage} alt="Cash on delivery" className="cash-preview-image" />
-                <p>You will pay when you receive your order</p>
+                <div className="cash-info-card">
+                  <img src={cashOnDeliveryImage} alt="Cash on delivery" className="cash-preview-image" />
+                  <div className="cash-info-text">
+                    <h4>Cash On Delivery</h4>
+                    <p>You will pay the exact amount when you receive your order</p>
+                    <p className="cash-note">Our delivery agent will collect the payment upon delivery</p>
+                  </div>
+                </div>
               </div>
             )}
 
-            {error && <p className="error-message">{error}</p>}
+            {error && (
+              <div className="error-message">
+                <span>⚠️</span>
+                {error}
+              </div>
+            )}
 
-            <div className="order-button">
+            <div className="order-summary-final">
+              <h4>Order Summary</h4>
+              <div className="summary-row">
+                <span>Items ({cartItems.length}):</span>
+                <span>ETB {totalAmount}</span>
+              </div>
+              <div className="summary-row">
+                <span>Shipping:</span>
+                <span>FREE</span>
+              </div>
+              <div className="summary-row total">
+                <span>Total Amount:</span>
+                <span>ETB {totalAmount}</span>
+              </div>
+            </div>
+
+            <div className="step-actions">
+              <button 
+                type="button"
+                onClick={() => goToStep(2)}
+                className="btn-secondary"
+              >
+                Back
+              </button>
               <button 
                 onClick={handleOrderSubmit} 
-                className="no-background-btn"
-                disabled={!paymentMethod || (paymentMethod === 'bank' && !image)}
+                className="btn-primary"
+                disabled={!paymentMethod || (paymentMethod === 'bank' && !image) || !phoneNumber || !address}
               >
-                Complete Order
+                {isLoading ? 'Processing...' : 'Complete Order'}
               </button>
             </div>
-          </div>
-        </>
-      )}
-
-      {isModalOpen && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <img src={image} alt="Payment Screenshot" className="modal-image" />
-            <button className="close-modal" onClick={closeModal}>
-              Close
-            </button>
           </div>
         </div>
       )}
 
+      {/* Image Preview Modal */}
+      {isModalOpen && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="close-modal" onClick={closeModal}>
+              ×
+            </button>
+            <img src={image} alt="Payment Screenshot" className="modal-image" />
+          </div>
+        </div>
+      )}
+
+      {/* Order Success Popup */}
       {orderSubmitted && (
         <div className="order-success-popup">
           <div className="popup-content">
             <img src={successImage} alt="Success Icon" className="success-icon" />
-            <h2>Your order has been submitted successfully!</h2>
+            <h2>Order Submitted Successfully!</h2>
+            <p>Your order has been received and is being processed</p>
+            <div className="loading-bar">
+              <div className="loading-progress"></div>
+            </div>
+            <p className="redirect-text">Redirecting to homepage...</p>
           </div>
         </div>
       )}
 
+      {/* Loading Overlay */}
       {isLoading && (
-        <div className="loading-modal">
-          <div className="loading-spinner"></div>
+        <div className="loading-overlay">
+          <div className="loading-content">
+            <div className="loading-spinner"></div>
+            <p>Processing your order...</p>
+          </div>
         </div>
       )}
     </div>
