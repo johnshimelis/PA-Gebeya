@@ -237,7 +237,7 @@ const Discount = () => {
                     <span className="discount-calculated-price">ETB {calculatedPrice}</span>
                     <span className="discount-original-price">ETB {originalPrice}</span>
                   </div>
-                  <div className="discount-sold-info">{formatSoldCount(deal.sold)}</div>
+               
                 </div>
               </div>
             </div>
