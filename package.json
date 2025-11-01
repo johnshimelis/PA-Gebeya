@@ -1,7 +1,8 @@
 {
-  "name": "pa-gebeya",
-  "version": "0.1.0",
+  "name": "pegebeya",
+  "version": "1.0.0",
   "private": true,
+  "homepage": "https://www.pegebeya.com",
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@popperjs/core": "^2.11.8",
@@ -28,9 +29,10 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "cross-env CI=false react-scripts build",
+    "build": "cross-env CI=false GENERATE_SOURCEMAP=false react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "build:prod": "cross-env NODE_ENV=production CI=false GENERATE_SOURCEMAP=false react-scripts build"
   },
   "eslintConfig": {
     "extends": [
