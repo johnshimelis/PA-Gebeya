@@ -1,3 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /private/
+Disallow: /admin/
+
+# Sitemaps
 Sitemap: https://www.pegebeya.com/sitemap.xml

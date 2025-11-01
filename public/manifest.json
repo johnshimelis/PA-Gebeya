@@ -1,7 +1,7 @@
 {
   "short_name": "Pegebeya",
   "name": "Pegebeya - Best Online Marketplace in Ethiopia",
-  "description": "Ethiopia's leading online marketplace for affordable shopping. Explore a wide range of products and enjoy seamless online purchases.",
+  "description": "Ethiopia's leading online marketplace for affordable shopping",
   "icons": [
     {
       "src": "favicon.ico",
@@ -9,13 +9,13 @@
       "type": "image/x-icon"
     },
     {
-      "src": "images/logo.png",
+      "src": "logo192.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any maskable"
     },
     {
-      "src": "images/logo.png",
+      "src": "logo512.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
@@ -25,7 +25,6 @@
   "display": "standalone",
   "theme_color": "#000000",
   "background_color": "#ffffff",
-  "orientation": "portrait-primary",
   "scope": "/",
-  "categories": ["shopping", "ecommerce", "business"]
+  "categories": ["shopping", "ecommerce"]
 }
